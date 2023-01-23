@@ -16,7 +16,7 @@
 // Stores the secret key for encryption and the seed of the pseudorandom number generator
 typedef struct CryptoContext
 {
-    uint64_t xcc20_key;
+    uint8_t xcc20_key[crypto_secretstream_xchacha20poly1305_KEYBYTES];
     uint64_t bbs_seed;
 } CryptoContext;
 
