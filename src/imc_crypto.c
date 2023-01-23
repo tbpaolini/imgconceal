@@ -36,7 +36,7 @@ int imc_crypto_context_create(char *password, CryptoContext **out)
         IMC_MEMLIMIT,
         crypto_pwhash_ALG_ARGON2ID13
     );
-    if (status < 0) return IMC_ERR_INVALID_PASS;
+    if (status < 0) return IMC_ERR_NO_MEMORY;
 
     memcpy(&context->xcc20_key, &output[0], sizeof(context->xcc20_key));
 
@@ -56,5 +56,5 @@ int imc_crypto_context_create(char *password, CryptoContext **out)
     sodium_munlock(output, sizeof(output));
 
     *out = context;
-    return 0;
+    return IMC_SUCCESS;
 }
