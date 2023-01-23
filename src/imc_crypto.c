@@ -7,6 +7,10 @@
 static const char IMC_SALT[crypto_pwhash_SALTBYTES+1] = "imageconceal2023";
 static bool IS_LITTLE_ENDIAN = true;
 
+static const uint64_t PRIME_1 = 2147483647UL;
+static const uint64_t PRIME_2 = 4294967291UL;
+static const uint64_t BBS_MOD = PRIME_1 * PRIME_2;
+
 // Generate a secret key from a password
 int imc_crypto_context_create(char *password, CryptoContext **out)
 {
@@ -26,32 +30,39 @@ int imc_crypto_context_create(char *password, CryptoContext **out)
     uint8_t output[out_len];
     sodium_mlock(output, sizeof(output));
     
-    int status = crypto_pwhash(
-        (uint8_t * const)&output,
-        sizeof(output),
-        password,
-        strlen(password),
-        IMC_SALT,
-        IMC_OPSLIMIT,
-        IMC_MEMLIMIT,
-        crypto_pwhash_ALG_ARGON2ID13
-    );
-    if (status < 0) return IMC_ERR_NO_MEMORY;
-
-    memcpy(&context->xcc20_key, &output[0], sizeof(context->xcc20_key));
-
-    if (IS_LITTLE_ENDIAN)
+    do
     {
-        memcpy(&context->bbs_seed, &output[sizeof(context->xcc20_key)], sizeof(context->bbs_seed));
-    }
-    else
-    {
-        uint8_t *seed_buffer = (uint8_t *)(&context->bbs_seed);
-        for (size_t i = 0; i < sizeof(context->bbs_seed); i++)
+        int status = crypto_pwhash(
+            (uint8_t * const)&output,
+            sizeof(output),
+            password,
+            strlen(password),
+            IMC_SALT,
+            IMC_OPSLIMIT,
+            IMC_MEMLIMIT,
+            crypto_pwhash_ALG_ARGON2ID13
+        );
+        if (status < 0) return IMC_ERR_NO_MEMORY;
+
+        memcpy(&context->xcc20_key, &output[0], sizeof(context->xcc20_key));
+
+        if (IS_LITTLE_ENDIAN)
         {
-            seed_buffer[i] = output[out_len - 1 - i];
+            memcpy(&context->bbs_seed, &output[sizeof(context->xcc20_key)], sizeof(context->bbs_seed));
         }
-    }
+        else
+        {
+            uint8_t *seed_buffer = (uint8_t *)(&context->bbs_seed);
+            for (size_t i = 0; i < sizeof(context->bbs_seed); i++)
+            {
+                seed_buffer[i] = output[out_len - 1 - i];
+            }
+        }
+    } while (
+           context->bbs_seed % PRIME_1 == 0
+        || context->bbs_seed % PRIME_2 == 0
+        || context->bbs_seed <= 1
+    );
     
     sodium_munlock(output, sizeof(output));
 
