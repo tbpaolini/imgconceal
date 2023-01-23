@@ -23,4 +23,8 @@ typedef struct CryptoContext
 // Generate a secret key from a password
 int imc_crypto_context_create(char *password, CryptoContext **out);
 
+// Pseudorandom number generator using the Blum Blum Shub algorithm
+// It writes a given amount of bytes to the output, while taking into account the endianness of the system.
+void imc_crypto_prng(CryptoContext *state, size_t num_bytes, uint8_t *output);
+
 #endif  // _IMC_CRYPTO_H

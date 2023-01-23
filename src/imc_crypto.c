@@ -80,3 +80,29 @@ int imc_crypto_context_create(char *password, CryptoContext **out)
 
     return IMC_SUCCESS;
 }
+
+// Pseudorandom number generator using the Blum Blum Shub algorithm
+// It writes a given amount of bytes to the output, while taking into account the endianness of the system.
+void imc_crypto_prng(CryptoContext *state, size_t num_bytes, uint8_t *output)
+{
+    static const uint8_t bit[8] = {1, 2, 4, 8, 16, 32, 64, 128};
+    
+    for (size_t i = 0; i < num_bytes; i++)
+    {
+        uint8_t byte = 0;
+        for (size_t j = 0; j < 8; j++)
+        {
+            state->bbs_seed = (state->bbs_seed * state->bbs_seed) % BBS_MOD;
+            if (state->bbs_seed & 1) byte |= bit[j];
+        }
+
+        if (IS_LITTLE_ENDIAN)
+        {
+            output[i] = byte;
+        }
+        else
+        {
+            output[num_bytes - 1 - i] = byte;
+        }
+    }
+}
