@@ -9,11 +9,14 @@ static const char IMC_SALT[crypto_pwhash_SALTBYTES+1] = "imageconceal2023";
 static bool IS_LITTLE_ENDIAN = true;
 
 // Parameters of the Blum Blum Shub algorithm (pseudorandom number generator)
-// The primes are congruent to 3 (mod 4), and fit a 16-bit unsigned integer.
+// The primes are: 
+//   - congruent to 3 (mod 4)  (have a remainder of 3 when divided by 4)
+//   - are safe (can be written as 2p + 1, where p is also prime)
+//   - fit a 16-bit unsigned integer
 // The seed will be chosen in order to fit a 32-bit unsigned integer,
 // which ensures that it won't overflow when squared.
-static const uint64_t PRIME_1 = 65479UL;
-static const uint64_t PRIME_2 = 65519UL;
+static const uint64_t PRIME_1 = 65267UL;
+static const uint64_t PRIME_2 = 65147UL;
 static const uint64_t BBS_MOD = PRIME_1 * PRIME_2;
 
 // Generate a secret key from a password
