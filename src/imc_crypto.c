@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 #include <sodium.h>
 #include "imc_crypto.h"
 
@@ -119,5 +120,40 @@ void imc_crypto_prng(CryptoContext *state, size_t num_bytes, uint8_t *output)
         {
             output[num_bytes - 1 - i] = byte;
         }
+    }
+}
+
+// Randomize the order of the elements in an array of pointers
+void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_elements)
+{
+    if (num_elements <= 1) return;
+
+    // Get the least amount of bytes needed to represent the amount of elements
+    const size_t num_bits = ceil( log2( (double)(num_elements + 1UL) ) );
+    const size_t num_bytes = (num_bits % 8 == 0) ? (num_bits / 8) : (num_bits / 8) + 1;
+    
+    // Ensure that the random values will be evenly distributed in the range of '0' to 'num_elements - 1'
+    const size_t max_value = (1 << (num_bytes * 8)) - 1;
+    const size_t cutoff = max_value - (max_value % num_elements);
+
+    // Iterate over all array's elements and swap them around
+    for (size_t i = 0; i < num_elements; i++)
+    {
+        // Generate a pseudorandom number
+        size_t random_num;
+        do
+        {
+            random_num = 0;
+            imc_crypto_prng(state, num_bytes, (uint8_t *)&random_num);
+        } while (random_num > cutoff);
+
+        // A pseudorandom index that falls inside the array
+        size_t new_i = random_num % num_elements;
+        if (new_i == i) continue;
+
+        // Swap the current element with the element on the element on the random index
+        array[i] ^= array[new_i];
+        array[new_i] ^= array[i];
+        array[i] ^= array[new_i];
     }
 }

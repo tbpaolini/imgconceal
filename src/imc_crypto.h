@@ -27,4 +27,7 @@ int imc_crypto_context_create(char *password, CryptoContext **out);
 // It writes a given amount of bytes to the output, while taking into account the endianness of the system.
 void imc_crypto_prng(CryptoContext *state, size_t num_bytes, uint8_t *output);
 
+// Randomize the order of the elements in an array of pointers
+void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_elements);
+
 #endif  // _IMC_CRYPTO_H
