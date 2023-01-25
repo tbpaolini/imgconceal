@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <locale.h>
-#include <sodium.h>
+#include "imc_includes.h"
 
 int main(int argc, char *argv[])
 {

@@ -1,8 +1,7 @@
 #ifndef _IMC_CRYPTO_H
 #define _IMC_CRYPTO_H
 
-#include <stdint.h>
-#include <sodium.h>
+#include "imc_includes.h"
 
 // Password hashing parameters
 #define IMC_OPSLIMIT 3          // Amount of operations

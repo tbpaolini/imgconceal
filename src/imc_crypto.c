@@ -1,9 +1,4 @@
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include <math.h>
-#include <sodium.h>
-#include "imc_crypto.h"
+#include "imc_includes.h"
 
 // Parameters for generating a secret key
 static const char IMC_SALT[crypto_pwhash_SALTBYTES+1] = "imageconceal2023";
