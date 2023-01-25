@@ -15,7 +15,7 @@ int imc_jpeg_open_carrier(char *path, DataCarrier **output)
     
     // Read the DCT coefficients from the image
     jpeg_stdio_src(jpeg_obj, jpeg_file);
-    jpeg_read_header(jpeg_obj, TRUE);
+    jpeg_read_header(jpeg_obj, true);
     jvirt_barray_ptr *jpeg_dct = jpeg_read_coefficients(jpeg_obj);
 
     // Calculate the total amount of DCT coeficients
