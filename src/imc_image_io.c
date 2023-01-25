@@ -6,12 +6,12 @@ int imc_jpeg_open_carrier(char *path, DataCarrier **output)
     // Open the image for reading
     FILE *jpeg_file = fopen(path, "rb");
     if (!jpeg_file) return -1;
-    struct jpeg_decompress_struct jpeg_obj;
-    jpeg_create_decompress(&jpeg_obj);
     
-    // Use the default error handler
+    // Initialize the JPEG object
+    struct jpeg_decompress_struct jpeg_obj;
     struct jpeg_error_mgr jpeg_err;
-    jpeg_obj.err = jpeg_std_error(&jpeg_err);
+    jpeg_obj.err = jpeg_std_error(&jpeg_err);   // Use the default error handler
+    jpeg_create_decompress(&jpeg_obj);
     
     // Read the DCT coefficients from the image
     jpeg_stdio_src(&jpeg_obj, jpeg_file);
