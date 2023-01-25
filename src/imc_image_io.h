@@ -10,4 +10,7 @@ typedef struct DataCarrier
     uint8_t *bytes;
 } DataCarrier;
 
+// Get bytes of a JPEG image that will carry the hidden data
+int imc_jpeg_open_carrier(char *path, DataCarrier **output);
+
 #endif  // _IMC_IMAGE_IO_H
