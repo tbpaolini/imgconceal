@@ -17,5 +17,6 @@
 
 // First party libraries
 #include "imc_crypto.h"
+#include "imc_image_io.h"
 
 #endif  // _IMC_INCLUDES_H
