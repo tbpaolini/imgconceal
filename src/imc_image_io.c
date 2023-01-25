@@ -8,21 +8,21 @@ int imc_jpeg_open_carrier(char *path, DataCarrier **output)
     if (!jpeg_file) return -1;
     
     // Initialize the JPEG object
-    struct jpeg_decompress_struct jpeg_obj;
+    struct jpeg_decompress_struct *jpeg_obj = malloc(sizeof(struct jpeg_decompress_struct));
     struct jpeg_error_mgr jpeg_err;
-    jpeg_obj.err = jpeg_std_error(&jpeg_err);   // Use the default error handler
-    jpeg_create_decompress(&jpeg_obj);
+    jpeg_obj->err = jpeg_std_error(&jpeg_err);   // Use the default error handler
+    jpeg_create_decompress(jpeg_obj);
     
     // Read the DCT coefficients from the image
-    jpeg_stdio_src(&jpeg_obj, jpeg_file);
-    jpeg_read_header(&jpeg_obj, TRUE);
-    jvirt_barray_ptr *jpeg_dct = jpeg_read_coefficients(&jpeg_obj);
+    jpeg_stdio_src(jpeg_obj, jpeg_file);
+    jpeg_read_header(jpeg_obj, TRUE);
+    jvirt_barray_ptr *jpeg_dct = jpeg_read_coefficients(jpeg_obj);
 
     // Calculate the total amount of DCT coeficients
     size_t dct_count = 0;
-    for (int comp = 0; comp < jpeg_obj.num_components; comp++)
+    for (int comp = 0; comp < jpeg_obj->num_components; comp++)
     {
-        dct_count += jpeg_obj.comp_info[comp].height_in_blocks * jpeg_obj.comp_info[comp].width_in_blocks * DCTSIZE2;
+        dct_count += jpeg_obj->comp_info[comp].height_in_blocks * jpeg_obj->comp_info[comp].width_in_blocks * DCTSIZE2;
     }
 
     // Estimate the size of the array of carrier values and allocate it
@@ -32,14 +32,14 @@ int imc_jpeg_open_carrier(char *path, DataCarrier **output)
     size_t carrier_index = 0;
     
     // Iterate over the color components
-    for (int comp = 0; comp < jpeg_obj.num_components; comp++)
+    for (int comp = 0; comp < jpeg_obj->num_components; comp++)
     {
         // Iterate row by row from from top to bottom
-        for (JDIMENSION y = 0; y < jpeg_obj.comp_info[comp].height_in_blocks; y++)
+        for (JDIMENSION y = 0; y < jpeg_obj->comp_info[comp].height_in_blocks; y++)
         {
             // Array of DCT coefficients for the current color component
-            JBLOCKARRAY coef_array = jpeg_obj.mem->access_virt_barray(
-                (j_common_ptr)&jpeg_obj,    // Pointer to the JPEG object
+            JBLOCKARRAY coef_array = jpeg_obj->mem->access_virt_barray(
+                (j_common_ptr)jpeg_obj,     // Pointer to the JPEG object
                 jpeg_dct[comp],             // DCT coefficients for the current color component
                 y,                          // The current row of DCT blocks on the image
                 1,                          // Read one row of DCT blocks at a time
@@ -47,7 +47,7 @@ int imc_jpeg_open_carrier(char *path, DataCarrier **output)
             );
 
             // Iterate column by column from left to right
-            for (JDIMENSION x = 0; x < jpeg_obj.comp_info[comp].width_in_blocks; x++)
+            for (JDIMENSION x = 0; x < jpeg_obj->comp_info[comp].width_in_blocks; x++)
             {
                 // Iterate over the 63 AC coefficients (the DC coefficient is skipped)
                 for (JCOEF i = 1; i < DCTSIZE2; i++)
