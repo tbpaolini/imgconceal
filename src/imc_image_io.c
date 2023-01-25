@@ -26,7 +26,7 @@ int imc_jpeg_open_carrier(char *path, DataCarrier **output)
     }
 
     // Estimate the size of the array of carrier values and allocate it
-    size_t carrier_capacity = dct_count / 16;
+    size_t carrier_capacity = dct_count / 8;
     if (carrier_capacity == 0) carrier_capacity = 1;
     uint8_t **carrier_ptr = imc_calloc(carrier_capacity, sizeof(uint8_t *));
     size_t carrier_index = 0;
@@ -63,8 +63,8 @@ int imc_jpeg_open_carrier(char *path, DataCarrier **output)
                     const JCOEF coef = coef_array[0][x][i];
                     uint8_t *const coef_bytes = (uint8_t *)(&coef_array[y][x][i]);
 
-                    // Only the AC coefficients that are greater than 1 are used as carriers
-                    if (coef > 1)
+                    // Only the AC coefficients that are not 0 or 1 are used as carriers
+                    if (coef != 0 && coef != 1)
                     {
                         carrier_ptr[carrier_index++] = IS_LITTLE_ENDIAN ? &coef_bytes[0] : &coef_bytes[sizeof(JCOEF)-1];
                     }
