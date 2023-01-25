@@ -1,8 +1,7 @@
 #include "imc_includes.h"
 
-// Parameters for generating a secret key
+// Parameter for generating a secret key
 static const char IMC_SALT[crypto_pwhash_SALTBYTES+1] = "imageconceal2023";
-static bool IS_LITTLE_ENDIAN = true;
 
 // Parameters of the Blum Blum Shub algorithm (pseudorandom number generator)
 // The primes are: 
@@ -18,16 +17,6 @@ static const uint64_t BBS_MOD = PRIME_1 * PRIME_2;
 // Generate a secret key from a password
 int imc_crypto_context_create(char *password, CryptoContext **out)
 {
-    // Verify whether the system is little or big endian
-    static bool endianness_test = false;
-    if (!endianness_test)
-    {
-        const uint16_t val = 1;
-        const uint8_t *bytes = (uint8_t *)(&val);
-        IS_LITTLE_ENDIAN = bytes[0] == 1 ? true : false;
-        endianness_test = true;
-    }
-    
     // Storage for the secret key and the seed of the number generator
     CryptoContext *context = sodium_malloc(sizeof(CryptoContext));
     sodium_memzero(context, sizeof(CryptoContext));
