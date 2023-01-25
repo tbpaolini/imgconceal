@@ -8,7 +8,7 @@ int imc_jpeg_open_carrier(char *path, DataCarrier **output)
     if (!jpeg_file) return -1;
     
     // Initialize the JPEG object
-    struct jpeg_decompress_struct *jpeg_obj = malloc(sizeof(struct jpeg_decompress_struct));
+    struct jpeg_decompress_struct *jpeg_obj = imc_malloc(sizeof(struct jpeg_decompress_struct));
     struct jpeg_error_mgr jpeg_err;
     jpeg_obj->err = jpeg_std_error(&jpeg_err);   // Use the default error handler
     jpeg_create_decompress(jpeg_obj);
@@ -28,7 +28,7 @@ int imc_jpeg_open_carrier(char *path, DataCarrier **output)
     // Estimate the size of the array of carrier values and allocate it
     size_t carrier_capacity = dct_count / 16;
     if (carrier_capacity == 0) carrier_capacity = 1;
-    JCOEFPTR *carrier_ptr = calloc(carrier_capacity, sizeof(JCOEFPTR));
+    JCOEFPTR *carrier_ptr = imc_calloc(carrier_capacity, sizeof(JCOEFPTR));
     size_t carrier_index = 0;
     
     // Iterate over the color components
@@ -56,7 +56,7 @@ int imc_jpeg_open_carrier(char *path, DataCarrier **output)
                     if (carrier_index == carrier_capacity)
                     {
                         carrier_capacity *= 2;
-                        carrier_ptr = realloc(carrier_ptr, carrier_capacity * sizeof(JCOEFPTR));
+                        carrier_ptr = imc_realloc(carrier_ptr, carrier_capacity * sizeof(JCOEFPTR));
                     }
 
                     // The current coefficient
@@ -74,5 +74,5 @@ int imc_jpeg_open_carrier(char *path, DataCarrier **output)
     }
     
     // Free the unusued space of the array
-    carrier_ptr = realloc(carrier_ptr, carrier_index);
+    carrier_ptr = imc_realloc(carrier_ptr, carrier_index);
 }
