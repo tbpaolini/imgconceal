@@ -75,4 +75,12 @@ int imc_jpeg_open_carrier(char *path, DataCarrier **output)
     
     // Free the unusued space of the array
     carrier_ptr = imc_realloc(carrier_ptr, carrier_index);
+
+    // Store the output
+    *output = imc_malloc(sizeof(DataCarrier));
+    **output = (DataCarrier){
+        .bytes = carrier_ptr,       // Array of pointers to bytes
+        .lenght = carrier_index,    // Total amount of pointers to bytes
+        .object.jpeg = jpeg_obj,    // Image handler
+    };
 }
