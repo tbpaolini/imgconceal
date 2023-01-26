@@ -15,6 +15,7 @@ typedef struct CarrierImage
     carrier_ptr_t *carrier; // Array of pointers to the carrier bytes of the image
     size_t carrier_lenght;  // Amount of carrier bytes
     void* object;           // Pointer to the handler that should be passed to the image processing functions
+    CryptoContext *crypto;  // Secret parameters generated from the password
     enum ImageType type;    // Format of the image
 } CarrierImage;
 

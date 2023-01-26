@@ -20,7 +20,7 @@ typedef struct CryptoContext
 } CryptoContext;
 
 // Generate a secret key from a password
-int imc_crypto_context_create(char *password, CryptoContext **out);
+int imc_crypto_context_create(const char *password, CryptoContext **out);
 
 // Pseudorandom number generator using the Blum Blum Shub algorithm
 // It writes a given amount of bytes to the output, while taking into account the endianness of the system.

@@ -40,6 +40,9 @@ int imc_image_init(const char *path, const char *password, CarrierImage **output
     CarrierImage *carrier_img = imc_malloc(sizeof(CarrierImage));
     carrier_img->type = img_type;
 
+    // Generate a secret key, and seed the number generator
+    imc_crypto_context_create(password, &carrier_img->crypto);
+
     // Get the carrier bytes from the image
     switch (img_type)
     {
