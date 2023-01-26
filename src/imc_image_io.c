@@ -11,9 +11,10 @@ int imc_image_init(const char *path, const char *password, CarrierImage **output
     static const uint8_t PNG_MAGIC[]  = {0x89, 0x50, 0x4E, 0x47};
 
     // Get the file signature
-    uint8_t img_marker[4];
-    size_t read_count = fread(img_marker, 1, 4, image);
-    if (read_count < 4)
+    const size_t sig_size = 4;
+    uint8_t img_marker[sig_size];
+    size_t read_count = fread(img_marker, 1, sig_size, image);
+    if (read_count != sig_size)
     {
         fclose(image);
         return -2;
@@ -40,6 +41,7 @@ int imc_image_init(const char *path, const char *password, CarrierImage **output
     // Holds the information needed for hiding data in the image
     CarrierImage *carrier_img = imc_malloc(sizeof(CarrierImage));
     carrier_img->type = img_type;
+    carrier_img->file = image;
 
     // Generate a secret key, and seed the number generator
     imc_crypto_context_create(password, &carrier_img->crypto);
@@ -66,8 +68,8 @@ void imc_jpeg_open_carrier(CarrierImage *carrier_img)
     // Open the image for reading
     FILE *jpeg_file = carrier_img->file;
     struct jpeg_decompress_struct *jpeg_obj = imc_malloc(sizeof(struct jpeg_decompress_struct));
-    struct jpeg_error_mgr jpeg_err;
-    jpeg_obj->err = jpeg_std_error(&jpeg_err);   // Use the default error handler
+    struct jpeg_error_mgr *jpeg_err = imc_malloc(sizeof(struct jpeg_error_mgr));
+    jpeg_obj->err = jpeg_std_error(jpeg_err);   // Use the default error handler
     jpeg_create_decompress(jpeg_obj);
     
     // Read the DCT coefficients from the image
