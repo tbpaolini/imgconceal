@@ -17,6 +17,8 @@ typedef struct CarrierImage
     void* object;           // Pointer to the handler that should be passed to the image processing functions
     CryptoContext *crypto;  // Secret parameters generated from the password
     enum ImageType type;    // Format of the image
+    void **heap;            // Array of pointers to other heap allocated memory for this image
+    size_t heap_lenght;     // Amount of elements on the 'heap' array
 } CarrierImage;
 
 // Initialize an image for hiding data in it

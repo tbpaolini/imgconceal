@@ -39,7 +39,7 @@ int imc_image_init(const char *path, const char *password, CarrierImage **output
     }
 
     // Holds the information needed for hiding data in the image
-    CarrierImage *carrier_img = imc_malloc(sizeof(CarrierImage));
+    CarrierImage *carrier_img = imc_calloc(1, sizeof(CarrierImage));
     carrier_img->type = img_type;
     carrier_img->file = image;
 
@@ -139,4 +139,9 @@ void imc_jpeg_open_carrier(CarrierImage *carrier_img)
     carrier_img->carrier = carrier_ptr;             // Array of pointers to bytes
     carrier_img->carrier_lenght = carrier_index;    // Total amount of pointers to bytes
     carrier_img->object = jpeg_obj;                 // Image handler
+    
+    // Store the additional heap allocated memory for the purpose of garbage collection
+    carrier_img->heap = imc_malloc(sizeof(void *));
+    carrier_img->heap[0] = (void *)jpeg_err;
+    carrier_img->heap_lenght = 1;
 }
