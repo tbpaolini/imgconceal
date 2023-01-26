@@ -87,7 +87,7 @@ void imc_jpeg_open_carrier(CarrierImage *carrier_img)
     // Estimate the size of the array of carrier values and allocate it
     size_t carrier_capacity = dct_count / 8;
     if (carrier_capacity == 0) carrier_capacity = 1;
-    uint8_t **carrier_ptr = imc_calloc(carrier_capacity, sizeof(uint8_t *));
+    carrier_ptr_t *carrier_ptr = imc_calloc(carrier_capacity, sizeof(uint8_t *));
     size_t carrier_index = 0;
     
     // Iterate over the color components
@@ -144,4 +144,42 @@ void imc_jpeg_open_carrier(CarrierImage *carrier_img)
     carrier_img->heap = imc_malloc(sizeof(void *));
     carrier_img->heap[0] = (void *)jpeg_err;
     carrier_img->heap_lenght = 1;
+}
+
+// Free the memory of the data structures used for data hiding
+void imc_steg_finish(CarrierImage *carrier_img)
+{
+    switch (carrier_img->type)
+    {
+        case IMC_JPEG:
+            imc_jpeg_close_carrier(carrier_img);
+            break;
+        
+        case IMC_PNG:
+            /* code */
+            break;
+    }
+    
+    fclose(carrier_img->file);
+    imc_crypto_context_destroy(carrier_img->crypto);
+    imc_free(carrier_img);
+}
+
+// Free the memory of the array of heap pointers in a CarrierImage struct
+static void __carrier_heap_free(CarrierImage *carrier_img)
+{
+    for (size_t i = 0; i < carrier_img->heap_lenght; i++)
+    {
+        imc_free(carrier_img->heap[i]);
+    }
+    free(carrier_img->heap);
+}
+
+// Close the JPEG object and free the memory associated to it
+void imc_jpeg_close_carrier(CarrierImage *carrier_img)
+{
+    jpeg_destroy((j_common_ptr)carrier_img->object);
+    imc_free(carrier_img->carrier);
+    imc_free(carrier_img->object);
+    __carrier_heap_free(carrier_img);
 }

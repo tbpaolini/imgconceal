@@ -27,4 +27,13 @@ int imc_steg_init(const char *path, const char *password, CarrierImage **output)
 // Get bytes of a JPEG image that will carry the hidden data
 void imc_jpeg_open_carrier(CarrierImage *output);
 
+// Free the memory of the data structures used for data hiding
+void imc_steg_finish(CarrierImage *carrier_img);
+
+// Free the memory of the array of heap pointers in a CarrierImage struct
+static void __carrier_heap_free(CarrierImage *carrier_img);
+
+// Close the JPEG object and free the memory associated to it
+void imc_jpeg_close_carrier(CarrierImage *carrier_img);
+
 #endif  // _IMC_IMAGE_IO_H
