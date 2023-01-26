@@ -19,7 +19,7 @@ typedef struct CryptoContext
     uint64_t bbs_seed;
 } CryptoContext;
 
-// Generate a secret key from a password
+// Generate cryptographic secrets key from a password
 int imc_crypto_context_create(const char *password, CryptoContext **out);
 
 // Pseudorandom number generator using the Blum Blum Shub algorithm

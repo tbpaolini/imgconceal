@@ -14,7 +14,7 @@ static const uint64_t PRIME_1 = 65267UL;
 static const uint64_t PRIME_2 = 65147UL;
 static const uint64_t BBS_MOD = PRIME_1 * PRIME_2;
 
-// Generate a secret key from a password
+// Generate cryptographic secrets key from a password
 int imc_crypto_context_create(const char *password, CryptoContext **out)
 {
     // Storage for the secret key and the seed of the number generator
