@@ -4,7 +4,7 @@
 int imc_steg_init(const char *path, const char *password, CarrierImage **output)
 {
     FILE *image = fopen(path, "rb");
-    if (image == NULL) return -1;
+    if (image == NULL) return IMC_ERR_FILE_NOT_FOUND;
 
     // The file should start with one of these sequences of bytes
     static const uint8_t JPEG_MAGIC[] = {0xFF, 0xD8, 0xFF};
@@ -17,7 +17,7 @@ int imc_steg_init(const char *path, const char *password, CarrierImage **output)
     if (read_count != sig_size)
     {
         fclose(image);
-        return -2;
+        return IMC_ERR_FILE_INVALID;
     }
     fseek(image, 0, SEEK_SET);
 
@@ -35,7 +35,7 @@ int imc_steg_init(const char *path, const char *password, CarrierImage **output)
     else
     {
         fclose(image);
-        return -2;
+        return IMC_ERR_FILE_INVALID;
     }
 
     // Holds the information needed for hiding data in the image
@@ -59,7 +59,7 @@ int imc_steg_init(const char *path, const char *password, CarrierImage **output)
     }
     
     *output = carrier_img;
-    return 0;
+    return IMC_SUCCESS;
 }
 
 // Get bytes of a JPEG image that will carry the hidden data
