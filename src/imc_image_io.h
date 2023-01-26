@@ -22,7 +22,7 @@ typedef struct CarrierImage
 } CarrierImage;
 
 // Initialize an image for hiding data in it
-int imc_image_init(const char *path, const char *password, CarrierImage **output);
+int imc_steg_init(const char *path, const char *password, CarrierImage **output);
 
 // Get bytes of a JPEG image that will carry the hidden data
 void imc_jpeg_open_carrier(CarrierImage *output);

@@ -1,7 +1,7 @@
 #include "imc_includes.h"
 
 // Initialize an image for hiding data in it
-int imc_image_init(const char *path, const char *password, CarrierImage **output)
+int imc_steg_init(const char *path, const char *password, CarrierImage **output)
 {
     FILE *image = fopen(path, "rb");
     if (image == NULL) return -1;
