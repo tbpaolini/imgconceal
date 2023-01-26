@@ -64,9 +64,8 @@ int imc_crypto_context_create(char *password, CryptoContext **out)
         }
     } while (
         // Check if the generated seed meets the requirements of the Blum Blum Shub algorithm
-        // (all the bellow checks must evaluate to false)
-           context->bbs_seed % PRIME_1 == 0
-        || context->bbs_seed % PRIME_2 == 0
+        // (all the checks bellow must evaluate to false)
+           context->bbs_seed % BBS_MOD == 0
         || context->bbs_seed <= 1
     );
     
