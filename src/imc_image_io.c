@@ -1,5 +1,36 @@
 #include "imc_includes.h"
 
+int imc_image_init(const char *path)
+{
+    FILE *image = fopen(path, "rb");
+    if (image == NULL) return -1;
+
+    static const uint8_t JPEG_MAGIC[] = {0xFF, 0xD8, 0xFF};
+    static const uint8_t PNG_MAGIC[]  = {0x89, 0x50, 0x4E, 0x47};
+
+    uint8_t img_marker[4];
+    size_t read_count = fread(img_marker, 1, 4, image);
+    if (read_count < 4)
+    {
+        fclose(image);
+        return -2;
+    }
+    fseek(image, 0, SEEK_SET);
+
+    if (memcmp(img_marker, JPEG_MAGIC, sizeof(JPEG_MAGIC)) == 0)
+    {
+
+    }
+    else if (memcmp(img_marker, PNG_MAGIC, sizeof(PNG_MAGIC)) == 0)
+    {
+
+    }
+    else
+    {
+        return -2;
+    }
+}
+
 // Get bytes of a JPEG image that will carry the hidden data
 int imc_jpeg_open_carrier(char *path, DataCarrier **output)
 {
