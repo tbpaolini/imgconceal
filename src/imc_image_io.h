@@ -8,22 +8,17 @@ typedef uint8_t *carrier_ptr_t;
 
 enum ImageType {IMC_JPEG, IMC_PNG};
 
-// Bytes of the image that carry the hidden data
-typedef struct DataCarrier
+// Image that will carry the hidden data
+typedef struct CarrierImage
 {
-    // Pointers to the carrier bytes of the image
-    carrier_ptr_t *bytes;
-    size_t lenght;
-    
-    // Handler for the image
-    union {
-        struct jpeg_decompress_struct *jpeg;
-        void *png;
-    } object;
-    enum ImageType type;
-} DataCarrier;
+    FILE *file;             // File ponter of the image
+    carrier_ptr_t *carrier; // Array of pointers to the carrier bytes of the image
+    size_t carrier_lenght;  // Amount of carrier bytes
+    void* object;           // Pointer to the handler that should be passed to the image processing functions
+    enum ImageType type;    // Format of the image
+} CarrierImage;
 
 // Get bytes of a JPEG image that will carry the hidden data
-int imc_jpeg_open_carrier(char *path, DataCarrier **output);
+int imc_jpeg_open_carrier(char *path, CarrierImage **output);
 
 #endif  // _IMC_IMAGE_IO_H

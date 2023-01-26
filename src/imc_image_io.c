@@ -32,7 +32,7 @@ int imc_image_init(const char *path)
 }
 
 // Get bytes of a JPEG image that will carry the hidden data
-int imc_jpeg_open_carrier(char *path, DataCarrier **output)
+int imc_jpeg_open_carrier(char *path, CarrierImage **output)
 {
     // Open the image for reading
     FILE *jpeg_file = fopen(path, "rb");
@@ -108,10 +108,10 @@ int imc_jpeg_open_carrier(char *path, DataCarrier **output)
     carrier_ptr = imc_realloc(carrier_ptr, carrier_index);
 
     // Store the output
-    *output = imc_malloc(sizeof(DataCarrier));
-    **output = (DataCarrier){
-        .bytes = carrier_ptr,       // Array of pointers to bytes
-        .lenght = carrier_index,    // Total amount of pointers to bytes
-        .object.jpeg = jpeg_obj,    // Image handler
+    *output = imc_malloc(sizeof(CarrierImage));
+    **output = (CarrierImage){
+        .carrier = carrier_ptr,             // Array of pointers to bytes
+        .carrier_lenght = carrier_index,    // Total amount of pointers to bytes
+        .object = jpeg_obj,                 // Image handler
     };
 }
