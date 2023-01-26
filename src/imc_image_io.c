@@ -47,7 +47,7 @@ int imc_image_init(const char *path, const char *password, CarrierImage **output
     switch (img_type)
     {
         case IMC_JPEG:
-            /* code */
+            imc_jpeg_open_carrier(carrier_img);
             break;
         
         case IMC_PNG:
@@ -60,13 +60,10 @@ int imc_image_init(const char *path, const char *password, CarrierImage **output
 }
 
 // Get bytes of a JPEG image that will carry the hidden data
-int imc_jpeg_open_carrier(char *path, CarrierImage **output)
+void imc_jpeg_open_carrier(CarrierImage *carrier_img)
 {
     // Open the image for reading
-    FILE *jpeg_file = fopen(path, "rb");
-    if (!jpeg_file) return -1;
-    
-    // Initialize the JPEG object
+    FILE *jpeg_file = carrier_img->file;
     struct jpeg_decompress_struct *jpeg_obj = imc_malloc(sizeof(struct jpeg_decompress_struct));
     struct jpeg_error_mgr jpeg_err;
     jpeg_obj->err = jpeg_std_error(&jpeg_err);   // Use the default error handler
@@ -136,10 +133,7 @@ int imc_jpeg_open_carrier(char *path, CarrierImage **output)
     carrier_ptr = imc_realloc(carrier_ptr, carrier_index);
 
     // Store the output
-    *output = imc_malloc(sizeof(CarrierImage));
-    **output = (CarrierImage){
-        .carrier = carrier_ptr,             // Array of pointers to bytes
-        .carrier_lenght = carrier_index,    // Total amount of pointers to bytes
-        .object = jpeg_obj,                 // Image handler
-    };
+    carrier_img->carrier = carrier_ptr;             // Array of pointers to bytes
+    carrier_img->carrier_lenght = carrier_index;    // Total amount of pointers to bytes
+    carrier_img->object = jpeg_obj;                 // Image handler
 }

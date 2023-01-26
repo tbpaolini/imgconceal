@@ -20,6 +20,6 @@ typedef struct CarrierImage
 } CarrierImage;
 
 // Get bytes of a JPEG image that will carry the hidden data
-int imc_jpeg_open_carrier(char *path, CarrierImage **output);
+void imc_jpeg_open_carrier(CarrierImage *output);
 
 #endif  // _IMC_IMAGE_IO_H
