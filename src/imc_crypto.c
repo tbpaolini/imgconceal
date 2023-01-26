@@ -140,3 +140,9 @@ void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_e
         array[i] ^= array[new_i];
     }
 }
+
+// Free the memory used by the cryptographic secrets
+void imc_crypto_context_destroy(CryptoContext *state)
+{
+    sodium_free(state);
+}

@@ -29,4 +29,7 @@ void imc_crypto_prng(CryptoContext *state, size_t num_bytes, uint8_t *output);
 // Randomize the order of the elements in an array of pointers
 void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_elements);
 
+// Free the memory used by the cryptographic secrets
+void imc_crypto_context_destroy(CryptoContext *state);
+
 #endif  // _IMC_CRYPTO_H
