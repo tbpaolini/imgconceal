@@ -1,13 +1,15 @@
 #include "imc_includes.h"
 
-int imc_image_init(const char *path)
+int imc_image_init(const char *path, const char *password, CarrierImage **output)
 {
     FILE *image = fopen(path, "rb");
     if (image == NULL) return -1;
 
+    // The file should start with one of these sequences of bytes
     static const uint8_t JPEG_MAGIC[] = {0xFF, 0xD8, 0xFF};
     static const uint8_t PNG_MAGIC[]  = {0x89, 0x50, 0x4E, 0x47};
 
+    // Get the file signature
     uint8_t img_marker[4];
     size_t read_count = fread(img_marker, 1, 4, image);
     if (read_count < 4)
@@ -17,18 +19,41 @@ int imc_image_init(const char *path)
     }
     fseek(image, 0, SEEK_SET);
 
+    // Determine the image format
+    enum ImageType img_type;
+    
     if (memcmp(img_marker, JPEG_MAGIC, sizeof(JPEG_MAGIC)) == 0)
     {
-
+        img_type = IMC_JPEG;
     }
     else if (memcmp(img_marker, PNG_MAGIC, sizeof(PNG_MAGIC)) == 0)
     {
-
+        img_type = IMC_PNG;
     }
     else
     {
+        fclose(image);
         return -2;
     }
+
+    // Holds the information needed for hiding data in the image
+    CarrierImage *carrier_img = imc_malloc(sizeof(CarrierImage));
+    carrier_img->type = img_type;
+
+    // Get the carrier bytes from the image
+    switch (img_type)
+    {
+        case IMC_JPEG:
+            /* code */
+            break;
+        
+        case IMC_PNG:
+            /* code */
+            break;
+    }
+    
+    *output = carrier_img;
+    return 0;
 }
 
 // Get bytes of a JPEG image that will carry the hidden data
