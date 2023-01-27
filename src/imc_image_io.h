@@ -11,7 +11,7 @@ enum ImageType {IMC_JPEG, IMC_PNG};
 // Pointers to the steganographic functions
 struct CarrierImage;
 typedef void (*carrier_open_func)(struct CarrierImage *);
-typedef void (*carrier_write_func)(struct CarrierImage *, uint8_t data, size_t data_len);
+typedef void (*carrier_write_func)(struct CarrierImage *, uint8_t *data, size_t data_len);
 typedef void (*carrier_close_func)(struct CarrierImage *);
 
 // Image that will carry the hidden data
@@ -41,11 +41,23 @@ int imc_steg_init(const char *path, const char *password, CarrierImage **output)
 // Get bytes of a JPEG image that will carry the hidden data
 void imc_jpeg_carrier_open(CarrierImage *output);
 
+// Get bytes of a PNG image that will carry the hidden data
+void imc_png_carrier_open(CarrierImage *output);
+
+// Hide data in a JPEG image
+int imc_jpeg_carrier_write(CarrierImage *carrier_img, uint8_t *data, size_t data_len);
+
+// Hide data in a PNG image
+int imc_png_carrier_write(CarrierImage *carrier_img, uint8_t *data, size_t data_len);
+
 // Free the memory of the array of heap pointers in a CarrierImage struct
 static void __carrier_heap_free(CarrierImage *carrier_img);
 
 // Close the JPEG object and free the memory associated to it
 void imc_jpeg_carrier_close(CarrierImage *carrier_img);
+
+// Close the PNG object and free the memory associated to it
+void imc_png_carrier_close(CarrierImage *carrier_img);
 
 // Free the memory of the data structures used for data hiding
 void imc_steg_finish(CarrierImage *carrier_img);

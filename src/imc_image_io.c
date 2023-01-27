@@ -150,6 +150,24 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
     carrier_img->heap_lenght = 1;
 }
 
+// Get bytes of a PNG image that will carry the hidden data
+void imc_png_carrier_open(CarrierImage *output)
+{
+
+}
+
+// Hide data in a JPEG image
+int imc_jpeg_carrier_write(CarrierImage *carrier_img, uint8_t *data, size_t data_len)
+{
+
+}
+
+// Hide data in a PNG image
+int imc_png_carrier_write(CarrierImage *carrier_img, uint8_t *data, size_t data_len)
+{
+    
+}
+
 // Free the memory of the array of heap pointers in a CarrierImage struct
 static void __carrier_heap_free(CarrierImage *carrier_img)
 {
@@ -167,6 +185,12 @@ void imc_jpeg_carrier_close(CarrierImage *carrier_img)
     imc_free(carrier_img->carrier);
     imc_free(carrier_img->object);
     __carrier_heap_free(carrier_img);
+}
+
+// Close the PNG object and free the memory associated to it
+void imc_png_carrier_close(CarrierImage *carrier_img)
+{
+
 }
 
 // Free the memory of the data structures used for data hiding
