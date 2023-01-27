@@ -8,15 +8,29 @@ typedef uint8_t *carrier_ptr_t;
 
 enum ImageType {IMC_JPEG, IMC_PNG};
 
+// Pointers to the steganographic functions
+struct CarrierImage;
+typedef void (*carrier_open_func)(struct CarrierImage *);
+typedef void (*carrier_write_func)(struct CarrierImage *, uint8_t data, size_t data_len);
+typedef void (*carrier_close_func)(struct CarrierImage *);
+
 // Image that will carry the hidden data
 typedef struct CarrierImage
 {
+    // File parameters
     FILE *file;             // File ponter of the image
-    carrier_ptr_t *carrier; // Array of pointers to the carrier bytes of the image
-    size_t carrier_lenght;  // Amount of carrier bytes
     void* object;           // Pointer to the handler that should be passed to the image processing functions
     CryptoContext *crypto;  // Secret parameters generated from the password
     enum ImageType type;    // Format of the image
+    
+    // Manipulation of the file's carrier
+    carrier_ptr_t *carrier;     // Array of pointers to the carrier bytes of the image
+    size_t carrier_lenght;      // Amount of carrier bytes
+    carrier_open_func open;     // Find the carrier bytes
+    carrier_write_func write;   // Hide data in the carrier
+    carrier_close_func close;   // Free the memory used for the carrier operation
+    
+    // Memory management
     void **heap;            // Array of pointers to other heap allocated memory for this image
     size_t heap_lenght;     // Amount of elements on the 'heap' array
 } CarrierImage;
