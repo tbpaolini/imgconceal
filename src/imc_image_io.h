@@ -19,7 +19,7 @@ typedef struct CarrierImage
 {
     // File parameters
     FILE *file;             // File ponter of the image
-    void* object;           // Pointer to the handler that should be passed to the image processing functions
+    void *object;           // Pointer to the handler that should be passed to the image processing functions
     CryptoContext *crypto;  // Secret parameters generated from the password
     enum ImageType type;    // Format of the image
     
