@@ -19,7 +19,9 @@ int imc_crypto_context_create(const char *password, CryptoContext **out)
     const size_t seed_size = sizeof(context->bbs_seed) / 2;
     const size_t out_len = key_size + seed_size + 4;
     uint8_t output[out_len];
+    uint8_t previous_output[out_len];
     sodium_mlock(output, sizeof(output));
+    sodium_mlock(previous_output, sizeof(output));
     
     // Primes for the Blum Blum Shub pseudorandom number generator
     // (see the comments at the file 'imc_crypto_primes.h')
@@ -28,15 +30,22 @@ int imc_crypto_context_create(const char *password, CryptoContext **out)
     // Indexes of two primes on 'bbs_primes'
     uint16_t p[2];
     sodium_mlock(p, sizeof(p));
+
+    // How many times were attempted to calculate the hash
+    size_t cycle = 0;
     
     do
     {
+        if (cycle > 0) memcpy(previous_output, output, sizeof(output));
+        
         // Password hashing: generate enough bytes for both the key and the seed
+        // On the first cycle, we just hash the password.
+        // If it failed to generate a suitable hash, on the next cycle we hash the previous hash.
         int status = crypto_pwhash(
             (uint8_t * const)&output,
             sizeof(output),
-            password,
-            strlen(password),
+            (cycle == 0) ? password : (const char * const)previous_output,
+            (cycle == 0) ? strlen(password) : sizeof(output),
             IMC_SALT,
             IMC_OPSLIMIT,
             IMC_MEMLIMIT,
@@ -95,6 +104,8 @@ int imc_crypto_context_create(const char *password, CryptoContext **out)
         // Multiply the two primes to get the value that will be used on the BBS algorithm
         context->bbs_mod = (uint64_t)bbs_primes[p[0]] * (uint64_t)bbs_primes[p[1]];
 
+        cycle++;
+
     } while (
         // Check if the generated seed meets the requirements of the Blum Blum Shub algorithm
         // (all the checks bellow must evaluate to false)
@@ -105,6 +116,7 @@ int imc_crypto_context_create(const char *password, CryptoContext **out)
     
     // Release the unecessary memory and store the output
     sodium_munlock(output, sizeof(output));
+    sodium_munlock(previous_output, sizeof(output));
     sodium_munlock(p, sizeof(p));
     *out = context;
 
