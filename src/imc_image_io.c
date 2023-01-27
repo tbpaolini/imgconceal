@@ -150,15 +150,6 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
     carrier_img->heap_lenght = 1;
 }
 
-// Free the memory of the data structures used for data hiding
-void imc_steg_finish(CarrierImage *carrier_img)
-{
-    carrier_img->close(carrier_img);
-    fclose(carrier_img->file);
-    imc_crypto_context_destroy(carrier_img->crypto);
-    imc_free(carrier_img);
-}
-
 // Free the memory of the array of heap pointers in a CarrierImage struct
 static void __carrier_heap_free(CarrierImage *carrier_img)
 {
@@ -176,4 +167,13 @@ void imc_jpeg_carrier_close(CarrierImage *carrier_img)
     imc_free(carrier_img->carrier);
     imc_free(carrier_img->object);
     __carrier_heap_free(carrier_img);
+}
+
+// Free the memory of the data structures used for data hiding
+void imc_steg_finish(CarrierImage *carrier_img)
+{
+    carrier_img->close(carrier_img);
+    fclose(carrier_img->file);
+    imc_crypto_context_destroy(carrier_img->crypto);
+    imc_free(carrier_img);
 }
