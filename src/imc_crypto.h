@@ -6,6 +6,7 @@
 // Password hashing parameters
 #define IMC_OPSLIMIT 3          // Amount of operations
 #define IMC_MEMLIMIT 4096000    // Amount of memory
+#define IMC_MEMLIMIT_REHASH 8192    // Memory used when re-hashing
 
 // Stores the secret key for encryption and the seed of the pseudorandom number generator
 typedef struct CryptoContext

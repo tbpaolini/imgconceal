@@ -48,7 +48,7 @@ int imc_crypto_context_create(const char *password, CryptoContext **out)
             (cycle == 0) ? strlen(password) : sizeof(output),
             IMC_SALT,
             IMC_OPSLIMIT,
-            IMC_MEMLIMIT,
+            (cycle == 0) ? IMC_MEMLIMIT : IMC_MEMLIMIT_REHASH,
             crypto_pwhash_ALG_ARGON2ID13
         );
         if (status < 0) return IMC_ERR_NO_MEMORY;
