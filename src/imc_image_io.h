@@ -39,7 +39,7 @@ typedef struct CarrierImage
 int imc_steg_init(const char *path, const char *password, CarrierImage **output);
 
 // Get bytes of a JPEG image that will carry the hidden data
-void imc_jpeg_open_carrier(CarrierImage *output);
+void imc_jpeg_carrier_open(CarrierImage *output);
 
 // Free the memory of the data structures used for data hiding
 void imc_steg_finish(CarrierImage *carrier_img);
@@ -48,6 +48,6 @@ void imc_steg_finish(CarrierImage *carrier_img);
 static void __carrier_heap_free(CarrierImage *carrier_img);
 
 // Close the JPEG object and free the memory associated to it
-void imc_jpeg_close_carrier(CarrierImage *carrier_img);
+void imc_jpeg_carrier_close(CarrierImage *carrier_img);
 
 #endif  // _IMC_IMAGE_IO_H

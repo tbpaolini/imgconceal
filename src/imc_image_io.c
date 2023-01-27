@@ -50,7 +50,7 @@ int imc_steg_init(const char *path, const char *password, CarrierImage **output)
     switch (img_type)
     {
         case IMC_JPEG:
-            imc_jpeg_open_carrier(carrier_img);
+            imc_jpeg_carrier_open(carrier_img);
             break;
         
         case IMC_PNG:
@@ -63,7 +63,7 @@ int imc_steg_init(const char *path, const char *password, CarrierImage **output)
 }
 
 // Get bytes of a JPEG image that will carry the hidden data
-void imc_jpeg_open_carrier(CarrierImage *carrier_img)
+void imc_jpeg_carrier_open(CarrierImage *carrier_img)
 {
     // Open the image for reading
     FILE *jpeg_file = carrier_img->file;
@@ -152,7 +152,7 @@ void imc_steg_finish(CarrierImage *carrier_img)
     switch (carrier_img->type)
     {
         case IMC_JPEG:
-            imc_jpeg_close_carrier(carrier_img);
+            imc_jpeg_carrier_close(carrier_img);
             break;
         
         case IMC_PNG:
@@ -176,7 +176,7 @@ static void __carrier_heap_free(CarrierImage *carrier_img)
 }
 
 // Close the JPEG object and free the memory associated to it
-void imc_jpeg_close_carrier(CarrierImage *carrier_img)
+void imc_jpeg_carrier_close(CarrierImage *carrier_img)
 {
     jpeg_destroy((j_common_ptr)carrier_img->object);
     imc_free(carrier_img->carrier);
