@@ -153,32 +153,50 @@ void imc_crypto_prng(CryptoContext *state, size_t num_bytes, uint8_t *output)
     }
 }
 
+// Generate an unsigned 64-bit integer that can be up to the 'max' value (inclusive)
+uint64_t imc_crypto_prng_uint64(CryptoContext *state, uint64_t max)
+{
+    if (max == UINT64_MAX)
+    {
+        uint64_t random_num;
+        imc_crypto_prng(state, sizeof(uint64_t), (uint8_t *)&random_num);
+        return random_num;
+    }
+    
+    // Ensure that the 'max' value is included in the range
+    max += 1;
+    
+    // Get the least amount of bytes needed to represent the amount of elements
+    const uint64_t num_bits = ceil( log2( (double)(max + 1UL) ) );
+    const uint64_t num_bytes = (num_bits % 8 == 0) ? (num_bits / 8) : (num_bits / 8) + 1;
+    
+    // Ensure that the random values will be evenly distributed in the range of '0' to 'num_elements - 1'
+    const uint64_t max_random = (1 << (num_bytes * 8)) - 1;
+    const uint64_t cutoff = max_random - (max_random % max);
+
+    // Generate a pseudorandom number
+    uint64_t random_num;
+    do
+    {
+        random_num = 0;
+        imc_crypto_prng(state, num_bytes, (uint8_t *)&random_num);
+    } while (random_num > cutoff);
+
+    return random_num % max;
+}
+
 // Randomize the order of the elements in an array of pointers
 void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_elements)
 {
     if (num_elements <= 1) return;
-
-    // Get the least amount of bytes needed to represent the amount of elements
-    const size_t num_bits = ceil( log2( (double)(num_elements + 1UL) ) );
-    const size_t num_bytes = (num_bits % 8 == 0) ? (num_bits / 8) : (num_bits / 8) + 1;
     
-    // Ensure that the random values will be evenly distributed in the range of '0' to 'num_elements - 1'
-    const size_t max_value = (1 << (num_bytes * 8)) - 1;
-    const size_t cutoff = max_value - (max_value % num_elements);
-
-    // Iterate over all array's elements and swap them around
-    for (size_t i = 0; i < num_elements; i++)
+    // Fisher-Yates shuffle algorithm:
+    // Each element 'E[i]' is swapped with a random element of index smaller or equal than 'i'.
+    // Explanation of why not just swapping by any other element: https://blog.codinghorror.com/the-danger-of-naivete/
+    for (size_t i = num_elements-1; i > 0; i--)
     {
-        // Generate a pseudorandom number
-        size_t random_num;
-        do
-        {
-            random_num = 0;
-            imc_crypto_prng(state, num_bytes, (uint8_t *)&random_num);
-        } while (random_num > cutoff);
-
-        // A pseudorandom index that falls inside the array
-        size_t new_i = random_num % num_elements;
+        // A pseudorandom index smaller or equal than the current index
+        size_t new_i = imc_crypto_prng_uint64(state, i);
         if (new_i == i) continue;
 
         // Swap the current element with the element on the element on the random index

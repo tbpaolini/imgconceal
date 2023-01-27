@@ -23,6 +23,9 @@ int imc_crypto_context_create(const char *password, CryptoContext **out);
 // It writes a given amount of bytes to the output, while taking into account the endianness of the system.
 void imc_crypto_prng(CryptoContext *state, size_t num_bytes, uint8_t *output);
 
+// Generate an unsigned 64-bit integer that can be up to the 'max' value (inclusive)
+uint64_t imc_crypto_prng_uint64(CryptoContext *state, uint64_t max);
+
 // Randomize the order of the elements in an array of pointers
 void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_elements);
 
