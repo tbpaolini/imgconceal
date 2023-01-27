@@ -46,17 +46,21 @@ int imc_steg_init(const char *path, const char *password, CarrierImage **output)
     // Generate a secret key, and seed the number generator
     imc_crypto_context_create(password, &carrier_img->crypto);
 
-    // Get the carrier bytes from the image
+    // Set the struct's methods
     switch (img_type)
     {
         case IMC_JPEG:
-            imc_jpeg_carrier_open(carrier_img);
+            carrier_img->open  = &imc_jpeg_carrier_open;
+            carrier_img->close = &imc_jpeg_carrier_close;
             break;
         
         case IMC_PNG:
             /* code */
             break;
     }
+    
+    // Get the carrier bytes from the image
+    carrier_img->open(carrier_img);
     
     *output = carrier_img;
     return IMC_SUCCESS;
@@ -149,17 +153,7 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
 // Free the memory of the data structures used for data hiding
 void imc_steg_finish(CarrierImage *carrier_img)
 {
-    switch (carrier_img->type)
-    {
-        case IMC_JPEG:
-            imc_jpeg_carrier_close(carrier_img);
-            break;
-        
-        case IMC_PNG:
-            /* code */
-            break;
-    }
-    
+    carrier_img->close(carrier_img);
     fclose(carrier_img->file);
     imc_crypto_context_destroy(carrier_img->crypto);
     imc_free(carrier_img);
