@@ -64,6 +64,13 @@ int imc_steg_init(const char *path, const char *password, CarrierImage **output)
     
     // Get the carrier bytes from the image
     carrier_img->open(carrier_img);
+
+    // Shuffle the read/write order of the carrier bytes
+    imc_crypto_shuffle_ptr(
+        carrier_img->crypto,
+        (uintptr_t *)(&carrier_img->carrier[0]),
+        carrier_img->carrier_lenght
+    );
     
     *output = carrier_img;
     return IMC_SUCCESS;
