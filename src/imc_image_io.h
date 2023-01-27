@@ -26,6 +26,7 @@ typedef struct CarrierImage
     // Manipulation of the file's carrier
     carrier_ptr_t *carrier;     // Array of pointers to the carrier bytes of the image
     size_t carrier_lenght;      // Amount of carrier bytes
+    size_t carrier_pos;         // Current writting position on the 'carrier' array
     carrier_open_func open;     // Find the carrier bytes
     carrier_write_func write;   // Hide data in the carrier
     carrier_close_func close;   // Free the memory used for the carrier operation
