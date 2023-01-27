@@ -12,6 +12,7 @@ typedef struct CryptoContext
 {
     uint8_t xcc20_key[crypto_secretstream_xchacha20poly1305_KEYBYTES];
     uint64_t bbs_seed;
+    uint64_t bbs_mod;
 } CryptoContext;
 
 // Generate cryptographic secrets key from a password

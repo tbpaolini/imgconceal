@@ -1,18 +1,8 @@
 #include "imc_includes.h"
+#include "imc_crypto_primes.h"
 
 // Parameter for generating a secret key
 static const char IMC_SALT[crypto_pwhash_SALTBYTES+1] = "imageconceal2023";
-
-// Parameters of the Blum Blum Shub algorithm (pseudorandom number generator)
-// The primes are: 
-//   - congruent to 3 (mod 4)  (have a remainder of 3 when divided by 4)
-//   - are safe (can be written as 2p + 1, where p is also prime)
-//   - fit a 16-bit unsigned integer
-// The seed will be chosen in order to fit a 32-bit unsigned integer,
-// which ensures that it won't overflow when squared.
-static const uint64_t PRIME_1 = 65267UL;
-static const uint64_t PRIME_2 = 65147UL;
-static const uint64_t BBS_MOD = PRIME_1 * PRIME_2;
 
 // Generate cryptographic secrets key from a password
 int imc_crypto_context_create(const char *password, CryptoContext **out)
@@ -27,9 +17,17 @@ int imc_crypto_context_create(const char *password, CryptoContext **out)
     //       in order to ensure it will not overflow when squared.
     const size_t key_size = sizeof(context->xcc20_key);
     const size_t seed_size = sizeof(context->bbs_seed) / 2;
-    const size_t out_len = key_size + seed_size;
+    const size_t out_len = key_size + seed_size + 4;
     uint8_t output[out_len];
     sodium_mlock(output, sizeof(output));
+    
+    // Primes for the Blum Blum Shub pseudorandom number generator
+    // (see the comments at the file 'imc_crypto_primes.h')
+    const uint16_t bbs_primes[] = bbs_primes_def;
+    
+    // Indexes of two primes on 'bbs_primes'
+    uint16_t p[2];
+    sodium_mlock(p, sizeof(p));
     
     do
     {
@@ -50,27 +48,54 @@ int imc_crypto_context_create(const char *password, CryptoContext **out)
         memcpy(&context->xcc20_key, &output[0], key_size);
 
         // The upper bytes are used for the seed (64-bit unsigned integer)
+        // and for choosing the primes for the BBS algorithm
         if (IS_LITTLE_ENDIAN)
         {
+            // Seed's bytes
             memcpy(&context->bbs_seed, &output[key_size], seed_size);
+
+            // Primes' indexes
+            const size_t pos = key_size + seed_size;
+            memcpy(&p[0], &output[pos], 2);
+            memcpy(&p[1], &output[pos+2], 2);
         }
         else
         {
+            // Seed's bytes
             uint8_t *seed_buffer = (uint8_t *)(&context->bbs_seed);
             for (size_t i = 0; i < seed_size; i++)
             {
-                seed_buffer[i] = output[out_len - 1 - i];
+                seed_buffer[i] = output[out_len - 5 - i];
             }
+
+            // Primes' indexes
+            uint8_t *p_buffer = (uint8_t*)(&p[0]);
+            
+            const size_t pos = out_len - 4;
+            p_buffer[0] = output[pos+1];
+            p_buffer[1] = output[pos+0];
+            p_buffer[2] = output[pos+3];
+            p_buffer[3] = output[pos+2];
         }
+
+        // Ensure that the primes' indexes are within the array bounds
+        p[0] %= bbs_primes_len;
+        p[1] %= bbs_primes_len;
+
+        // Multiply the two primes to get the value that will be used on the BBS algorithm
+        context->bbs_mod = (uint64_t)bbs_primes[p[0]] * (uint64_t)bbs_primes[p[1]];
+
     } while (
         // Check if the generated seed meets the requirements of the Blum Blum Shub algorithm
         // (all the checks bellow must evaluate to false)
-           context->bbs_seed % BBS_MOD == 0
+           p[0] == p[1]
+        || context->bbs_seed % context->bbs_mod == 0
         || context->bbs_seed <= 1
     );
     
     // Release the unecessary memory and store the output
     sodium_munlock(output, sizeof(output));
+    sodium_munlock(p, sizeof(p));
     *out = context;
 
     return IMC_SUCCESS;
@@ -90,7 +115,7 @@ void imc_crypto_prng(CryptoContext *state, size_t num_bytes, uint8_t *output)
         for (size_t j = 0; j < 8; j++)
         {
             // Take the least significant bit of each iteration
-            state->bbs_seed = (state->bbs_seed * state->bbs_seed) % BBS_MOD;
+            state->bbs_seed = (state->bbs_seed * state->bbs_seed) % state->bbs_mod;
             if (state->bbs_seed & 1) byte |= bit[j];
         }
 
