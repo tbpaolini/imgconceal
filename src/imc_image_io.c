@@ -140,7 +140,7 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
     }
     
     // Free the unusued space of the array
-    carrier_ptr = imc_realloc(carrier_ptr, carrier_index);
+    carrier_ptr = imc_realloc(carrier_ptr, carrier_index * sizeof(uint8_t *));
 
     // Store the output
     carrier_img->carrier = carrier_ptr;             // Array of pointers to bytes
