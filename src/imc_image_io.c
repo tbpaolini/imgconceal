@@ -64,13 +64,6 @@ int imc_steg_init(const char *path, const char *password, CarrierImage **output)
     
     // Get the carrier bytes from the image
     carrier_img->open(carrier_img);
-
-    // Shuffle the read/write order of the carrier bytes
-    imc_crypto_shuffle_ptr(
-        carrier_img->crypto,
-        (uintptr_t *)(&carrier_img->carrier[0]),
-        carrier_img->carrier_lenght
-    );
     
     *output = carrier_img;
     return IMC_SUCCESS;
@@ -101,8 +94,8 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
     // Estimate the size of the array of carrier values and allocate it
     size_t carrier_capacity = dct_count / 8;
     if (carrier_capacity == 0) carrier_capacity = 1;
-    carrier_ptr_t *carrier_ptr = imc_calloc(carrier_capacity, sizeof(uint8_t *));
-    size_t carrier_index = 0;
+    carrier_bytes_t carrier_bytes = imc_calloc(carrier_capacity, sizeof(uint8_t));
+    size_t carrier_count = 0;
     
     // Iterate over the color components
     for (int comp = 0; comp < jpeg_obj->num_components; comp++)
@@ -116,7 +109,7 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
                 jpeg_dct[comp],             // DCT coefficients for the current color component
                 y,                          // The current row of DCT blocks on the image
                 1,                          // Read one row of DCT blocks at a time
-                true                        // The array should be writeable
+                false                       // Opening the array in read-only mode
             );
 
             // Iterate column by column from left to right
@@ -126,20 +119,21 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
                 for (JCOEF i = 1; i < DCTSIZE2; i++)
                 {
                     // Resize the array of carriers if it is full
-                    if (carrier_index == carrier_capacity)
+                    if (carrier_count == carrier_capacity)
                     {
                         carrier_capacity *= 2;
-                        carrier_ptr = imc_realloc(carrier_ptr, carrier_capacity * sizeof(uint8_t *));
+                        carrier_bytes = imc_realloc(carrier_bytes, carrier_capacity * sizeof(uint8_t));
                     }
 
                     // The current coefficient
                     const JCOEF coef = coef_array[0][x][i];
-                    uint8_t *const coef_bytes = (uint8_t *)(&coef_array[y][x][i]);
+                    const uint8_t *const coef_bytes = (uint8_t *)(&coef);
 
                     // Only the AC coefficients that are not 0 or 1 are used as carriers
                     if (coef != 0 && coef != 1)
                     {
-                        carrier_ptr[carrier_index++] = IS_LITTLE_ENDIAN ? &coef_bytes[0] : &coef_bytes[sizeof(JCOEF)-1];
+                        // Store the value of the least significant byte of the coefficient
+                        carrier_bytes[carrier_count++] = IS_LITTLE_ENDIAN ? coef_bytes[0] : coef_bytes[sizeof(JCOEF)-1];
                     }
                 }
             }
@@ -147,14 +141,31 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
     }
     
     // Free the unusued space of the array
-    carrier_ptr = imc_realloc(carrier_ptr, carrier_index * sizeof(uint8_t *));
+    carrier_bytes = imc_realloc(carrier_bytes, carrier_count * sizeof(uint8_t));
+
+    // Store the pointers to each element of the bytes array
+    carrier_bytes_t *carrier_ptr = imc_calloc(carrier_count, sizeof(uint8_t *));
+
+    for (size_t i = 0; i < carrier_count; i++)
+    {
+        carrier_ptr[i] = &carrier_bytes[i];
+    }
+
+    // Shuffle the array of pointers
+    // (so the order that the bytes are written depends on the password)
+    imc_crypto_shuffle_ptr(
+        carrier_img->crypto,
+        (uintptr_t *)(&carrier_ptr[0]),
+        carrier_count
+    );
 
     // Store the output
+    carrier_img->bytes = carrier_bytes;             // Array of bytes
     carrier_img->carrier = carrier_ptr;             // Array of pointers to bytes
-    carrier_img->carrier_lenght = carrier_index;    // Total amount of pointers to bytes
+    carrier_img->carrier_lenght = carrier_count;    // Total amount of pointers to bytes
     carrier_img->object = jpeg_obj;                 // Image handler
     
-    // Store the additional heap allocated memory for the purpose of garbage collection
+    // Store the additional heap allocated memory for the purpose of memory management
     carrier_img->heap = imc_malloc(sizeof(void *));
     carrier_img->heap[0] = (void *)jpeg_err;
     carrier_img->heap_lenght = 1;
@@ -192,6 +203,7 @@ static void __carrier_heap_free(CarrierImage *carrier_img)
 void imc_jpeg_carrier_close(CarrierImage *carrier_img)
 {
     jpeg_destroy((j_common_ptr)carrier_img->object);
+    imc_free(carrier_img->bytes);
     imc_free(carrier_img->carrier);
     imc_free(carrier_img->object);
     __carrier_heap_free(carrier_img);

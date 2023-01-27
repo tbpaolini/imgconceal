@@ -3,8 +3,8 @@
 
 #include "imc_includes.h"
 
-// Pointers to the bytes that carry the hidden data
-typedef uint8_t *carrier_ptr_t;
+// Carrier: Array with the bytes that carry the hidden data
+typedef uint8_t *carrier_bytes_t;
 
 enum ImageType {IMC_JPEG, IMC_PNG};
 
@@ -24,7 +24,8 @@ typedef struct CarrierImage
     enum ImageType type;    // Format of the image
     
     // Manipulation of the file's carrier
-    carrier_ptr_t *carrier;     // Array of pointers to the carrier bytes of the image
+    carrier_bytes_t bytes;      // Carrier bytes (same order as on the image)
+    carrier_bytes_t *carrier;   // Array of pointers to the carrier bytes of the image (array order is shuffled using the password)
     size_t carrier_lenght;      // Amount of carrier bytes
     size_t carrier_pos;         // Current writting position on the 'carrier' array
     carrier_open_func open;     // Find the carrier bytes
