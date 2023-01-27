@@ -78,6 +78,16 @@ int imc_crypto_context_create(const char *password, CryptoContext **out)
             p_buffer[3] = output[pos+2];
         }
 
+        // Ensure that the indexes should be unbiased when modded by 'bbs_primes_len'
+        const uint16_t p_max = UINT16_MAX - (UINT16_MAX % bbs_primes_len);
+        if (p[0] > p_max || p[1] > p_max)
+        {
+            // Force the loop to start again
+            p[0] = 0;
+            p[1] = 0;
+            continue;
+        }
+
         // Ensure that the primes' indexes are within the array bounds
         p[0] %= bbs_primes_len;
         p[1] %= bbs_primes_len;
