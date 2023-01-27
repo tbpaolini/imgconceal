@@ -11,7 +11,7 @@ enum ImageType {IMC_JPEG, IMC_PNG};
 // Pointers to the steganographic functions
 struct CarrierImage;
 typedef void (*carrier_open_func)(struct CarrierImage *);
-typedef void (*carrier_write_func)(struct CarrierImage *, uint8_t *data, size_t data_len);
+typedef int (*carrier_write_func)(struct CarrierImage *, uint8_t *data, size_t data_len);
 typedef void (*carrier_close_func)(struct CarrierImage *);
 
 // Image that will carry the hidden data

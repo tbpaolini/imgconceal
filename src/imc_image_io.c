@@ -51,11 +51,14 @@ int imc_steg_init(const char *path, const char *password, CarrierImage **output)
     {
         case IMC_JPEG:
             carrier_img->open  = &imc_jpeg_carrier_open;
+            carrier_img->write = &imc_jpeg_carrier_write;
             carrier_img->close = &imc_jpeg_carrier_close;
             break;
         
         case IMC_PNG:
-            /* code */
+            carrier_img->open  = &imc_png_carrier_open;
+            carrier_img->write = &imc_png_carrier_write;
+            carrier_img->close = &imc_png_carrier_close;
             break;
     }
     
@@ -165,7 +168,7 @@ int imc_jpeg_carrier_write(CarrierImage *carrier_img, uint8_t *data, size_t data
 // Hide data in a PNG image
 int imc_png_carrier_write(CarrierImage *carrier_img, uint8_t *data, size_t data_len)
 {
-    
+
 }
 
 // Free the memory of the array of heap pointers in a CarrierImage struct
