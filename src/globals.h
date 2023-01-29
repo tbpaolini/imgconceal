@@ -9,6 +9,10 @@
 #define IMC_ERR_INVALID_PASS   -2   // Password is not valid
 #define IMC_ERR_FILE_NOT_FOUND -3   // File does not exist or could not be opened
 #define IMC_ERR_FILE_INVALID   -4   // File is not of a supported format
+#define IMC_ERR_FILE_TOO_BIG   -5   // The file to be hidden does not fit in the carrier bits of the image
+
+// Maximum size in bytes of the file being hidden
+#define IMC_MAX_INPUT_SIZE  500000000
 
 // Store the byte order of the system
 extern bool IS_LITTLE_ENDIAN;

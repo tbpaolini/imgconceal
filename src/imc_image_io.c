@@ -69,6 +69,65 @@ int imc_steg_init(const char *path, const char *password, CarrierImage **output)
     return IMC_SUCCESS;
 }
 
+// Hide a file in an image
+int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
+{
+    FILE *file = fopen(file_path, "rb");
+    if (file == NULL) return IMC_ERR_FILE_NOT_FOUND;
+
+    // Determine the file size
+    fseek(file, 0, SEEK_END);
+    const long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    
+    // Sanity check
+    if (file_size > IMC_MAX_INPUT_SIZE)
+    {
+        fprintf(stderr, "Error: Maximum size of the hidden file is 500 MB");
+        exit(EXIT_FAILURE);
+        /* Note:
+            The 500 MB limit is for preventing a huge file from being accidentally loaded.
+            Since the amount of data that can realistically be hidden usually is quite small,
+            I thought it would be an overkill to optimize the program for handling large files.
+        */
+    }
+    
+    // Read the file into a buffer
+    uint8_t *restrict raw_buffer = imc_malloc(file_size);
+    const size_t read_count = fread(raw_buffer, 1, file_size, file);
+    fclose(file);
+    if (read_count != file_size) return IMC_ERR_FILE_INVALID;
+
+    // Compress the data on the buffer
+    // Note: For the overhead calculation, see https://zlib.net/zlib_tech.html
+    const size_t zlib_overhead = 6 + (5 * (file_size / 16000)) + 1;
+    size_t zlib_buffer_size = file_size + zlib_overhead;
+    uint8_t *restrict zlib_buffer = imc_malloc(zlib_buffer_size);
+    
+    int status = compress2(
+        zlib_buffer,        // Output buffer
+        &zlib_buffer_size,  // Size in bytes of the output buffer
+        raw_buffer,         // Input buffer
+        file_size,          // Size in bytes of the input buffer
+        9                   // Compression level
+    );
+
+    if (status != 0) return IMC_ERR_FILE_TOO_BIG;
+
+    imc_free(raw_buffer);
+
+    // Free the unused space in the output buffer
+    imc_realloc(zlib_buffer, zlib_buffer_size);
+
+    /* TO DO: Encrypt the data */
+
+    imc_free(zlib_buffer);
+
+    /* TO DO: Write the data to the carrier */
+
+    return IMC_SUCCESS;
+}
+
 // Get bytes of a JPEG image that will carry the hidden data
 void imc_jpeg_carrier_open(CarrierImage *carrier_img)
 {
