@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <libgen.h>     // For the basename() function
 
 // Third party libraries
 #include <sodium.h>     // libsodium (cryptography)
