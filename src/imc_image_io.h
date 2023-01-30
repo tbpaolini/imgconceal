@@ -67,8 +67,9 @@ typedef struct __attribute__ ((__packed__)) FileInfo
 // Initialize an image for hiding data in it
 int imc_steg_init(const char *path, const char *password, CarrierImage **output);
 
-// Convenience function for ensuring that the values from the timespec struct are 64-bit
-static inline struct timespec64 __timespec_to_64(struct timespec time);
+// Convenience function for converting the bytes from a timespec struct into
+// the byte layout used by this program: 64-bit little endian (each value)
+static inline struct timespec64 __timespec_to_64le(struct timespec time);
 
 // Hide a file in an image
 int imc_steg_insert(CarrierImage *carrier_img, const char *file_path);

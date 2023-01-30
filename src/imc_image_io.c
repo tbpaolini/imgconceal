@@ -69,12 +69,13 @@ int imc_steg_init(const char *path, const char *password, CarrierImage **output)
     return IMC_SUCCESS;
 }
 
-// Convenience function for ensuring that the values from the timespec struct are 64-bit
-static inline struct timespec64 __timespec_to_64(struct timespec time)
+// Convenience function for converting the bytes from a timespec struct into
+// the byte layout used by this program: 64-bit little endian (each value)
+static inline struct timespec64 __timespec_to_64le(struct timespec time)
 {
     return (struct timespec64){
-        .tv_sec  = (int64_t)time.tv_sec,
-        .tv_nsec = (int64_t)time.tv_nsec
+        .tv_sec  = htole64((int64_t)time.tv_sec),
+        .tv_nsec = htole64((int64_t)time.tv_nsec)
     };
 }
 
@@ -123,16 +124,17 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     const size_t compressed_offset = offsetof(FileInfo, access_time);
     
     // Store the metadata
+    // Note: integers are always stored in little endian byte order.
     FileInfo *file_info = (FileInfo*)raw_buffer;
-    file_info->version = IMC_FILEINFO_VERSION;
-    file_info->uncompressed_size = buffer_size - compressed_offset;
-    file_info->access_time = __timespec_to_64(file_stats.st_atim);
-    file_info->mod_time = __timespec_to_64(file_stats.st_mtim);
-    file_info->name_size = name_size;
+    file_info->version = htole32((uint32_t)IMC_FILEINFO_VERSION);
+    file_info->uncompressed_size = htole64(buffer_size - compressed_offset);
+    file_info->access_time = __timespec_to_64le(file_stats.st_atim);
+    file_info->mod_time = __timespec_to_64le(file_stats.st_mtim);
+    file_info->name_size = htole16(name_size);
     memcpy(&file_info->file_name[0], file_name, name_size);
     struct timespec current_time;
     clock_gettime(CLOCK_REALTIME, &current_time);
-    file_info->steg_time = __timespec_to_64(current_time);
+    file_info->steg_time = __timespec_to_64le(current_time);
 
     // Create a buffer for the compressed data
     // Note: For the overhead calculation, see https://zlib.net/zlib_tech.html
@@ -157,12 +159,12 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     if (status != 0) return IMC_ERR_FILE_TOO_BIG;
     
     // Store the actual size of the compressed data
-    ((FileInfo *)zlib_buffer)->compressed_size = zlib_buffer_size;
+    ((FileInfo *)zlib_buffer)->compressed_size = htole64(zlib_buffer_size);
 
     imc_free(raw_buffer);
 
     // Free the unused space in the output buffer
-    zlib_buffer = imc_realloc(zlib_buffer, zlib_buffer_size);
+    zlib_buffer = imc_realloc(zlib_buffer, zlib_buffer_size + compressed_offset);
 
     /* TO DO: Encrypt the data */
 
