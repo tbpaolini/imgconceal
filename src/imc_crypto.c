@@ -1,7 +1,7 @@
 #include "imc_includes.h"
 #include "imc_crypto_primes.h"
 
-// Parameter for generating a secret key
+// Salt for generating a secret key from a password
 static const char IMC_SALT[crypto_pwhash_SALTBYTES+1] = "imageconceal2023";
 
 // Header for encrypting the data stream
