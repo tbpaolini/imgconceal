@@ -8,6 +8,14 @@
 #define IMC_MEMLIMIT 4096000    // Amount of memory
 #define IMC_MEMLIMIT_REHASH 8192    // Memory used when re-hashing
 
+// Amount of bytes that will be added to the encrypted stream, in relation to the unencrypted data
+// This value includes the 17 bytes that libsodium adds, plus the 4 characters signature, 4 bytes
+// for the version number, and 4 bytes for storing the size of the stream following it.
+#define IMC_CRYPTO_OVERHEAD crypto_secretstream_xchacha20poly1305_ABYTES + 12
+
+// Signature that this program will add to the beginning of the data stream that was hidden
+#define IMC_CRYPTO_MAGIC "imcl"
+
 // Stores the secret key for encryption and the seed of the pseudorandom number generator
 typedef struct CryptoContext
 {
