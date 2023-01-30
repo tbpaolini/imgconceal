@@ -117,7 +117,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     imc_free(raw_buffer);
 
     // Free the unused space in the output buffer
-    imc_realloc(zlib_buffer, zlib_buffer_size);
+    zlib_buffer = imc_realloc(zlib_buffer, zlib_buffer_size);
 
     /* TO DO: Encrypt the data */
 
