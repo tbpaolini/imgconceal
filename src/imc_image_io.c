@@ -151,7 +151,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     zlib_buffer_size -= compressed_offset;
     
     // Compress the data on the buffer (from the '.access_time' onwards)
-    int status = compress2(
+    int zlib_status = compress2(
         &zlib_buffer[compressed_offset],    // Output buffer to store the compressed data (starting after the uncompressed section)
         &zlib_buffer_size,                  // Size in bytes of the output buffer (the function updates the value to the used size)
         input_buffer,                       // Data being compressed
@@ -160,7 +160,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     );
 
     imc_free(raw_buffer);
-    if (status != 0)
+    if (zlib_status != 0)
     {
         imc_free(zlib_buffer);
         return IMC_ERR_FILE_TOO_BIG;
@@ -168,14 +168,27 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     
     // Store the actual size of the compressed data
     ((FileInfo *)zlib_buffer)->compressed_size = htole64(zlib_buffer_size);
+    zlib_buffer_size += compressed_offset;
 
     // Free the unused space in the output buffer
-    zlib_buffer = imc_realloc(zlib_buffer, zlib_buffer_size + compressed_offset);
+    zlib_buffer = imc_realloc(zlib_buffer, zlib_buffer_size);
 
-    /* TO DO: Encrypt the data */
-    const size_t crypto_size = IMC_CRYPTO_OVERHEAD + zlib_buffer_size + compressed_offset;
+    // Allocate the buffer for the encrypted stream
+    const size_t crypto_size = IMC_CRYPTO_OVERHEAD + zlib_buffer_size;
     uint8_t *const crypto_buffer = imc_malloc(crypto_size);
+    unsigned long long crypto_output_len;
+    
+    // Encrypt the data stream
+    int crypto_status = imc_crypto_encrypt(
+        carrier_img->crypto,    // Secret key (generated from the password)
+        zlib_buffer,            // Unencrypted data stream
+        zlib_buffer_size,       // Size in bytes of the unencrypted stream
+        crypto_buffer,          // Output buffer for the encrypted data
+        &crypto_output_len      // Stores the amount of bytes written to the output buffer
+    );
 
+    // Clear and free the buffer of the unencrypted strem
+    sodium_memzero(zlib_buffer, zlib_buffer_size);
     imc_free(zlib_buffer);
 
     /* TO DO: Write the data to the carrier */

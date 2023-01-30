@@ -11,7 +11,8 @@
 // Amount of bytes that will be added to the encrypted stream, in relation to the unencrypted data
 // This value includes the 17 bytes that libsodium adds, plus the 4 characters signature, 4 bytes
 // for the version number, and 4 bytes for storing the size of the stream following it.
-#define IMC_CRYPTO_OVERHEAD crypto_secretstream_xchacha20poly1305_ABYTES + 12
+#define IMC_HEADER_OVERHEAD 12
+#define IMC_CRYPTO_OVERHEAD crypto_secretstream_xchacha20poly1305_ABYTES + IMC_HEADER_OVERHEAD
 
 // Signature that this program will add to the beginning of the data stream that was hidden
 #define IMC_CRYPTO_MAGIC "imcl"
@@ -36,6 +37,15 @@ uint64_t imc_crypto_prng_uint64(CryptoContext *state, uint64_t max);
 
 // Randomize the order of the elements in an array of pointers
 void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_elements);
+
+// Encrypt a data stream
+int imc_crypto_encrypt(
+    CryptoContext *state,
+    const uint8_t *const data,
+    unsigned long long data_len,
+    uint8_t *output,
+    unsigned long long *output_len
+);
 
 // Free the memory used by the cryptographic secrets
 void imc_crypto_context_destroy(CryptoContext *state);

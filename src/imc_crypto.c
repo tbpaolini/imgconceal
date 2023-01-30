@@ -2,10 +2,10 @@
 #include "imc_crypto_primes.h"
 
 // Salt for generating a secret key from a password
-static const char IMC_SALT[crypto_pwhash_SALTBYTES+1] = "imageconceal2023";
+static const unsigned char IMC_SALT[crypto_pwhash_SALTBYTES+1] = "imageconceal2023";
 
 // Header for encrypting the data stream
-static const char IMC_HEADER[crypto_secretstream_xchacha20poly1305_HEADERBYTES+1] = "imageconceal v1.0.0";
+static unsigned char IMC_HEADER[crypto_secretstream_xchacha20poly1305_HEADERBYTES+1] = "imageconceal v1.0.0";
 
 // Generate cryptographic secrets key from a password
 int imc_crypto_context_create(const char *password, CryptoContext **out)
@@ -207,6 +207,53 @@ void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_e
         array[new_i] ^= array[i];
         array[i] ^= array[new_i];
     }
+}
+
+// Encrypt a data stream
+int imc_crypto_encrypt(
+    CryptoContext *state,
+    const uint8_t *const data,
+    unsigned long long data_len,
+    uint8_t *output,
+    unsigned long long *output_len
+)
+{
+    // Initialize the encryption
+    crypto_secretstream_xchacha20poly1305_state encryption_state;
+    int status = crypto_secretstream_xchacha20poly1305_init_push(
+        &encryption_state,
+        IMC_HEADER,
+        state->xcc20_key
+    );
+
+    if (status < 0) return status;
+
+    // Encrypt the data
+    status = crypto_secretstream_xchacha20poly1305_push(
+        &encryption_state,  // Parameters for encryption
+        &output[IMC_HEADER_OVERHEAD],   // Output buffer for the ciphertext (skip the space for the metadata that we are going to prepend)
+        output_len,         // Stores the amount of bytes written to the output buffer
+        data,               // Data to be encrypted
+        data_len,           // Size in bytes of the data
+        NULL,               // Additional data (nothing in our case)
+        0,                  // Size in bytes of the additional data
+        crypto_secretstream_xchacha20poly1305_TAG_FINAL // Tag that this is the last data of the stream
+    );
+
+    if (status < 0) return status;
+
+    // Pointers to the adresses where the version and size will be written
+    uint32_t *version = (uint32_t *)&output[4];
+    uint32_t *c_size = (uint32_t *)&output[8];
+    
+    // Write the metadata to the beginning of the buffer
+    memcpy(&output[0], IMC_CRYPTO_MAGIC, 4);             // Add the file signature (magic bytes)
+    *version = htole32( (uint32_t)IMC_CRYPTO_VERSION );  // Version of the current encryption process
+    *c_size = htole32( (uint32_t)(*output_len) );        // Size of the encrypted stream that follows
+
+    *output_len += IMC_HEADER_OVERHEAD;
+
+    return status;
 }
 
 // Free the memory used by the cryptographic secrets
