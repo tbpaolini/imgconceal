@@ -160,7 +160,11 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     );
 
     imc_free(raw_buffer);
-    if (status != 0) return IMC_ERR_FILE_TOO_BIG;
+    if (status != 0)
+    {
+        imc_free(zlib_buffer);
+        return IMC_ERR_FILE_TOO_BIG;
+    }
     
     // Store the actual size of the compressed data
     ((FileInfo *)zlib_buffer)->compressed_size = htole64(zlib_buffer_size);
