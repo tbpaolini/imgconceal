@@ -69,6 +69,15 @@ int imc_steg_init(const char *path, const char *password, CarrierImage **output)
     return IMC_SUCCESS;
 }
 
+// Convenience function for ensuring that the values from the timespec struct are 64-bit
+static inline struct timespec64 __timespec_to_64(struct timespec time)
+{
+    return (struct timespec64){
+        .tv_sec  = (int64_t)time.tv_sec,
+        .tv_nsec = (int64_t)time.tv_nsec
+    };
+}
+
 // Hide a file in an image
 int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
 {
