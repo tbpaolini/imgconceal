@@ -126,14 +126,17 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     // Store the metadata
     // Note: integers are always stored in little endian byte order.
     FileInfo *file_info = (FileInfo*)raw_buffer;
+    
     file_info->version = htole32((uint32_t)IMC_FILEINFO_VERSION);
     file_info->uncompressed_size = htole64(buffer_size - compressed_offset);
     file_info->access_time = __timespec_to_64le(file_stats.st_atim);
     file_info->mod_time = __timespec_to_64le(file_stats.st_mtim);
     file_info->name_size = htole16(name_size);
+    
     memcpy(&file_info->file_name[0], file_name, name_size);
     struct timespec current_time;
     clock_gettime(CLOCK_REALTIME, &current_time);
+    
     file_info->steg_time = __timespec_to_64le(current_time);
 
     // Create a buffer for the compressed data
@@ -156,12 +159,11 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
         9                                   // Compression level
     );
 
+    imc_free(raw_buffer);
     if (status != 0) return IMC_ERR_FILE_TOO_BIG;
     
     // Store the actual size of the compressed data
     ((FileInfo *)zlib_buffer)->compressed_size = htole64(zlib_buffer_size);
-
-    imc_free(raw_buffer);
 
     // Free the unused space in the output buffer
     zlib_buffer = imc_realloc(zlib_buffer, zlib_buffer_size + compressed_offset);
