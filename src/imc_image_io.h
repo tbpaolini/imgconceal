@@ -47,6 +47,7 @@ typedef struct __attribute__ ((__packed__)) FileInfo
     uint64_t compressed_size;       // Size after being compressed by Zlib
     struct timespec access_time;    // Last access time of the file
     struct timespec modified_time;  // Last modified time of the file
+    struct timespec steg_time;      // Time when the file was hidden by this program
     uint16_t name_size;             // Amount of bytes on the name of the file (counting the null terminator)
     uint8_t file_name[];            // Null-terminated string of the file name (with extension, if any)
 } FileInfo;
