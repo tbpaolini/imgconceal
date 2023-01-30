@@ -10,6 +10,11 @@
 #include <math.h>
 #include <locale.h>
 
+// System libraries
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+
 // Third party libraries
 #include <sodium.h>     // libsodium (cryptography)
 #include <jpeglib.h>    // libjpeg-turbo (JPEG images)

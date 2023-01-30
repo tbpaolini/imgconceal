@@ -75,10 +75,11 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     FILE *file = fopen(file_path, "rb");
     if (file == NULL) return IMC_ERR_FILE_NOT_FOUND;
 
-    // Determine the file size
-    fseek(file, 0, SEEK_END);
-    const long file_size = ftell(file);
-    fseek(file, 0, SEEK_SET);
+    // Get the file's metadata
+    int file_descriptor = fileno(file);
+    struct stat file_metadata;
+    fstat(file_descriptor, &file_metadata);
+    const off_t file_size = file_metadata.st_size;
     
     // Sanity check
     if (file_size > IMC_MAX_INPUT_SIZE)
