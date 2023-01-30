@@ -167,10 +167,14 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     zlib_buffer = imc_realloc(zlib_buffer, zlib_buffer_size + compressed_offset);
 
     /* TO DO: Encrypt the data */
+    const size_t crypto_size = IMC_CRYPTO_OVERHEAD + zlib_buffer_size + compressed_offset;
+    uint8_t *const crypto_buffer = imc_malloc(crypto_size);
 
     imc_free(zlib_buffer);
 
     /* TO DO: Write the data to the carrier */
+
+    imc_free(crypto_buffer);
 
     return IMC_SUCCESS;
 }
