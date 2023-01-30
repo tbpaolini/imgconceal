@@ -37,6 +37,20 @@ typedef struct CarrierImage
     size_t heap_lenght;     // Amount of elements on the 'heap' array
 } CarrierImage;
 
+// Metadata of the file being hidden
+// The data is packed in order to avoid discrepancies between compilers,
+// since this data will be stored alongside the file.
+typedef struct __attribute__ ((__packed__)) FileInfo
+{
+    uint32_t version;               // This value should increase whenever this struct changes (for backwards compatibility)
+    uint64_t uncompressed_size;     // Size after being decompressed with Zlib
+    uint64_t compressed_size;       // Size after being compressed by Zlib
+    struct timespec access_time;    // Last access time of the file
+    struct timespec modified_time;  // Last modified time of the file
+    uint16_t name_size;             // Amount of bytes on the name of the file (counting the null terminator)
+    uint8_t file_name[];            // Null-terminated string of the file name (with extension, if any)
+} FileInfo;
+
 // Initialize an image for hiding data in it
 int imc_steg_init(const char *path, const char *password, CarrierImage **output);
 
