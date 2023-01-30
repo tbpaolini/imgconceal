@@ -86,9 +86,9 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
 
     // Get the file's metadata
     int file_descriptor = fileno(file);
-    struct stat file_metadata;
-    fstat(file_descriptor, &file_metadata);
-    const off_t file_size = file_metadata.st_size;
+    struct stat file_stats;
+    fstat(file_descriptor, &file_stats);
+    const off_t file_size = file_stats.st_size;
     
     // Sanity check
     if (file_size > IMC_MAX_INPUT_SIZE)
@@ -101,39 +101,68 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
             I thought it would be an overkill to optimize the program for handling large files.
         */
     }
-    
-    // Read the file into a buffer
-    uint8_t *restrict raw_buffer = imc_malloc(file_size);
-    const size_t read_count = fread(raw_buffer, 1, file_size, file);
-    fclose(file);
-    if (read_count != file_size) return IMC_ERR_FILE_INVALID;
-
-    // Compress the data on the buffer
-    // Note: For the overhead calculation, see https://zlib.net/zlib_tech.html
-    const size_t zlib_overhead = 6 + (5 * (file_size / 16000)) + 1;
-    size_t zlib_buffer_size = file_size + zlib_overhead;
-    uint8_t *restrict zlib_buffer = imc_malloc(zlib_buffer_size);
-    
-    int status = compress2(
-        zlib_buffer,        // Output buffer
-        &zlib_buffer_size,  // Size in bytes of the output buffer
-        raw_buffer,         // Input buffer
-        file_size,          // Size in bytes of the input buffer
-        9                   // Compression level
-    );
-
-    if (status != 0) return IMC_ERR_FILE_TOO_BIG;
-
-    imc_free(raw_buffer);
-
-    // Free the unused space in the output buffer
-    zlib_buffer = imc_realloc(zlib_buffer, zlib_buffer_size);
 
     // Get the file name from the path
     const size_t path_len = strlen(file_path);
     char path_temp[path_len+1];
     strcpy(path_temp, file_path);
     char *file_name = basename(path_temp);
+    
+    // Calculate the size for the file's metadata that will be stored
+    const size_t name_size = strlen(file_name) + 1;
+    const size_t info_size = sizeof(FileInfo) + name_size;
+    
+    // Read the file into a buffer
+    const size_t buffer_size = info_size + file_size;
+    uint8_t *const raw_buffer = imc_malloc(buffer_size);
+    const size_t read_count = fread(&raw_buffer[info_size], 1, file_size, file);
+    fclose(file);
+    if (read_count != file_size) return IMC_ERR_FILE_INVALID;
+
+    // The offset from which the data will be compressed
+    const size_t compressed_offset = offsetof(FileInfo, access_time);
+    
+    // Store the metadata
+    FileInfo *file_info = (FileInfo*)raw_buffer;
+    file_info->version = IMC_FILEINFO_VERSION;
+    file_info->uncompressed_size = buffer_size - compressed_offset;
+    file_info->access_time = __timespec_to_64(file_stats.st_atim);
+    file_info->mod_time = __timespec_to_64(file_stats.st_mtim);
+    file_info->name_size = name_size;
+    memcpy(&file_info->file_name[0], file_name, name_size);
+    struct timespec current_time;
+    clock_gettime(CLOCK_REALTIME, &current_time);
+    file_info->steg_time = __timespec_to_64(current_time);
+
+    // Create a buffer for the compressed data
+    // Note: For the overhead calculation, see https://zlib.net/zlib_tech.html
+    const size_t zlib_overhead = 6 + (5 * (file_size / 16000)) + 1;
+    size_t zlib_buffer_size = buffer_size + zlib_overhead;
+    uint8_t *const input_buffer = (uint8_t *)(&file_info->access_time);
+    uint8_t *zlib_buffer = imc_malloc(zlib_buffer_size);
+    
+    // Copy the uncompressed metadata to the beginning of the buffer
+    memcpy(zlib_buffer, file_info, compressed_offset);
+    zlib_buffer_size -= compressed_offset;
+    
+    // Compress the data on the buffer (from the '.access_time' onwards)
+    int status = compress2(
+        &zlib_buffer[compressed_offset],    // Output buffer to store the compressed data (starting after the uncompressed section)
+        &zlib_buffer_size,                  // Size in bytes of the output buffer (the function updates the value to the used size)
+        input_buffer,                       // Data being compressed
+        file_info->uncompressed_size,       // Size in bytes of the data
+        9                                   // Compression level
+    );
+
+    if (status != 0) return IMC_ERR_FILE_TOO_BIG;
+    
+    // Store the actual size of the compressed data
+    ((FileInfo *)zlib_buffer)->compressed_size = zlib_buffer_size;
+
+    imc_free(raw_buffer);
+
+    // Free the unused space in the output buffer
+    zlib_buffer = imc_realloc(zlib_buffer, zlib_buffer_size);
 
     /* TO DO: Encrypt the data */
 

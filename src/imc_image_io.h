@@ -47,11 +47,16 @@ struct timespec64
 // Metadata of the file being hidden
 // The data is packed in order to avoid discrepancies between compilers,
 // since this data will be stored alongside the file.
+// IMPORTANT: Values from 'access_time' onwards will be compressed, so they must not be modified after compression.
+//            This struct will come before the file, and the compressed/uncompressed sizes also count the file itself.
 typedef struct __attribute__ ((__packed__)) FileInfo
 {
+    // Uncompressed values
     uint32_t version;               // This value should increase whenever this struct changes (for backwards compatibility)
-    uint64_t uncompressed_size;     // Size after being decompressed with Zlib
-    uint64_t compressed_size;       // Size after being compressed by Zlib
+    uint64_t uncompressed_size;     // Size from '.access_time' onwards, after decompressed with Zlib
+    uint64_t compressed_size;       // Size from '.access_time' onwards, after compressed with Zlib
+
+    // Compressed values
     struct timespec64 access_time;  // Last access time of the file
     struct timespec64 mod_time;     // Last modified time of the file
     struct timespec64 steg_time;    // Time when the file was hidden by this program
