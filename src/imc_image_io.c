@@ -196,6 +196,15 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
         &crypto_output_len      // Stores the amount of bytes written to the output buffer
     );
 
+    if (crypto_status < 0)
+    {
+        // It does not seem that encryption can fail, if the parameters are correct and the buffer is big enough.
+        // But I still am doing this check here, just to be on the safe side.
+        imc_free(zlib_buffer);
+        imc_free(crypto_buffer);
+        return IMC_ERR_CRYPTO_FAIL;
+    }
+
     // Clear and free the buffer of the unencrypted strem
     sodium_memzero(zlib_buffer, zlib_buffer_size);
     imc_free(zlib_buffer);
