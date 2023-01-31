@@ -173,8 +173,17 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     // Free the unused space in the output buffer
     zlib_buffer = imc_realloc(zlib_buffer, zlib_buffer_size);
 
-    // Allocate the buffer for the encrypted stream
+    // Total size of the encrypted stream
     const size_t crypto_size = IMC_CRYPTO_OVERHEAD + zlib_buffer_size;
+
+    if (crypto_size * 8 > carrier_img->carrier_lenght)
+    {
+        // The carrier is not big enough to store the encrypted stream
+        imc_free(zlib_buffer);
+        return IMC_ERR_FILE_TOO_BIG;
+    }
+    
+    // Allocate the buffer for the encrypted stream
     uint8_t *const crypto_buffer = imc_malloc(crypto_size);
     unsigned long long crypto_output_len;
     
