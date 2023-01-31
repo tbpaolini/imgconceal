@@ -348,7 +348,24 @@ void imc_png_carrier_open(CarrierImage *output)
 // Save the carrier bytes back to the JPEG image
 int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
 {
+    size_t p_len = strlen(save_path);
+    char jpeg_path[p_len+16];
+    strncpy(jpeg_path, save_path, sizeof(jpeg_path));
+    
+    if ( (strncmp(&save_path[p_len-4], ".jpg", 4) != 0) && (strncmp(&save_path[p_len-5], ".jpeg", 5) != 0) )
+    {
+        strcat(save_path, ".jpg");
+    }
 
+    FILE *jpeg_file = fopen(save_path, "wb");
+    
+    // Create a new JPEG compression object 
+    struct jpeg_compress_struct jpeg_obj;
+    struct jpeg_error_mgr jpeg_err;
+    jpeg_obj.err = jpeg_std_error(&jpeg_err);   // Use the default error handler
+    jpeg_create_compress(&jpeg_obj);
+    
+    jpeg_stdio_dest(&jpeg_obj, jpeg_file);
 }
 
 // Save the carrier bytes back to the PNG image
