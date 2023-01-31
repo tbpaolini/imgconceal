@@ -159,13 +159,16 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
         9                                   // Compression level
     );
 
-    imc_free(raw_buffer);
     if (zlib_status != 0)
     {
         // The only way for decompression to fail here is if no enough memory was available
         imc_free(zlib_buffer);
+        imc_free(raw_buffer);
         return IMC_ERR_NO_MEMORY;
     }
+
+    sodium_memzero(raw_buffer, buffer_size);
+    imc_free(raw_buffer);
     
     // Store the actual size of the compressed data
     ((FileInfo *)zlib_buffer)->compressed_size = htole64(zlib_buffer_size);
@@ -212,6 +215,8 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
 
     /* TO DO: Write the data to the carrier */
 
+    // Clear and free the buffer of the unencrypted strem
+    sodium_memzero(crypto_buffer, crypto_size);
     imc_free(crypto_buffer);
 
     return IMC_SUCCESS;
