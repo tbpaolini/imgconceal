@@ -162,13 +162,12 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     if (zlib_status != 0)
     {
         // The only way for decompression to fail here is if no enough memory was available
-        imc_free(zlib_buffer);
-        imc_free(raw_buffer);
+        imc_clear_free(zlib_buffer, zlib_buffer_size + compressed_offset);
+        imc_clear_free(raw_buffer, buffer_size);
         return IMC_ERR_NO_MEMORY;
     }
 
-    sodium_memzero(raw_buffer, buffer_size);
-    imc_free(raw_buffer);
+    imc_clear_free(raw_buffer, buffer_size);
     
     // Store the actual size of the compressed data
     ((FileInfo *)zlib_buffer)->compressed_size = htole64(zlib_buffer_size);
@@ -183,7 +182,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     if (crypto_size * 8 > carrier_img->carrier_lenght)
     {
         // The carrier is not big enough to store the encrypted stream
-        imc_free(zlib_buffer);
+        imc_clear_free(zlib_buffer, zlib_buffer_size);
         return IMC_ERR_FILE_TOO_BIG;
     }
     
@@ -204,20 +203,18 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     {
         // It does not seem that encryption can fail, if the parameters are correct and the buffer is big enough.
         // But I still am doing this check here, just to be on the safe side.
-        imc_free(zlib_buffer);
-        imc_free(crypto_buffer);
+        imc_clear_free(zlib_buffer, zlib_buffer_size);
+        imc_clear_free(crypto_buffer, crypto_size);
         return IMC_ERR_CRYPTO_FAIL;
     }
 
     // Clear and free the buffer of the unencrypted strem
-    sodium_memzero(zlib_buffer, zlib_buffer_size);
-    imc_free(zlib_buffer);
+    imc_clear_free(zlib_buffer, zlib_buffer_size);
 
     /* TO DO: Write the data to the carrier */
 
     // Clear and free the buffer of the unencrypted strem
-    sodium_memzero(crypto_buffer, crypto_size);
-    imc_free(crypto_buffer);
+    imc_clear_free(crypto_buffer, crypto_size);
 
     return IMC_SUCCESS;
 }
