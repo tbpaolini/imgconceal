@@ -224,7 +224,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
             uint8_t *const carrier_byte = carrier_img->carrier[carrier_img->carrier_pos++];
             
             // Get the data bit to be hidden on the carrier
-            const uint8_t my_bit = crypto_buffer[i] & bit[j];
+            const uint8_t my_bit = (crypto_buffer[i] & bit[j]) != 0;
             
             // Clear the least significant bit of the carrier, then store the data bit there
             *carrier_byte &= lsb_clear;
