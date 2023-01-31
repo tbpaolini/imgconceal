@@ -29,7 +29,7 @@ typedef struct CryptoContext
 int imc_crypto_context_create(const char *password, CryptoContext **out);
 
 // Pseudorandom number generator using the Blum Blum Shub algorithm
-// It writes a given amount of bytes to the output, while taking into account the endianness of the system.
+// It writes a given amount of bytes to the output.
 void imc_crypto_prng(CryptoContext *state, size_t num_bytes, uint8_t *output);
 
 // Generate an unsigned 64-bit integer that can be up to the 'max' value (inclusive)

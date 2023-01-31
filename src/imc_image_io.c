@@ -296,13 +296,12 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
 
                     // The current coefficient
                     const JCOEF coef = coef_array[0][x][i];
-                    const uint8_t *const coef_bytes = (uint8_t *)(&coef);
 
                     // Only the AC coefficients that are not 0 or 1 are used as carriers
                     if (coef != 0 && coef != 1)
                     {
                         // Store the value of the least significant byte of the coefficient
-                        carrier_bytes[carrier_count++] = IS_LITTLE_ENDIAN ? coef_bytes[0] : coef_bytes[sizeof(JCOEF)-1];
+                        carrier_bytes[carrier_count++] = (uint8_t)(coef & (JCOEF)255);
                     }
                 }
             }

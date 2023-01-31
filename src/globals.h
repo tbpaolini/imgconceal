@@ -20,7 +20,4 @@
 // Maximum size in bytes of the file being hidden
 #define IMC_MAX_INPUT_SIZE  500000000
 
-// Store the byte order of the system
-extern bool IS_LITTLE_ENDIAN;
-
 #endif  // _IMC_GLOBALS_H
