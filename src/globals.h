@@ -16,6 +16,7 @@
 #define IMC_ERR_FILE_INVALID   -4   // File is not of a supported format
 #define IMC_ERR_FILE_TOO_BIG   -5   // The file to be hidden does not fit in the carrier bits of the image
 #define IMC_ERR_CRYPTO_FAIL    -6   // Failed to encrypt or decrypt the data
+#define IMC_ERR_FILE_EXISTS    -7   // Output file's name already exists
 
 // Maximum size in bytes of the file being hidden
 #define IMC_MAX_INPUT_SIZE  500000000
