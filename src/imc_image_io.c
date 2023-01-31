@@ -114,8 +114,8 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     const size_t info_size = sizeof(FileInfo) + name_size;
     
     // Read the file into a buffer
-    const size_t buffer_size = info_size + file_size;
-    uint8_t *const raw_buffer = imc_malloc(buffer_size);
+    const size_t raw_size = info_size + file_size;
+    uint8_t *const raw_buffer = imc_malloc(raw_size);
     const size_t read_count = fread(&raw_buffer[info_size], 1, file_size, file);
     fclose(file);
     if (read_count != file_size) return IMC_ERR_FILE_INVALID;
@@ -128,7 +128,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     FileInfo *file_info = (FileInfo*)raw_buffer;
     
     file_info->version = htole32((uint32_t)IMC_FILEINFO_VERSION);
-    file_info->uncompressed_size = htole64(buffer_size - compressed_offset);
+    file_info->uncompressed_size = htole64(raw_size - compressed_offset);
     file_info->access_time = __timespec_to_64le(file_stats.st_atim);
     file_info->mod_time = __timespec_to_64le(file_stats.st_mtim);
     file_info->name_size = htole16(name_size);
@@ -142,7 +142,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     // Create a buffer for the compressed data
     // Note: For the overhead calculation, see https://zlib.net/zlib_tech.html
     const size_t zlib_overhead = 6 + (5 * (file_size / 16000)) + 1;
-    size_t zlib_buffer_size = buffer_size + zlib_overhead;
+    size_t zlib_buffer_size = raw_size + zlib_overhead;
     uint8_t *const input_buffer = (uint8_t *)(&file_info->access_time);
     uint8_t *zlib_buffer = imc_malloc(zlib_buffer_size);
     
@@ -163,11 +163,11 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     {
         // The only way for decompression to fail here is if no enough memory was available
         imc_clear_free(zlib_buffer, zlib_buffer_size + compressed_offset);
-        imc_clear_free(raw_buffer, buffer_size);
+        imc_clear_free(raw_buffer, raw_size);
         return IMC_ERR_NO_MEMORY;
     }
 
-    imc_clear_free(raw_buffer, buffer_size);
+    imc_clear_free(raw_buffer, raw_size);
     
     // Store the actual size of the compressed data
     ((FileInfo *)zlib_buffer)->compressed_size = htole64(zlib_buffer_size);
