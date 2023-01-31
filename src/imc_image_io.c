@@ -1,5 +1,9 @@
 #include "imc_includes.h"
 
+static const uint8_t bit[8] = {1, 2, 4, 8, 16, 32, 64, 128};    // Masks for getting each of the 8 bits of a byte
+static const uint8_t lsb_get   = 0b00000001;    // Mask for clearing the least significant bit of a byte
+static const uint8_t lsb_clear = 0b11111110;    // Mask for clearing the least significant bit of a byte
+
 // Initialize an image for hiding data in it
 int imc_steg_init(const char *path, const char *password, CarrierImage **output)
 {
@@ -179,7 +183,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     // Total size of the encrypted stream
     const size_t crypto_size = IMC_CRYPTO_OVERHEAD + zlib_buffer_size;
 
-    if (crypto_size * 8 > carrier_img->carrier_lenght)
+    if (crypto_size * 8 > carrier_img->carrier_lenght - carrier_img->carrier_pos)
     {
         // The carrier is not big enough to store the encrypted stream
         imc_clear_free(zlib_buffer, zlib_buffer_size);
@@ -211,7 +215,22 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     // Clear and free the buffer of the unencrypted strem
     imc_clear_free(zlib_buffer, zlib_buffer_size);
 
-    /* TO DO: Write the data to the carrier */
+    // Store the encrypted data stream on the least significant bits of the carrier
+    for (size_t i = 0; i < crypto_size; i++)
+    {
+        for (size_t j = 0; j < 8; j++)
+        {
+            // Get a pointer to the carrier byte
+            uint8_t *const carrier_byte = carrier_img->carrier[carrier_img->carrier_pos++];
+            
+            // Get the data bit to be hidden on the carrier
+            const uint8_t my_bit = crypto_buffer[i] & bit[j];
+            
+            // Clear the least significant bit of the carrier, then store the data bit there
+            *carrier_byte &= lsb_clear;
+            *carrier_byte |= my_bit;
+        }
+    }
 
     // Clear and free the buffer of the unencrypted strem
     imc_clear_free(crypto_buffer, crypto_size);
