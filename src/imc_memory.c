@@ -38,3 +38,10 @@ void imc_free(void *ptr)
 {
     free(ptr);
 }
+
+// Set a memory region to zero, then free it
+void imc_clear_free(void *ptr, size_t mem_size)
+{
+    sodium_memzero(ptr, mem_size);
+    imc_free(ptr);
+}

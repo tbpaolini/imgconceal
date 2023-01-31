@@ -20,4 +20,7 @@ void *imc_realloc(void *ptr, size_t mem_size);
 // Free the memory allocated by 'imc_malloc()', 'imc_realloc()' or 'imc_calloc()'
 void imc_free(void *ptr);
 
+// Set a memory region to zero, then free it
+void imc_clear_free(void *ptr, size_t mem_size);
+
 #endif  //_IMC_MEMORY_H
