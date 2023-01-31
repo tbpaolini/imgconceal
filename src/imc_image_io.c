@@ -55,13 +55,13 @@ int imc_steg_init(const char *path, const char *password, CarrierImage **output)
     {
         case IMC_JPEG:
             carrier_img->open  = &imc_jpeg_carrier_open;
-            carrier_img->write = &imc_jpeg_carrier_write;
+            carrier_img->save  = &imc_jpeg_carrier_save;
             carrier_img->close = &imc_jpeg_carrier_close;
             break;
         
         case IMC_PNG:
             carrier_img->open  = &imc_png_carrier_open;
-            carrier_img->write = &imc_png_carrier_write;
+            carrier_img->save  = &imc_png_carrier_save;
             carrier_img->close = &imc_png_carrier_close;
             break;
     }
@@ -346,14 +346,14 @@ void imc_png_carrier_open(CarrierImage *output)
 
 }
 
-// Hide data in a JPEG image
-int imc_jpeg_carrier_write(CarrierImage *carrier_img, uint8_t *data, size_t data_len)
+// Save the carrier bytes back to the JPEG image
+int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
 {
 
 }
 
-// Hide data in a PNG image
-int imc_png_carrier_write(CarrierImage *carrier_img, uint8_t *data, size_t data_len)
+// Save the carrier bytes back to the PNG image
+int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
 {
 
 }
@@ -384,9 +384,10 @@ void imc_png_carrier_close(CarrierImage *carrier_img)
 
 }
 
-// Free the memory of the data structures used for data hiding
-void imc_steg_finish(CarrierImage *carrier_img)
+// Save the image with hidden data, then free the memory of the data structures used for steganography
+void imc_steg_finish(CarrierImage *carrier_img, const char *save_path)
 {
+    carrier_img->save(carrier_img, save_path);
     carrier_img->close(carrier_img);
     fclose(carrier_img->file);
     imc_crypto_context_destroy(carrier_img->crypto);

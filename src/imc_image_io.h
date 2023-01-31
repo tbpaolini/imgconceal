@@ -11,7 +11,7 @@ enum ImageType {IMC_JPEG, IMC_PNG};
 // Pointers to the steganographic functions
 struct CarrierImage;
 typedef void (*carrier_open_func)(struct CarrierImage *);
-typedef int (*carrier_write_func)(struct CarrierImage *, uint8_t *data, size_t data_len);
+typedef int (*carrier_save_func)(struct CarrierImage *, const char *save_path);
 typedef void (*carrier_close_func)(struct CarrierImage *);
 
 // Image that will carry the hidden data
@@ -29,7 +29,7 @@ typedef struct CarrierImage
     size_t carrier_lenght;      // Amount of carrier bytes
     size_t carrier_pos;         // Current writting position on the 'carrier' array
     carrier_open_func open;     // Find the carrier bytes
-    carrier_write_func write;   // Hide data in the carrier
+    carrier_save_func save;     // Hide data in the carrier
     carrier_close_func close;   // Free the memory used for the carrier operation
     
     // Memory management
@@ -80,11 +80,11 @@ void imc_jpeg_carrier_open(CarrierImage *output);
 // Get bytes of a PNG image that will carry the hidden data
 void imc_png_carrier_open(CarrierImage *output);
 
-// Hide data in a JPEG image
-int imc_jpeg_carrier_write(CarrierImage *carrier_img, uint8_t *data, size_t data_len);
+// Save the carrier bytes back to the JPEG image
+int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path);
 
-// Hide data in a PNG image
-int imc_png_carrier_write(CarrierImage *carrier_img, uint8_t *data, size_t data_len);
+// Save the carrier bytes back to the PNG image
+int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path);
 
 // Free the memory of the array of heap pointers in a CarrierImage struct
 static void __carrier_heap_free(CarrierImage *carrier_img);
@@ -95,7 +95,7 @@ void imc_jpeg_carrier_close(CarrierImage *carrier_img);
 // Close the PNG object and free the memory associated to it
 void imc_png_carrier_close(CarrierImage *carrier_img);
 
-// Free the memory of the data structures used for data hiding
-void imc_steg_finish(CarrierImage *carrier_img);
+// Save the image with hidden data, then free the memory of the data structures used for steganography
+void imc_steg_finish(CarrierImage *carrier_img, const char *save_path);
 
 #endif  // _IMC_IMAGE_IO_H
