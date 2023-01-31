@@ -162,8 +162,9 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     imc_free(raw_buffer);
     if (zlib_status != 0)
     {
+        // The only way for decompression to fail here is if no enough memory was available
         imc_free(zlib_buffer);
-        return IMC_ERR_FILE_TOO_BIG;
+        return IMC_ERR_NO_MEMORY;
     }
     
     // Store the actual size of the compressed data
