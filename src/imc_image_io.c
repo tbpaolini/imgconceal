@@ -247,9 +247,17 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
     struct jpeg_error_mgr *jpeg_err = imc_malloc(sizeof(struct jpeg_error_mgr));
     jpeg_obj->err = jpeg_std_error(jpeg_err);   // Use the default error handler
     jpeg_create_decompress(jpeg_obj);
-    
-    // Read the DCT coefficients from the image
     jpeg_stdio_src(jpeg_obj, jpeg_file);
+
+    // Save to memory the application markers and comment marker
+    // (This is being done in order to preserve the metadata from the original image)
+    for (size_t i = 0; i < 16; i++)
+    {
+        jpeg_save_markers(jpeg_obj, JPEG_APP0+i, 0xFFFF);
+    }
+    jpeg_save_markers(jpeg_obj, JPEG_COM, 0xFFFF);
+
+    // Read the DCT coefficients from the image
     jpeg_read_header(jpeg_obj, true);
     jvirt_barray_ptr *jpeg_dct = jpeg_read_coefficients(jpeg_obj);
 
@@ -414,12 +422,24 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
     if (!jpeg_file) return IMC_ERR_FILE_NOT_FOUND;
 
     // Create a new JPEG compression object 
-    struct jpeg_compress_struct jpeg_obj;
+    struct jpeg_compress_struct jpeg_obj_out;
     struct jpeg_error_mgr jpeg_err;
-    jpeg_obj.err = jpeg_std_error(&jpeg_err);   // Use the default error handler
-    jpeg_create_compress(&jpeg_obj);
+    jpeg_obj_out.err = jpeg_std_error(&jpeg_err);   // Use the default error handler
+    jpeg_create_compress(&jpeg_obj_out);
+    jpeg_stdio_dest(&jpeg_obj_out, jpeg_file);
+
+    // Copy the codec's parameters from the original image into the new image
+    struct jpeg_decompress_struct *jpeg_obj_in = (struct jpeg_decompress_struct *)carrier_img->object;
+    jpeg_copy_critical_parameters(jpeg_obj_in, &jpeg_obj_out);
     
-    jpeg_stdio_dest(&jpeg_obj, jpeg_file);
+    // Copy the metadata from the original image into the new image
+    jpeg_saved_marker_ptr my_marker = jpeg_obj_in->marker_list;
+    while (my_marker)
+    {
+        jpeg_write_marker(&jpeg_obj_out, my_marker->marker, my_marker->data, my_marker->data_length);
+        my_marker = my_marker->next;
+    }
+    
 }
 
 // Save the carrier bytes back to the PNG image
