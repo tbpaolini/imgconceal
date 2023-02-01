@@ -345,21 +345,73 @@ void imc_png_carrier_open(CarrierImage *output)
 
 }
 
+// Change a file path in order to make it unique
+// IMPORTANT: Function assumes that the filename has an extension,
+// and the path buffer must be big enough to store the new name.
+static bool __resolve_filename_collision(char *path)
+{
+    // Try opening the file for reading to see if it already exists
+    FILE *file = fopen(path, "rb");
+    if (file == NULL) return true;
+    
+    // Copy the file's extension to a buffer
+    char *dot = strrchr(path, '.');
+    const size_t e_len = strlen(dot);
+    char extension[e_len+1];
+    memset(extension, 0, sizeof(extension));
+    strncpy(extension, dot, sizeof(extension));
+
+    // Copy the file's stem to a buffer
+    const size_t s_len = strlen(path) - e_len;
+    char stem[s_len+1];
+    memset(stem, 0, sizeof(stem));
+    strncpy(stem, path, s_len);
+    
+    for (int i = 1; i <= IMC_MAX_FILENAME_DUPLICATES; i++)
+    {
+        fclose(file);
+
+        // Create a 'number of the copy' string
+        char copy_num[6];
+        snprintf(copy_num, sizeof(copy_num), " (%d)", i);
+
+        // Concatenate the stem, number, and extension to form a new filename
+        memcpy(path, stem, sizeof(stem));
+        strcat(path, copy_num);
+        strcat(path, extension);
+
+        // Test if the new filename exists
+        file = fopen(path, "rb");
+        if (file == NULL) return true;
+    }
+
+    // No new name could be created
+    // (the amount of tries is limited to 99)
+    fclose(file);
+    return false;
+}
+
 // Save the carrier bytes back to the JPEG image
 int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
 {
-    size_t p_len = strlen(save_path);
+    // Append the '.jpg' extension to the path, if it does not already end in '.jpg' or '.jpeg'
+    const size_t p_len = strlen(save_path);
     char jpeg_path[p_len+16];
     strncpy(jpeg_path, save_path, sizeof(jpeg_path));
     
     if ( (strncmp(&save_path[p_len-4], ".jpg", 4) != 0) && (strncmp(&save_path[p_len-5], ".jpeg", 5) != 0) )
     {
-        strcat(save_path, ".jpg");
+        strcat(jpeg_path, ".jpg");
     }
 
-    FILE *jpeg_file = fopen(save_path, "wb");
+    // Append a number to the file's stem if the filename already exists
+    // Example: 'Image.jpg' might become 'Image (1).jpg'
+    // Note: The number goes up to 99, in order to avoid creating too many files accidentally
+    bool is_unique = __resolve_filename_collision(jpeg_path);
+    if (!is_unique) return IMC_ERR_FILE_EXISTS;
     
     // Create a new JPEG compression object 
+    FILE *jpeg_file = fopen(jpeg_path, "wb");
     struct jpeg_compress_struct jpeg_obj;
     struct jpeg_error_mgr jpeg_err;
     jpeg_obj.err = jpeg_std_error(&jpeg_err);   // Use the default error handler

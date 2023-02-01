@@ -21,4 +21,7 @@
 // Maximum size in bytes of the file being hidden
 #define IMC_MAX_INPUT_SIZE  500000000
 
+// Maximum number that can be appended to a filename in order to resolve name collisions
+#define IMC_MAX_FILENAME_DUPLICATES 99
+
 #endif  // _IMC_GLOBALS_H

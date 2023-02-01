@@ -10,6 +10,7 @@
 #include <math.h>
 #include <locale.h>
 #include <time.h>
+#include <ctype.h>
 
 // System libraries
 #include <unistd.h>

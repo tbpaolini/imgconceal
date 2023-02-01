@@ -80,6 +80,11 @@ void imc_jpeg_carrier_open(CarrierImage *output);
 // Get bytes of a PNG image that will carry the hidden data
 void imc_png_carrier_open(CarrierImage *output);
 
+// Change a file path in order to make it unique
+// IMPORTANT: Function assumes that the filename has an extension,
+// and the path buffer must be big enough to store the new name.
+static bool __resolve_filename_collision(char *path);
+
 // Save the carrier bytes back to the JPEG image
 int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path);
 
