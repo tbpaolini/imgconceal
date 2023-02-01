@@ -410,8 +410,10 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
     bool is_unique = __resolve_filename_collision(jpeg_path);
     if (!is_unique) return IMC_ERR_FILE_EXISTS;
     
-    // Create a new JPEG compression object 
     FILE *jpeg_file = fopen(jpeg_path, "wb");
+    if (!jpeg_file) return IMC_ERR_FILE_NOT_FOUND;
+
+    // Create a new JPEG compression object 
     struct jpeg_compress_struct jpeg_obj;
     struct jpeg_error_mgr jpeg_err;
     jpeg_obj.err = jpeg_std_error(&jpeg_err);   // Use the default error handler
