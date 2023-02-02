@@ -292,7 +292,8 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
             // Iterate column by column from left to right
             for (JDIMENSION x = 0; x < jpeg_obj->comp_info[comp].width_in_blocks; x++)
             {
-                // Iterate over the 63 AC coefficients (the DC coefficient is skipped)
+                // Iterate over the 63 AC coefficients
+                // (the DC coefficient of the block is skipped, because modifying it causes a bigger impact)
                 for (JCOEF i = 1; i < DCTSIZE2; i++)
                 {
                     // Resize the array of carriers if it is full
@@ -459,7 +460,8 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
             // Iterate column by column from left to right
             for (JDIMENSION x = 0; x < jpeg_obj_in->comp_info[comp].width_in_blocks; x++)
             {
-                // Iterate over the 63 AC coefficients (the DC coefficient is skipped)
+                // Iterate over the 63 AC coefficients
+                // (the DC coefficient of the block is skipped, because modifying it causes a bigger impact)
                 for (JCOEF i = 1; i < DCTSIZE2; i++)
                 {   
                     // The current coefficient
