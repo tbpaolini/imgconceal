@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
         &test
     );
     imc_steg_insert(test, "/home/tiago/proj/imgconceal/bin/linux/debug/pintor-barroco-desconhecido-jesus-misecordioso-d.jpg");
-    imc_steg_finish(test, "teste.jpg");
+    imc_steg_finish(test, "/home/tiago/proj/imgconceal/bin/linux/debug/teste.jpg");
     
     return 0;
 }

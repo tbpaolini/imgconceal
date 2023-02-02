@@ -462,11 +462,13 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
                 {   
                     // The current coefficient
                     const JCOEF coef = coef_array[0][x][i];
+                    static const JCOEF coef_lsb = ~(JCOEF)1;    // Mask for clearing the least significant bit
 
                     // Only the AC coefficients that are not 0 or 1 are used as carriers
                     if (coef != 0 && coef != 1)
                     {
                         // Store the carrier byte
+                        coef_array[0][x][i] &= coef_lsb;
                         coef_array[0][x][i] |= carrier_img->bytes[b_pos++];
                     }
                 }
