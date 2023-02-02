@@ -428,9 +428,8 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
     jpeg_create_compress(&jpeg_obj_out);
     jpeg_stdio_dest(&jpeg_obj_out, jpeg_file);
 
-    // Copy the codec's parameters from the original image into the new image
+    // Get the original image
     struct jpeg_decompress_struct *jpeg_obj_in = (struct jpeg_decompress_struct *)carrier_img->object;
-    jpeg_copy_critical_parameters(jpeg_obj_in, &jpeg_obj_out);
     
     // Get the DCT coefficients from the original image
     jvirt_barray_ptr *jpeg_dct = jpeg_read_coefficients(jpeg_obj_in);
@@ -474,7 +473,26 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
             }
         }
     }
+
+    // Write the modified DCT coefficients into the new image
+    jpeg_copy_critical_parameters(jpeg_obj_in, &jpeg_obj_out);
+    jpeg_write_coefficients(&jpeg_obj_out, jpeg_dct);
     
+    // jpeg_start_compress(&jpeg_obj_out, true);
+    
+    // // Copy the metadata from the original image into the new image
+    // jpeg_saved_marker_ptr my_marker = jpeg_obj_in->marker_list;
+    // while (my_marker)
+    // {
+    //     jpeg_write_marker(&jpeg_obj_out, my_marker->marker, my_marker->data, my_marker->data_length);
+    //     my_marker = my_marker->next;
+    // }
+
+    jpeg_finish_compress(&jpeg_obj_out);
+    jpeg_destroy_compress(&jpeg_obj_out);
+    fclose(jpeg_file);
+
+    return IMC_SUCCESS;
 }
 
 // Save the carrier bytes back to the PNG image
