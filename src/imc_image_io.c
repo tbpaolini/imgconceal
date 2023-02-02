@@ -494,6 +494,7 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
         my_marker = my_marker->next;
     }
 
+    // Write the new image to disk
     jpeg_finish_compress(&jpeg_obj_out);
     jpeg_destroy_compress(&jpeg_obj_out);
     fclose(jpeg_file);
