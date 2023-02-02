@@ -432,12 +432,47 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
     struct jpeg_decompress_struct *jpeg_obj_in = (struct jpeg_decompress_struct *)carrier_img->object;
     jpeg_copy_critical_parameters(jpeg_obj_in, &jpeg_obj_out);
     
-    // Copy the metadata from the original image into the new image
-    jpeg_saved_marker_ptr my_marker = jpeg_obj_in->marker_list;
-    while (my_marker)
+    // Get the DCT coefficients from the original image
+    jvirt_barray_ptr *jpeg_dct = jpeg_read_coefficients(jpeg_obj_in);
+    /* Note:
+        The carrier bytes will be stored back to those DCT coefficients.
+        Afterwards, the modified coefficients will be saved on the new image.
+    */
+    
+    // Iterate over the color components
+    size_t b_pos = 0;
+    for (int comp = 0; comp < jpeg_obj_in->num_components; comp++)
     {
-        jpeg_write_marker(&jpeg_obj_out, my_marker->marker, my_marker->data, my_marker->data_length);
-        my_marker = my_marker->next;
+        // Iterate row by row from from top to bottom
+        for (JDIMENSION y = 0; y < jpeg_obj_in->comp_info[comp].height_in_blocks; y++)
+        {
+            // Array of DCT coefficients for the current color component
+            JBLOCKARRAY coef_array = jpeg_obj_in->mem->access_virt_barray(
+                (j_common_ptr)jpeg_obj_in,  // Pointer to the JPEG object
+                jpeg_dct[comp],             // DCT coefficients for the current color component
+                y,                          // The current row of DCT blocks on the image
+                1,                          // Read one row of DCT blocks at a time
+                true                        // Opening the array in write mode
+            );
+
+            // Iterate column by column from left to right
+            for (JDIMENSION x = 0; x < jpeg_obj_in->comp_info[comp].width_in_blocks; x++)
+            {
+                // Iterate over the 63 AC coefficients (the DC coefficient is skipped)
+                for (JCOEF i = 1; i < DCTSIZE2; i++)
+                {   
+                    // The current coefficient
+                    const JCOEF coef = coef_array[0][x][i];
+
+                    // Only the AC coefficients that are not 0 or 1 are used as carriers
+                    if (coef != 0 && coef != 1)
+                    {
+                        // Store the carrier byte
+                        coef_array[0][x][i] |= carrier_img->bytes[b_pos++];
+                    }
+                }
+            }
+        }
     }
     
 }
