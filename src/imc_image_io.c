@@ -251,9 +251,14 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
 
     // Save to memory the application markers and comment marker
     // (This is being done in order to preserve the metadata from the original image)
-    for (size_t i = 0; i < 16; i++)
+    for (size_t i = 1; i < 16; i++)
     {
+        if (i == 14) continue;
         jpeg_save_markers(jpeg_obj, JPEG_APP0+i, 0xFFFF);
+        /* Note:
+            The JFIF marker (JPEG_APP0) and the Adobe marker (JPEG_APP14) are being skipped
+            because libjpeg-turbo already handles those automatically.
+        */
     }
     jpeg_save_markers(jpeg_obj, JPEG_COM, 0xFFFF);
 
