@@ -499,6 +499,18 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
     jpeg_destroy_compress(&jpeg_obj_out);
     fclose(jpeg_file);
 
+    // Get the "last access" and "last mofified" times from the original image
+    const int og_descriptor = fileno(carrier_img->file);
+    struct stat og_stats;
+    fstat(og_descriptor, &og_stats);
+    const struct timespec og_last_times[2] = {
+        og_stats.st_atim,
+        og_stats.st_mtim
+    };
+
+    // Set those times on the new file to the same as in the original
+    utimensat(AT_FDCWD, jpeg_path, og_last_times, 0);
+
     return IMC_SUCCESS;
 }
 

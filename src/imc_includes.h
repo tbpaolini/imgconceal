@@ -18,6 +18,7 @@
 #include <sys/time.h>
 #include <libgen.h>     // For the basename() function
 #include <endian.h>
+#include <fcntl.h>      // For the AT_FDCWD macro
 
 // Third party libraries
 #include <sodium.h>     // libsodium (cryptography)
