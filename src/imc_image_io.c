@@ -489,7 +489,17 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
 
     // Write the modified DCT coefficients into the new image
     jpeg_copy_critical_parameters(jpeg_obj_in, &jpeg_obj_out);
+    jpeg_obj_out.optimize_coding = true;
     jpeg_write_coefficients(&jpeg_obj_out, jpeg_dct);
+
+    /* Note:
+        Apparently, libjpeg-turbo does not copy the Huffman tables from the original image to the output:
+        https://github.com/libjpeg-turbo/libjpeg-turbo/blob/4e028ecd63aaa13c8a14937f9f1e9a272ed4b543/jctrans.c#L143
+        
+        It causes the outputs (from different original images) to have the same Huffman tables.
+        That would facilitate "firgerprinting" the output, so I am using 'optimize_coding' to generate
+        an optimized table for the image, which should make the table be different depending on the image.
+    */
     
     // Copy the metadata from the original image into the new image
     jpeg_saved_marker_ptr my_marker = jpeg_obj_in->marker_list;
