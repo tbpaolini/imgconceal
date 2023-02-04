@@ -407,7 +407,7 @@ static bool __resolve_filename_collision(char *path)
     return false;
 }
 
-// Save the carrier bytes back to the JPEG image
+// Write the carrier bytes back to the JPEG image, and save it as a new file
 int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
 {
     // Append the '.jpg' extension to the path, if it does not already end in '.jpg' or '.jpeg'
@@ -535,7 +535,7 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
     return IMC_SUCCESS;
 }
 
-// Save the carrier bytes back to the PNG image
+// Write the carrier bytes back to the PNG image, and save it as a new file
 int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
 {
 

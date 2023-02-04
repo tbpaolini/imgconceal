@@ -85,10 +85,10 @@ void imc_png_carrier_open(CarrierImage *output);
 // and the path buffer must be big enough to store the new name.
 static bool __resolve_filename_collision(char *path);
 
-// Save the carrier bytes back to the JPEG image
+// Write the carrier bytes back to the JPEG image, and save it as a new file
 int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path);
 
-// Save the carrier bytes back to the PNG image
+// Write the carrier bytes back to the PNG image, and save it as a new file
 int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path);
 
 // Free the memory of the array of heap pointers in a CarrierImage struct
