@@ -238,6 +238,13 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     return IMC_SUCCESS;
 }
 
+// Read the hidden data from the carrier bytes, and save it
+// Note: The filename is stored with the hidden data
+int imc_steg_extract(CarrierImage *carrier_img)
+{
+
+}
+
 // Get bytes of a JPEG image that will carry the hidden data
 void imc_jpeg_carrier_open(CarrierImage *carrier_img)
 {
