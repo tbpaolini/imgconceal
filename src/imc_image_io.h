@@ -74,6 +74,11 @@ static inline struct timespec64 __timespec_to_64le(struct timespec time);
 // Hide a file in an image
 int imc_steg_insert(CarrierImage *carrier_img, const char *file_path);
 
+// Helper function for reading a given amount of bytes (the payload) from the carrier of an image
+// Returns 'false' if the read would go out of bounds (no read is done in this case).
+// Returns 'true' if the read could be made (the bytes are stored of the provided buffer).
+static bool __read_payload(CarrierImage *carrier_img, size_t num_bytes, uint8_t *out_buffer);
+
 // Read the hidden data from the carrier bytes, and save it
 // Note: The filename is stored with the hidden data
 int imc_steg_extract(CarrierImage *carrier_img);

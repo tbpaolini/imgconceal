@@ -238,6 +238,32 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     return IMC_SUCCESS;
 }
 
+// Helper function for reading a given amount of bytes (the payload) from the carrier of an image
+// Returns 'false' if the read would go out of bounds (no read is done in this case).
+// Returns 'true' if the read could be made (the bytes are stored of the provided buffer).
+static bool __read_payload(CarrierImage *carrier_img, size_t num_bytes, uint8_t *out_buffer)
+{
+    if ( (num_bytes * 8) > (carrier_img->carrier_lenght - carrier_img->carrier_pos) )
+    {
+        // The amount of data left to be read is bigger than the requested amount
+        return false;
+    }
+
+    memset(out_buffer, 0, num_bytes);
+
+    for (size_t i = 0; i < num_bytes; i++)
+    {
+        for (size_t j = 0; j < 8; j++)
+        {
+            // Get the least significant bit from the carrier, then store the bit on the buffer
+            const uint8_t carrier_byte = *carrier_img->carrier[carrier_img->carrier_pos++];
+            if (carrier_byte & lsb_get) out_buffer[i] |= bit[j];
+        }
+    }
+    
+    return true;
+}
+
 // Read the hidden data from the carrier bytes, and save it
 // Note: The filename is stored with the hidden data
 int imc_steg_extract(CarrierImage *carrier_img)
