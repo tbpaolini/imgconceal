@@ -231,6 +231,60 @@ int imc_crypto_encrypt(
     return status;
 }
 
+// Decrypt a data stream
+int imc_crypto_decrypt(
+    CryptoContext *state,
+    const uint8_t *const data,
+    unsigned long long data_len,
+    uint8_t *output,
+    unsigned long long *output_len
+)
+{
+    // Initialize the encryption
+    crypto_secretstream_xchacha20poly1305_state decryption_state;
+    int status = crypto_secretstream_xchacha20poly1305_init_pull(
+        &decryption_state,
+        IMC_HEADER,
+        state->xcc20_key
+    );
+
+    if (status < 0) return status;
+
+    unsigned char tag = 0;
+
+    // Decrypt the data
+    status = crypto_secretstream_xchacha20poly1305_pull(
+        &decryption_state,  // Parameters for decryption
+        output,             // Output buffer for the decrypted data
+        output_len,         // Size in bytes of the output buffer (on success, the function stores here how many bytes were written)
+        &tag,               // Output for the tag attached to the data (in the current version, it should be tagged as FINAL)
+        data,               // Input buffer with the encrypted data
+        data_len,           // Size in bytes of the input buffer
+        NULL,               // Buffer for the additional data (we are not using it)
+        0                   // Size of the buffer for additional data
+    );
+
+    if (status < 0)
+    {
+        return status;
+    }
+    else
+    {
+        if (tag == crypto_secretstream_xchacha20poly1305_TAG_FINAL)
+        {
+            // Decryption worked
+            return status;
+        }
+        else
+        {
+            // Theoretically, this branch is unreachable because (in this version) the encryption always tags the data as FINAL.
+            // But the check for the tag is here "just in case".
+            sodium_memzero(output, *output_len);
+            return IMC_ERR_CRYPTO_FAIL;
+        }
+    }
+}
+
 // Free the memory used by the cryptographic secrets
 void imc_crypto_context_destroy(CryptoContext *state)
 {

@@ -47,6 +47,15 @@ int imc_crypto_encrypt(
     unsigned long long *output_len
 );
 
+// Decrypt a data stream
+int imc_crypto_decrypt(
+    CryptoContext *state,
+    const uint8_t *const data,
+    unsigned long long data_len,
+    uint8_t *output,
+    unsigned long long *output_len
+);
+
 // Free the memory used by the cryptographic secrets
 void imc_crypto_context_destroy(CryptoContext *state);
 
