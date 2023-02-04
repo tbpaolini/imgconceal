@@ -268,7 +268,38 @@ static bool __read_payload(CarrierImage *carrier_img, size_t num_bytes, uint8_t 
 // Note: The filename is stored with the hidden data
 int imc_steg_extract(CarrierImage *carrier_img)
 {
+    bool read_status;
+    
+    // File magic (should be "imcl")
+    char magic[5];
+    memset(magic, 0, sizeof(magic));
+    read_status = __read_payload(carrier_img, sizeof(magic)-1, (uint8_t *)magic);
+    if (!read_status) return IMC_ERR_PAYLOAD_OOB;
 
+    // Check magic
+    if ( strncmp(magic, IMC_CRYPTO_MAGIC, strlen(IMC_CRYPTO_MAGIC)) != 0 )
+    {
+        return IMC_ERR_INVALID_MAGIC;
+    }
+
+    // Check the version of the encrypted data
+    uint32_t crypto_version;
+    read_status = __read_payload(carrier_img, sizeof(crypto_version), (uint8_t *)&crypto_version);
+    if (!read_status) return IMC_ERR_PAYLOAD_OOB;
+    crypto_version = le32toh(crypto_version);
+    if (crypto_version > IMC_CRYPTO_VERSION) return IMC_ERR_NEWER_VERSION;
+
+    // Get the size of the encrypted stream
+    uint32_t crypto_size;
+    read_status = __read_payload(carrier_img, sizeof(crypto_size), (uint8_t *)&crypto_size);
+    if (!read_status) return IMC_ERR_PAYLOAD_OOB;
+    crypto_size = le32toh(crypto_size);
+
+    // Check if the size is not bigger than what is left on the image
+    if ( (crypto_size * 8) > (carrier_img->carrier_lenght - carrier_img->carrier_pos) )
+    {
+        return IMC_ERR_PAYLOAD_OOB;
+    }
 }
 
 // Get bytes of a JPEG image that will carry the hidden data
