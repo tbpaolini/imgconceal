@@ -295,11 +295,16 @@ int imc_steg_extract(CarrierImage *carrier_img)
     if (!read_status) return IMC_ERR_PAYLOAD_OOB;
     crypto_size = le32toh(crypto_size);
 
-    // Check if the size is not bigger than what is left on the image
-    if ( (crypto_size * 8) > (carrier_img->carrier_lenght - carrier_img->carrier_pos) )
+    // Read the encrypted stream into a buffer
+    uint8_t *crypto_buffer = imc_malloc(crypto_size);
+    read_status = __read_payload(carrier_img, crypto_size, crypto_buffer);
+    if (!read_status)
     {
+        imc_free(crypto_buffer);
         return IMC_ERR_PAYLOAD_OOB;
     }
+
+    imc_free(crypto_buffer);
 }
 
 // Get bytes of a JPEG image that will carry the hidden data
