@@ -304,7 +304,21 @@ int imc_steg_extract(CarrierImage *carrier_img)
         return IMC_ERR_PAYLOAD_OOB;
     }
 
+    unsigned long long decrypt_size = crypto_size - crypto_secretstream_xchacha20poly1305_ABYTES;
+    const unsigned long long decrypt_size_start = decrypt_size;
+
+    uint8_t *decrypt_buffer = imc_malloc(decrypt_size);
+
+    int decrypt_status = imc_crypto_decrypt(
+        carrier_img->crypto,
+        crypto_buffer,
+        crypto_size,
+        decrypt_buffer,
+        &decrypt_size
+    );
+
     imc_free(crypto_buffer);
+    imc_free(decrypt_buffer);
 }
 
 // Get bytes of a JPEG image that will carry the hidden data
