@@ -13,13 +13,20 @@ int main(int argc, char *argv[])
     // imc_jpeg_open_carrier("The most awesomest image ever.jpg", NULL);
     // imc_jpeg_open_carrier("17032012981.jpg", NULL);
     CarrierImage *test;
+    // imc_steg_init(
+    //     "/home/tiago/proj/imgconceal/bin/linux/debug/20131026_101242_Av. Getúlio Vargas.jpg",
+    //     (argc >= 2) ? argv[1] : "Tiago",
+    //     &test
+    // );
+    // imc_steg_insert(test, "/home/tiago/proj/imgconceal/bin/linux/debug/pintor-barroco-desconhecido-jesus-misecordioso-d.jpg");
+    // imc_steg_finish(test, "/home/tiago/proj/imgconceal/bin/linux/debug/teste.jpg");
+    
     imc_steg_init(
-        "/home/tiago/proj/imgconceal/bin/linux/debug/The most awesomest image ever.jpg",
+        "/home/tiago/proj/imgconceal/bin/linux/debug/teste.jpg",
         (argc >= 2) ? argv[1] : "Tiago",
         &test
     );
-    imc_steg_insert(test, "/home/tiago/proj/imgconceal/bin/linux/debug/pintor-barroco-desconhecido-jesus-misecordioso-d.jpg");
-    imc_steg_finish(test, "/home/tiago/proj/imgconceal/bin/linux/debug/teste.jpg");
+    imc_steg_extract(test);
     
     return 0;
 }
