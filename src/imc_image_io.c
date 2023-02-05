@@ -295,6 +295,12 @@ int imc_steg_extract(CarrierImage *carrier_img)
     if (!read_status) return IMC_ERR_PAYLOAD_OOB;
     crypto_size = le32toh(crypto_size);
 
+    // Get the header from the stream
+    uint8_t header[crypto_secretstream_xchacha20poly1305_HEADERBYTES];
+    read_status = __read_payload(carrier_img, sizeof(header), header);
+    if (!read_status) return IMC_ERR_PAYLOAD_OOB;
+    crypto_size -= sizeof(header);
+
     // Read the encrypted stream into a buffer
     uint8_t *crypto_buffer = imc_malloc(crypto_size);
     read_status = __read_payload(carrier_img, crypto_size, crypto_buffer);
@@ -304,18 +310,27 @@ int imc_steg_extract(CarrierImage *carrier_img)
         return IMC_ERR_PAYLOAD_OOB;
     }
 
+    // Allocate a buffer for the decrypted data
     unsigned long long decrypt_size = crypto_size - crypto_secretstream_xchacha20poly1305_ABYTES;
     const unsigned long long decrypt_size_start = decrypt_size;
-
     uint8_t *decrypt_buffer = imc_malloc(decrypt_size);
 
+    // Decrypt the data
     int decrypt_status = imc_crypto_decrypt(
         carrier_img->crypto,
+        header,
         crypto_buffer,
         crypto_size,
         decrypt_buffer,
         &decrypt_size
     );
+
+    if (decrypt_status < 0 || decrypt_size != decrypt_size_start)
+    {
+        imc_free(crypto_buffer);
+        imc_free(decrypt_buffer);
+        return IMC_ERR_CRYPTO_FAIL;
+    }
 
     imc_free(crypto_buffer);
     imc_free(decrypt_buffer);

@@ -197,11 +197,16 @@ int imc_crypto_encrypt(
     unsigned long long *output_len
 )
 {
+    // Header used for decryption
+    // (will be generated automatically, and needs to be stored with the encrypted stream)
+    uint8_t crypto_header[crypto_secretstream_xchacha20poly1305_HEADERBYTES];
+    memset(crypto_header, 0, sizeof(crypto_header));
+    
     // Initialize the encryption
     crypto_secretstream_xchacha20poly1305_state encryption_state;
     int status = crypto_secretstream_xchacha20poly1305_init_push(
         &encryption_state,
-        IMC_HEADER,
+        crypto_header,
         state->xcc20_key
     );
 
@@ -221,6 +226,9 @@ int imc_crypto_encrypt(
 
     if (status < 0) return status;
 
+    // Add the bytes needed by libsodium's header
+    *output_len += crypto_secretstream_xchacha20poly1305_HEADERBYTES;
+
     // Pointers to the adresses where the version and size will be written
     uint32_t *version = (uint32_t *)&output[4];
     uint32_t *c_size = (uint32_t *)&output[8];
@@ -228,8 +236,13 @@ int imc_crypto_encrypt(
     // Write the metadata to the beginning of the buffer
     memcpy(&output[0], IMC_CRYPTO_MAGIC, 4);             // Add the file signature (magic bytes)
     *version = htole32( (uint32_t)IMC_CRYPTO_VERSION );  // Version of the current encryption process
-    *c_size = htole32( (uint32_t)(*output_len) );        // Size of the encrypted stream that follows
+    *c_size = htole32( (uint32_t)(*output_len) );        // Amount of bytes that follow until the end of the stream
 
+    // Write the libsodium's header to before the encrypted stream
+    uint8_t *header_dest = (uint8_t *)&output[12];
+    memcpy(header_dest, crypto_header, crypto_secretstream_xchacha20poly1305_HEADERBYTES);
+
+    // Add the bytes used by imgconceal
     *output_len += IMC_HEADER_OVERHEAD;
 
     return status;
@@ -238,6 +251,7 @@ int imc_crypto_encrypt(
 // Decrypt a data stream
 int imc_crypto_decrypt(
     CryptoContext *state,
+    uint8_t header[crypto_secretstream_xchacha20poly1305_HEADERBYTES],
     const uint8_t *const data,
     unsigned long long data_len,
     uint8_t *output,
@@ -248,7 +262,7 @@ int imc_crypto_decrypt(
     crypto_secretstream_xchacha20poly1305_state decryption_state;
     int status = crypto_secretstream_xchacha20poly1305_init_pull(
         &decryption_state,
-        IMC_HEADER,
+        header,
         state->xcc20_key
     );
 
@@ -270,6 +284,7 @@ int imc_crypto_decrypt(
 
     if (status < 0)
     {
+        // Decryption failed
         return status;
     }
     else
@@ -284,7 +299,7 @@ int imc_crypto_decrypt(
             // Theoretically, this branch is unreachable because (in this version) the encryption always tags the data as FINAL.
             // But the check for the tag is here "just in case".
             sodium_memzero(output, *output_len);
-            return IMC_ERR_CRYPTO_FAIL;
+            return -1;
         }
     }
 }
