@@ -83,6 +83,16 @@ static inline struct timespec64 __timespec_to_64le(struct timespec time)
     };
 }
 
+// Convenience function for converting the bytes from the byte layout used
+// by this program (64-bit little endian) to the standard timespec struct
+static inline struct timespec __timespec_from_64le(struct timespec64 time)
+{
+    return (struct timespec){
+        .tv_sec  = le64toh(time.tv_sec),
+        .tv_nsec = le64toh(time.tv_nsec)
+    };
+}
+
 // Hide a file in an image
 int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
 {
