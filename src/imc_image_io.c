@@ -407,9 +407,22 @@ int imc_steg_extract(CarrierImage *carrier_img)
     char file_name[name_len + 16];  // Extra size added in case it needs to be renamed for avoinding name collision
     memset(file_name, 0, sizeof(file_name));
     memcpy(file_name, file_info->file_name, name_len);
-    __resolve_filename_collision(file_name);
+    bool is_unique = __resolve_filename_collision(file_name);
+    if (!is_unique) return IMC_ERR_FILE_EXISTS;
 
+    // Write the hidden file to disk
+    FILE *out_file = fopen(file_name, "wb");
+    if (!out_file) return IMC_ERR_SAVE_FAIL;
+    const size_t file_start = sizeof(FileInfo) + name_len;
+    const size_t file_size  = offsetof(FileInfo, access_time) + decompress_size - file_start;
+    fwrite(&decompress_buffer[file_start], file_size, 1, out_file);
+    fclose(out_file);
     imc_free(decompress_buffer);
+
+    // Restore the file's 'last access' and 'last modified' times
+    utimensat(AT_FDCWD, file_name, file_times, 0);
+
+    return IMC_SUCCESS;
 }
 
 // Get bytes of a JPEG image that will carry the hidden data
