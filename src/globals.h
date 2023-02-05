@@ -20,6 +20,7 @@
 #define IMC_ERR_PAYLOAD_OOB    -8   // Out-of-bounds: attempted to read more hidden data than what is left of the image
 #define IMC_ERR_INVALID_MAGIC  -9   // The "magic bytes" of the hidden data did not match what were expected
 #define IMC_ERR_NEWER_VERSION  -10  // Data was hidden using a newer version of this program
+#define IMC_ERR_SAVE_FAIL      -11  // Failed to save the extracted file
 
 // Maximum size in bytes of the file being hidden
 #define IMC_MAX_INPUT_SIZE  500000000
