@@ -343,7 +343,58 @@ int imc_steg_extract(CarrierImage *carrier_img)
     }
 
     imc_free(crypto_buffer);
+
+    // Current position on the decrypted stream
+    size_t d_pos = 0;
+    
+    // Get the version of the compressed data
+    uint32_t compress_version = UINT32_MAX;
+    memcpy(&compress_version, &decrypt_buffer[d_pos], sizeof(compress_version));
+    compress_version = le32toh(compress_version);
+    if (compress_version > IMC_FILEINFO_VERSION)
+    {
+        imc_free(decrypt_buffer);
+        return IMC_ERR_NEWER_VERSION;
+    }
+    d_pos += sizeof(compress_version);
+
+    // Get the compressed and uncompressed sizes
+    uint64_t compress_size, decompress_size;
+    
+    memcpy(&decompress_size, &decrypt_buffer[d_pos], sizeof(decompress_size));
+    decompress_size = le64toh(decompress_size);
+    d_pos += sizeof(decompress_size);
+    
+    memcpy(&compress_size, &decrypt_buffer[d_pos], sizeof(compress_size));
+    compress_size = le64toh(compress_size);
+    d_pos += sizeof(compress_size);
+
+    // Allocate buffer for decompressed data
+    const size_t d_size = d_pos + decompress_size;
+    uint8_t *decompress_buffer = imc_malloc(d_size);
+    memcpy(&decompress_buffer[0], decrypt_buffer, d_pos);   // Copy the header to the beginning of the buffer
+
+    // Decompress the data using Zlib
+    int decompress_status = uncompress(
+        &decompress_buffer[d_pos],  // Output buffer
+        &decompress_size,           // Size of the output buffer
+        &decrypt_buffer[d_pos],     // Input buffer
+        compress_size               // Size of the input buffer
+    );
+
+    if (decompress_status != 0 || decompress_size + d_pos != d_size)
+    {
+        // If the file was not tampered with, the actual decompressed size
+        // should be exactly the same as the size stored on the metadata
+        imc_clear_free(decrypt_buffer, decrypt_size);
+        imc_clear_free(decompress_buffer, d_size);
+        return IMC_ERR_CRYPTO_FAIL;
+    }
+
     imc_free(decrypt_buffer);
+    
+    
+    imc_free(decompress_buffer);
 }
 
 // Get bytes of a JPEG image that will carry the hidden data
