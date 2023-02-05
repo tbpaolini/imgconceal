@@ -1,8 +1,8 @@
 #include "imc_includes.h"
 
 static const uint8_t bit[8] = {1, 2, 4, 8, 16, 32, 64, 128};    // Masks for getting each of the 8 bits of a byte
-static const uint8_t lsb_get   = 0b00000001;    // Mask for clearing the least significant bit of a byte
-static const uint8_t lsb_clear = 0b11111110;    // Mask for clearing the least significant bit of a byte
+static const uint8_t lsb_get   = 1;     // (0b00000001) Mask for clearing the least significant bit of a byte
+static const uint8_t lsb_clear = 254;   // (0b11111110) Mask for clearing the least significant bit of a byte
 
 // Initialize an image for hiding data in it
 int imc_steg_init(const char *path, const char *password, CarrierImage **output)
