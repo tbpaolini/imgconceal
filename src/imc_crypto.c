@@ -240,7 +240,7 @@ int imc_crypto_decrypt(
     unsigned long long *output_len
 )
 {
-    // Initialize the encryption
+    // Initialize the decryption
     crypto_secretstream_xchacha20poly1305_state decryption_state;
     int status = crypto_secretstream_xchacha20poly1305_init_pull(
         &decryption_state,
