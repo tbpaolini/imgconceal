@@ -17,6 +17,11 @@
 // Signature that this program will add to the beginning of the data stream that was hidden
 #define IMC_CRYPTO_MAGIC "imcl"
 
+// Salt appended to the password when hashing
+// The salt does not need to be secret, but password validation will fail if using a different salt.
+// Note: Maximum size is 16 characters, it will be truncated if beyond that.
+#define IMC_SALT "imageconceal2023"
+
 // Stores the secret key for encryption and the seed of the pseudorandom number generator
 typedef struct CryptoContext
 {

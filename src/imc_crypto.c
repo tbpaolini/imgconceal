@@ -1,15 +1,19 @@
 #include "imc_includes.h"
 #include "imc_crypto_primes.h"
 
-// Salt for generating a secret key from a password
-static const unsigned char IMC_SALT[crypto_pwhash_SALTBYTES+1] = "imageconceal2023";
-
 // Header for encrypting the data stream
 static unsigned char IMC_HEADER[crypto_secretstream_xchacha20poly1305_HEADERBYTES+1] = "imageconceal v1.0.0";
 
 // Generate cryptographic secrets key from a password
 int imc_crypto_context_create(const char *password, CryptoContext **out)
 {
+    // Salt for generating a secret key from a password
+    uint8_t salt[crypto_pwhash_SALTBYTES];
+    memset(salt, 0, sizeof(salt));
+    size_t salt_len = strlen(IMC_SALT);
+    if (salt_len > crypto_pwhash_SALTBYTES) salt_len = crypto_pwhash_SALTBYTES;
+    memcpy(salt, IMC_SALT, salt_len);
+    
     // Storage for the secret key and the seed of the number generator
     CryptoContext *context = sodium_malloc(sizeof(CryptoContext));
     sodium_memzero(context, sizeof(CryptoContext));
@@ -49,7 +53,7 @@ int imc_crypto_context_create(const char *password, CryptoContext **out)
             sizeof(output),
             (cycle == 0) ? password : (const char * const)previous_output,
             (cycle == 0) ? strlen(password) : sizeof(output),
-            IMC_SALT,
+            salt,
             IMC_OPSLIMIT,
             (cycle == 0) ? IMC_MEMLIMIT : IMC_MEMLIMIT_REHASH,
             crypto_pwhash_ALG_ARGON2ID13
