@@ -393,7 +393,22 @@ int imc_steg_extract(CarrierImage *carrier_img)
 
     imc_free(decrypt_buffer);
     
-    
+    // Get the data needed to reconstruct the hidden file
+    FileInfo *file_info = (FileInfo*)decompress_buffer;
+
+    // Get the last access and last modified times of the hidden file
+    struct timespec file_times[2] = {
+        __timespec_from_64le(file_info->access_time),
+        __timespec_from_64le(file_info->mod_time),
+    };
+
+    // Get the name of the hidden file
+    size_t name_len = le16toh(file_info->name_size);
+    char file_name[name_len + 16];  // Extra size added in case it needs to be renamed for avoinding name collision
+    memset(file_name, 0, sizeof(file_name));
+    memcpy(file_name, file_info->file_name, name_len);
+    __resolve_filename_collision(file_name);
+
     imc_free(decompress_buffer);
 }
 
