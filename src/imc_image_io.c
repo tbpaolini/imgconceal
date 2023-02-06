@@ -125,6 +125,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     
     // Calculate the size for the file's metadata that will be stored
     const size_t name_size = strlen(file_name) + 1;
+    if (name_size > UINT16_MAX) return IMC_ERR_FILE_INVALID;
     const size_t info_size = sizeof(FileInfo) + name_size;
     
     // Read the file into a buffer
@@ -603,6 +604,7 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
 {
     // Append the '.jpg' extension to the path, if it does not already end in '.jpg' or '.jpeg'
     const size_t p_len = strlen(save_path);
+    if (p_len > UINT16_MAX) return IMC_ERR_SAVE_FAIL;
     char jpeg_path[p_len+16];
     strncpy(jpeg_path, save_path, sizeof(jpeg_path));
     
