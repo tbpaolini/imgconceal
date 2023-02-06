@@ -62,7 +62,7 @@ typedef struct prng_state {
 #endif
 
 // buf's size must be a multiple of 128 bytes.
-static inline void prng_gen(prng_state *SHISHUA_RESTRICT s, uint8_t *SHISHUA_RESTRICT buf, size_t size);
+void prng_gen(prng_state *SHISHUA_RESTRICT s, uint8_t *SHISHUA_RESTRICT buf, size_t size);
 
 // Nothing up my sleeve: those are the hex digits of Φ,
 // the least approximable irrational number.
