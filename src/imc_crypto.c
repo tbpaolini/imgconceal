@@ -16,8 +16,8 @@ int imc_crypto_context_create(const char *password, CryptoContext **out)
     
     // Storage for the secret key and the seed of the number generator
     CryptoContext *context = sodium_malloc(sizeof(CryptoContext));
-    sodium_memzero(context, sizeof(CryptoContext));
     if (!context) return IMC_ERR_NO_MEMORY;
+    sodium_memzero(context, sizeof(CryptoContext));
     
     // Storage for the password hash
     // Note: Only the lower half of the seed bytes will be filled,
