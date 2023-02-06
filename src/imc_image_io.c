@@ -549,16 +549,20 @@ void imc_png_carrier_open(CarrierImage *output)
 }
 
 // Change a file path in order to make it unique
-// IMPORTANT: Function assumes that the filename has an extension,
-// and the path buffer must be big enough to store the new name.
+// IMPORTANT: Function assumes that the path buffer must be big enough to store the new name.
+// (at most 5 characters are added to the path)
 static bool __resolve_filename_collision(char *path)
 {
     // Try opening the file for reading to see if it already exists
     FILE *file = fopen(path, "rb");
     if (file == NULL) return true;
     
+    // Sanity check (so we don't risk a stack overflow)
+    if (strlen(path) > UINT16_MAX) return false;
+    
     // Copy the file's extension to a buffer
     char *dot = strrchr(path, '.');
+    if (!dot) dot = "";
     const size_t e_len = strlen(dot);
     char extension[e_len+1];
     memset(extension, 0, sizeof(extension));

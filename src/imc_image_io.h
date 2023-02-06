@@ -94,8 +94,8 @@ void imc_jpeg_carrier_open(CarrierImage *output);
 void imc_png_carrier_open(CarrierImage *output);
 
 // Change a file path in order to make it unique
-// IMPORTANT: Function assumes that the filename has an extension,
-// and the path buffer must be big enough to store the new name.
+// IMPORTANT: Function assumes that the path buffer must be big enough to store the new name.
+// (at most 5 characters are added to the path)
 static bool __resolve_filename_collision(char *path);
 
 // Write the carrier bytes back to the JPEG image, and save it as a new file
