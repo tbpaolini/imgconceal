@@ -24,6 +24,7 @@
 #include <sodium.h>     // libsodium (cryptography)
 #include <jpeglib.h>    // libjpeg-turbo (JPEG images)
 #include <zlib.h>       // data compression
+#include "../lib/shishua-sse2.h"    // Psueudo-random number generator
 
 // First party libraries
 #include "globals.h"

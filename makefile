@@ -15,7 +15,7 @@ endif
 .PHONY: release debug memcheck all clean
 
 # Release build (no debug flags, and otimizations enabled)
-release: CFLAGS += -O3
+release: CFLAGS += -O3 -DNDEBUG
 release: DIR := $(addsuffix /release,$(DIR))
 release: all
 
