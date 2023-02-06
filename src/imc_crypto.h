@@ -6,7 +6,6 @@
 // Password hashing parameters
 #define IMC_OPSLIMIT 3          // Amount of operations
 #define IMC_MEMLIMIT 4096000    // Amount of memory
-#define IMC_MEMLIMIT_REHASH 8192    // Memory used when re-hashing
 
 // Amount of bytes that will be added to the encrypted stream, in relation to the unencrypted data
 // imgconceal adds 12 bytes (4 characters "magic", 4 bytes for the version number, and 4 bytes
@@ -24,18 +23,28 @@
 // Note: Maximum size is 16 characters, it will be truncated if beyond that.
 #define IMC_SALT "imageconceal2023"
 
-// Stores the secret key for encryption and the seed of the pseudorandom number generator
+// How many bytes the buffer of the pseudorandom number generator holds
+// Each time the generator function is called, it generates that many bytes and stores them on the buffer.
+// Then our program can request a certain number of bytes, which are taken from the buffer.
+// When the buffer is depleted, the generator is called again.
+// IMPORTANT: This value must be a multiple of 128.
+#define IMC_PRNG_BUFFER 128
+
+// Stores the secret key for encryption and the state of the pseudorandom number generator
 typedef struct CryptoContext
 {
     uint8_t xcc20_key[crypto_secretstream_xchacha20poly1305_KEYBYTES];
-    uint64_t bbs_seed;
-    uint64_t bbs_mod;
+    prng_state shishua_state;
+    struct {
+        uint8_t buf[IMC_PRNG_BUFFER];
+        size_t pos;
+    } prng_buffer;
 } CryptoContext;
 
 // Generate cryptographic secrets key from a password
 int imc_crypto_context_create(const char *password, CryptoContext **out);
 
-// Pseudorandom number generator using the Blum Blum Shub algorithm
+// Pseudorandom number generator using the SHISHUA algorithm
 // It writes a given amount of bytes to the output.
 void imc_crypto_prng(CryptoContext *state, size_t num_bytes, uint8_t *output);
 
