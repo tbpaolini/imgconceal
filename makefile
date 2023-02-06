@@ -1,4 +1,4 @@
-SOURCES := $(wildcard src/*.c)
+SOURCES := $(wildcard src/*.c) $(wildcard lib/*.c)
 OBJECTS := $(SOURCES:.c=.o)
 CFLAGS := -static -lsodium -ljpeg -lz
 
@@ -47,10 +47,15 @@ $(EXECUTABLE): $(OBJECTS)
 src/%.o: src/%.c
 	gcc -c $< -o $@ $(CFLAGS)
 
+lib/%.o: lib/%.c
+	gcc -c $< -o $@ $(CFLAGS)
+
 # Delete the build artifacts
 clean:
     ifeq ($(OS),Windows_NT)
 	    -del /S src/*.o
+        -del /S lib/*.o
     else
 	    -rm -rv src/*.o
+	    -rm -rv lib/*.o
     endif
