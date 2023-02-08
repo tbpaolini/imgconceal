@@ -1,8 +1,5 @@
 #include "imc_includes.h"
 
-// Header for encrypting the data stream
-static unsigned char IMC_HEADER[crypto_secretstream_xchacha20poly1305_HEADERBYTES+1] = "imageconceal v1.0.0";
-
 // Generate cryptographic secrets key from a password
 int imc_crypto_context_create(const char *password, CryptoContext **out)
 {
