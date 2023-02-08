@@ -559,10 +559,17 @@ static bool __resolve_filename_collision(char *path)
     if (file == NULL) return true;
     
     // Sanity check (so we don't risk a stack overflow)
-    if (strlen(path) > UINT16_MAX) return false;
+    const size_t path_len = strlen(path);
+    if (path_len > UINT16_MAX) return false;
+
+    // Get the filename without the directories
+    char path_copy[path_len+1];
+    memset(path_copy, 0, sizeof(path_copy));
+    strncpy(path_copy, path, sizeof(path_copy));
+    char *path_base = basename(path_copy);
     
     // Copy the file's extension to a buffer
-    char *dot = strrchr(path, '.');
+    char *dot = strrchr(path_base, '.');
     if (!dot) dot = "";
     const size_t e_len = strlen(dot);
     char extension[e_len+1];
