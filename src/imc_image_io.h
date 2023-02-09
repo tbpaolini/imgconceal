@@ -88,10 +88,10 @@ static bool __read_payload(CarrierImage *carrier_img, size_t num_bytes, uint8_t 
 int imc_steg_extract(CarrierImage *carrier_img);
 
 // Get bytes of a JPEG image that will carry the hidden data
-void imc_jpeg_carrier_open(CarrierImage *output);
+void imc_jpeg_carrier_open(CarrierImage *carrier_img);
 
 // Get bytes of a PNG image that will carry the hidden data
-void imc_png_carrier_open(CarrierImage *output);
+void imc_png_carrier_open(CarrierImage *carrier_img);
 
 // Change a file path in order to make it unique
 // IMPORTANT: Function assumes that the path buffer must be big enough to store the new name.

@@ -544,7 +544,7 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
 }
 
 // Get bytes of a PNG image that will carry the hidden data
-void imc_png_carrier_open(CarrierImage *output)
+void imc_png_carrier_open(CarrierImage *carrier_img)
 {
 
 }
