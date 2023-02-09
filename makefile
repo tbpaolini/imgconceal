@@ -1,6 +1,6 @@
 SOURCES := $(wildcard src/*.c) $(wildcard lib/*.c)
 OBJECTS := $(SOURCES:.c=.o)
-CFLAGS := -static -lsodium -ljpeg -lz
+CFLAGS := -static -lsodium -ljpeg -lpng -lz
 
 # Output directory and executable's name (depending on the operating system)
 ifeq ($(OS),Windows_NT)
