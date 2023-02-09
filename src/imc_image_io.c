@@ -546,7 +546,43 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
 // Get bytes of a PNG image that will carry the hidden data
 void imc_png_carrier_open(CarrierImage *carrier_img)
 {
+    // Allocate memory for the PNG processing structs
+    png_structp png_obj = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    png_infop png_info = png_create_info_struct(png_obj);
+    if (!png_obj || !png_info)
+    {
+        png_destroy_read_struct(&png_obj, &png_info, NULL);
+        fprintf(stderr, "Error: No enough memory for reading the PNG file.\n");
+        exit(EXIT_FAILURE);
+    }
 
+    // Error handling
+    if (setjmp(png_jmpbuf(png_obj)))
+    {
+        png_destroy_read_struct(&png_obj, &png_info, NULL);
+        fprintf(stderr, "Error: Failed to read PNG file.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Metadata of the PNG image
+    png_uint_32 width;
+    png_uint_32 height;
+    int bit_depth;
+    int color_type;
+    int interlace_method;
+    int compression_method;
+    int filter_method;
+
+    // Parse the metadata from PNG file
+    FILE *png_file = carrier_img->file;
+    png_init_io(png_obj, png_file);
+    png_read_info(png_obj, png_info);
+    png_get_IHDR(
+        png_obj, png_info,
+        &width, &height,
+        &bit_depth, &color_type,
+        &interlace_method, &compression_method, &filter_method
+    );
 }
 
 // Change a file path in order to make it unique
