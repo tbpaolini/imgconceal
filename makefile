@@ -18,14 +18,12 @@ endif
 release: CFLAGS += -O3 -DNDEBUG
 release: DIR := $(addsuffix /release,$(DIR))
 release: TARGET := release
-release: OBJECTS := $(SOURCES:.c=-$(TARGET).o)
 release: all
 
 # Debug build (for use on a debugger)
 debug: CFLAGS += -g
 debug: DIR := $(addsuffix /debug,$(DIR))
 debug: TARGET := debug
-debug: OBJECTS := $(SOURCES:.c=-$(TARGET).o)
 debug: all
 
 # Check whether there are memory leaks or overruns
@@ -34,14 +32,13 @@ memcheck: CFLAGS += -g -fsanitize=address -fsanitize=leak
 memcheck: CFLAGS := $(patsubst -static,,$(CFLAGS))
 memcheck: DIR := $(addsuffix /memcheck,$(DIR))
 memcheck: TARGET := memcheck
-memcheck: OBJECTS := $(SOURCES:.c=-$(TARGET).o)
 memcheck: all
 
 # Build the executable
-all: $(EXECUTABLE)
+all: $(DIR)/$(EXECUTABLE)
 
 # Create the output folder and link the objects together
-$(EXECUTABLE): $(OBJECTS)
+$(DIR)/$(EXECUTABLE): $(OBJECTS)
     ifeq ($(OS),Windows_NT)
 	    -mkdir $(DIR)
     else
@@ -50,11 +47,8 @@ $(EXECUTABLE): $(OBJECTS)
 	gcc $(OBJECTS) -o $(DIR)/$(EXECUTABLE) $(CFLAGS)
 
 # Compile the objects
-src/%.o: src/%.c
-	gcc -c $< -o $(basename $@)-$(TARGET)$(suffix $@) $(CFLAGS)
-
-lib/%.o: lib/%.c
-	gcc -c $< -o $(basename $@)-$(TARGET)$(suffix $@) $(CFLAGS)
+%.o: %.c
+	gcc -c $< -o $@ $(CFLAGS)
 
 # Delete the build artifacts
 clean:
