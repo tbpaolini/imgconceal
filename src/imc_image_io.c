@@ -583,6 +583,25 @@ void imc_png_carrier_open(CarrierImage *carrier_img)
         &bit_depth, &color_type,
         &interlace_method, &compression_method, &filter_method
     );
+    
+    // If this is a palettized image or the bit depth is smaller than 8,
+    // it will be converted so it is non-palettized with bit depth of at least 8.
+    // Since we are going to modify the last bits of the image's data, doing so
+    // on a palettized image would completely mess the colors because the bytes
+    // represent an index on the color palette.
+    // And if the bit depth is 1, 2, or 4; changing the last bit would have a
+    // noticeable visual impact.
+    if ( (color_type & PNG_COLOR_MASK_PALETTE) || (bit_depth < 8) )
+    {
+        png_set_expand(png_obj);
+        png_read_update_info(png_obj, png_info);
+        png_get_IHDR(
+            png_obj, png_info,
+            &width, &height,
+            &bit_depth, &color_type,
+            &interlace_method, &compression_method, &filter_method
+        );
+    }
 }
 
 // Change a file path in order to make it unique
