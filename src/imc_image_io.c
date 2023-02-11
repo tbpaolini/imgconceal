@@ -884,7 +884,25 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
 // Write the carrier bytes back to the PNG image, and save it as a new file
 int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
 {
+    // Append the '.png' extension to the path, if it does not already has the extension
+    const size_t p_len = strlen(save_path);
+    if (p_len > UINT16_MAX) return IMC_ERR_SAVE_FAIL;
+    char png_path[p_len+16];
+    strncpy(png_path, save_path, sizeof(png_path));
+    
+    if ( (strncmp(&save_path[p_len-4], ".png", 4) != 0) )
+    {
+        strcat(png_path, ".png");
+    }
 
+    // Append a number to the file's stem if the filename already exists
+    // Example: 'Image.png' might become 'Image (1).png'
+    // Note: The number goes up to 99, in order to avoid creating too many files accidentally
+    bool is_unique = __resolve_filename_collision(png_path);
+    if (!is_unique) return IMC_ERR_FILE_EXISTS;
+    
+    FILE *png_file = fopen(png_path, "wb");
+    if (!png_file) return IMC_ERR_FILE_NOT_FOUND;
 }
 
 // Free the memory of the array of heap pointers in a CarrierImage struct
