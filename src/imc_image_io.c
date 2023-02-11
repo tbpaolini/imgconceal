@@ -602,6 +602,26 @@ void imc_png_carrier_open(CarrierImage *carrier_img)
             &interlace_method, &compression_method, &filter_method
         );
     }
+
+    // Amount of bytes per row of the image
+    const size_t stride = png_get_rowbytes(png_obj, png_info);
+    
+    // Buffer for storing the image's color values
+    const size_t buffer_size = (height * sizeof(png_bytep)) + (height * stride);
+    png_bytep *row_pointers = imc_malloc(buffer_size);
+
+    // Pointer to the buffer's position where the values of a row begin
+    uintptr_t offset = (uintptr_t)row_pointers + ((size_t)height * sizeof(png_bytep));
+    
+    for (size_t i = 0; i < height; i++)
+    {
+        // Set the pointers to each row of the image
+        row_pointers[i] = (png_bytep)offset;
+        offset += stride;
+    }
+    
+    // Read the image into the buffer
+    png_read_image(png_obj, row_pointers);
 }
 
 // Change a file path in order to make it unique
