@@ -909,7 +909,7 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
     PngState *const png_in = (PngState *)carrier_img->object;
     png_structp png_obj_in = png_in->object;
     png_infop png_info_in = png_in->info;
-    png_bytep row_pointers = png_in->row_pointers;
+    png_bytep *row_pointers = (png_bytep *)png_in->row_pointers;
 
     // Create the structures for writing the output PNG image
     png_structp png_obj_out = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -931,6 +931,54 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
     }
     
     png_init_io(png_obj_out, png_file);
+
+    // Copy the critical parameters from the input
+    {
+        png_uint_32 width;
+        png_uint_32 height;
+        int bit_depth;
+        int color_type;
+        int interlace_method;
+        int compression_method;
+        int filter_method;
+
+        png_get_IHDR(
+            png_obj_in, png_info_in,
+            &width, &height,
+            &bit_depth, &color_type,
+            &interlace_method, &compression_method, &filter_method
+        );
+
+        png_set_IHDR(
+            png_obj_out, png_info_out,
+            width, height,
+            bit_depth, color_type,
+            interlace_method, compression_method, filter_method
+        );
+    }
+
+    // Copy the text comments from the input
+    // (this also includes the XMP metadata)
+    {
+        png_textp text;
+        int num_text = 0;
+        png_get_text(png_obj_in, png_info_in, &text, &num_text);
+        if (num_text > 0)
+        {
+            png_set_text(png_obj_out, png_info_out, text, num_text);
+        }
+    }
+
+    // Copy the EXIF metadata from the input
+    {
+        png_bytep exif;
+        png_uint_32 num_exif = 0;
+        png_get_eXIf_1(png_obj_in, png_info_in, &num_exif, &exif);
+        if (num_exif > 0)
+        {
+            png_set_eXIf_1(png_obj_out, png_info_out, num_exif, exif);
+        }
+    }
 }
 
 // Free the memory of the array of heap pointers in a CarrierImage struct
