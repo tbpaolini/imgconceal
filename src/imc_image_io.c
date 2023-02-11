@@ -603,6 +603,15 @@ void imc_png_carrier_open(CarrierImage *carrier_img)
         );
     }
 
+    // Check if the bit depth has a valid value
+    if (bit_depth != 8 && bit_depth != 16)
+    {
+        png_destroy_read_struct(&png_obj, &png_info, NULL);
+        fprintf(stderr, "Error: Failed to read PNG file.\n");
+        exit(EXIT_FAILURE);
+    }
+    /* from this point onwards, this function assumes that the bit depth to be either 8 or 16 */
+
     // Amount of bytes per row of the image
     const size_t stride = png_get_rowbytes(png_obj, png_info);
     
@@ -622,6 +631,53 @@ void imc_png_carrier_open(CarrierImage *carrier_img)
     
     // Read the image into the buffer
     png_read_image(png_obj, row_pointers);
+    png_read_end(png_obj, png_info);
+
+    const bool has_alpha = color_type & PNG_COLOR_MASK_ALPHA;                   // If the image has transparency
+    const png_byte num_channels = png_get_channels(png_obj, png_info);          // Total amount of channels in image
+    const png_byte num_colors = has_alpha ? num_channels - 1 : num_channels;    // Amount of channels excluding the alpha channel
+    const size_t bytes_per_pixel = num_channels * (bit_depth/8);                // Amount of bytes to represent a single pixel
+
+    // Buffer of pointers to the carrier bytes of the image
+    carrier_bytes_t *carrier = imc_malloc(sizeof(carrier_bytes_t) * width * height * num_colors);
+    size_t pos = 0;
+
+    // Loop through all pixels in the image to get the carrier bytes
+    // (we are going to use pixels with alpha > 0, but the alpha channel itself will not be used as carrier)
+    for (size_t y = 0; y < height; y++)
+    {
+        for (size_t x = 0; x < width; x++)
+        {
+            uint8_t *const pixel = &row_pointers[y][x * bytes_per_pixel];
+
+            // The bit depths can be either 8 or 16
+            // For the later, each color value is stored in big-endian byte order
+            if (bit_depth == 8)
+            {
+                const uint8_t alpha = has_alpha ? pixel[num_channels-1] : UINT8_MAX;
+                if (alpha > 0)
+                {
+                    for (size_t n = 0; n < num_colors; n++)
+                    {
+                        // Store the pointer to the color value (1 byte)
+                        carrier[pos++] = &pixel[n];
+                    }
+                }
+            }
+            else    // bit_depth == 16
+            {
+                const uint16_t alpha = be16toh(pixel[(num_channels - 1) * 2]);
+                for (size_t n = 0; n < num_colors; n++)
+                {
+                    // Store the pointer to the least significant byte of the color value
+                    carrier[pos++] = &pixel[1 + (n * 2)];
+                }
+            }
+        }
+    }
+    
+    // Free the unused space of the carrier buffer
+    carrier = imc_realloc(carrier, pos * sizeof(carrier_bytes_t));
 }
 
 // Change a file path in order to make it unique
