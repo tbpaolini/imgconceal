@@ -621,6 +621,7 @@ void imc_png_carrier_open(CarrierImage *carrier_img)
 
     // Pointer to the buffer's position where the values of a row begin
     uintptr_t offset = (uintptr_t)row_pointers + ((size_t)height * sizeof(png_bytep));
+    const carrier_bytes_t initial_offset = (carrier_bytes_t)offset;
     
     for (size_t i = 0; i < height; i++)
     {
@@ -678,6 +679,20 @@ void imc_png_carrier_open(CarrierImage *carrier_img)
     
     // Free the unused space of the carrier buffer
     carrier = imc_realloc(carrier, pos * sizeof(carrier_bytes_t));
+    
+    // Store the structures necessary to handle the opened image
+    PngState *state = imc_malloc(sizeof(PngState));
+    *state = (PngState){
+        .object = png_obj,
+        .info = png_info,
+        .row_pointers = row_pointers
+    };
+    carrier_img->object = state;
+
+    // Store the information about the carrier bytes
+    carrier_img->carrier = carrier;
+    carrier_img->carrier_lenght = pos;
+    carrier_img->bytes = initial_offset;
 }
 
 // Change a file path in order to make it unique

@@ -64,6 +64,13 @@ typedef struct __attribute__ ((__packed__)) FileInfo
     uint8_t file_name[];            // Null-terminated string of the file name (with extension, if any)
 } FileInfo;
 
+// Internal state of the PNG manipulation functions
+typedef struct PngState {
+    png_structp object;
+    png_infop info;
+    png_bytep *row_pointers;
+} PngState;
+
 // Initialize an image for hiding data in it
 int imc_steg_init(const char *path, const char *password, CarrierImage **output);
 
