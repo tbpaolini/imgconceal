@@ -901,8 +901,36 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
     bool is_unique = __resolve_filename_collision(png_path);
     if (!is_unique) return IMC_ERR_FILE_EXISTS;
     
+    // Open the output file for writing
     FILE *png_file = fopen(png_path, "wb");
     if (!png_file) return IMC_ERR_FILE_NOT_FOUND;
+
+    // Retrieve the data from the input PNG file
+    PngState *const png_in = (PngState *)carrier_img->object;
+    png_structp png_obj_in = png_in->object;
+    png_infop png_info_in = png_in->info;
+    png_bytep row_pointers = png_in->row_pointers;
+
+    // Create the structures for writing the output PNG image
+    png_structp png_obj_out = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    png_infop png_info_out  = png_create_info_struct(png_obj_out);
+    
+    if (!png_obj_out || !png_info_out)
+    {
+        png_destroy_read_struct(&png_obj_out, &png_info_out, NULL);
+        fprintf(stderr, "Error: No enough memory for writing the PNG file.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Error handling
+    if (setjmp(png_jmpbuf(png_obj_out)))
+    {
+        png_destroy_read_struct(&png_obj_out, &png_info_out, NULL);
+        fprintf(stderr, "Error: Failed to write PNG file.\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    png_init_io(png_obj_out, png_file);
 }
 
 // Free the memory of the array of heap pointers in a CarrierImage struct
