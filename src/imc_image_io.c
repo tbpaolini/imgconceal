@@ -668,10 +668,13 @@ void imc_png_carrier_open(CarrierImage *carrier_img)
             else    // bit_depth == 16
             {
                 const uint16_t alpha = be16toh(pixel[(num_channels - 1) * 2]);
-                for (size_t n = 0; n < num_colors; n++)
+                if (alpha > 0)
                 {
-                    // Store the pointer to the least significant byte of the color value
-                    carrier[pos++] = &pixel[1 + (n * 2)];
+                    for (size_t n = 0; n < num_colors; n++)
+                    {
+                        // Store the pointer to the least significant byte of the color value
+                        carrier[pos++] = &pixel[1 + (n * 2)];
+                    }
                 }
             }
         }
