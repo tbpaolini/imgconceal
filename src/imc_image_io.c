@@ -1035,6 +1035,95 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
             png_set_iCCP(png_obj_out, png_info_out, name, compression_type, profile, proflen);
         }
     }
+
+    // Copy the background color from the input
+    {
+        png_color_16p background;
+        png_uint_32 status = png_get_bKGD(png_obj_in, png_info_in, &background);
+        if (status == PNG_INFO_bKGD)
+        {
+            png_set_bKGD(png_obj_out, png_info_out, background);
+        }
+    }
+
+    // Copy the screen offsets from the input
+    {
+        png_int_32 offset_x, offset_y;
+        int unit_type;
+        png_uint_32 status = png_get_oFFs(png_obj_in, png_info_in, &offset_x, &offset_y, &unit_type);
+        if (status == PNG_INFO_oFFs)
+        {
+            png_set_oFFs(png_obj_out, png_info_out, offset_x, offset_y, unit_type);
+        }
+    }
+
+    // Copy the physical dimensions from the input
+    {
+        png_uint_32 res_x, res_y;
+        int unit_type;
+        png_uint_32 status = png_get_pHYs(png_obj_in, png_info_in, &res_x, &res_y, &unit_type);
+        if (status == PNG_INFO_pHYs)
+        {
+            png_set_pHYs(png_obj_out, png_info_out, res_x, res_y, unit_type);
+        }
+    }
+
+    // Copy the significant bits from the input
+    {
+        png_color_8p sig_bit;
+        png_uint_32 status = png_get_sBIT(png_obj_in, png_info_in, &sig_bit);
+        if (status == PNG_INFO_sBIT)
+        {
+            png_set_sBIT(png_obj_out, png_info_out, sig_bit);
+        }
+    }
+
+    // Copy the modified time from the input
+    {
+        png_timep mod_time;
+        png_uint_32 status = png_get_tIME(png_obj_in, png_info_in, &mod_time);
+        if (status == PNG_INFO_tIME)
+        {
+            png_set_tIME(png_obj_out, png_info_out, mod_time);
+        }
+    }
+
+    // Copy the pixel calibration from the input
+    {
+        png_charp purpose;
+        png_int_32 X0;
+        png_int_32 X1;
+        int type;
+        int nparams;
+        png_charp units;
+        png_charpp params;
+        
+        png_uint_32 status = png_get_pCAL(
+            png_obj_in, png_info_in,
+            &purpose, &X0, &X1, &type,
+            &nparams, &units, &params
+        );
+
+        if (status == PNG_INFO_pCAL)
+        {
+            png_set_pCAL(
+                png_obj_out, png_info_out,
+                purpose, X0, X1, type,
+                nparams, units, params
+            );
+        }
+    }
+
+    // Copy the physical scale from the input
+    {
+        int unit;
+        double width, height;
+        png_uint_32 status = png_get_sCAL(png_obj_in, png_info_in, &unit, &width, &height);
+        if (status == PNG_INFO_sCAL)
+        {
+            png_set_sCAL(png_obj_out, png_info_out, unit, width, height);
+        }
+    }
 }
 
 // Free the memory of the array of heap pointers in a CarrierImage struct
