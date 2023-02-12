@@ -1124,6 +1124,17 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
             png_set_sCAL(png_obj_out, png_info_out, unit, width, height);
         }
     }
+
+    // Write the copied data to the output image
+    png_write_info(png_obj_out, png_info_out);
+
+    // Write the color values to the output image
+    png_write_image(png_obj_out, row_pointers);
+
+    // Finish saving the output image
+    png_write_end(png_obj_out, png_info_out);
+    png_destroy_write_struct(&png_obj_out, &png_info_out);
+    fclose(png_file);
 }
 
 // Free the memory of the array of heap pointers in a CarrierImage struct
