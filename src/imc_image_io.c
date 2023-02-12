@@ -1159,7 +1159,7 @@ static void __carrier_heap_free(CarrierImage *carrier_img)
     {
         imc_free(carrier_img->heap[i]);
     }
-    free(carrier_img->heap);
+    imc_free(carrier_img->heap);
 }
 
 // Close the JPEG object and free the memory associated to it
