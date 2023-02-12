@@ -1175,7 +1175,12 @@ void imc_jpeg_carrier_close(CarrierImage *carrier_img)
 // Close the PNG object and free the memory associated to it
 void imc_png_carrier_close(CarrierImage *carrier_img)
 {
-
+    PngState *const png = (PngState *)carrier_img->object;
+    png_destroy_read_struct(&png->object, &png->info, NULL);
+    imc_free(png->row_pointers);
+    imc_free(carrier_img->carrier);
+    __carrier_heap_free(carrier_img);
+    free(png);
 }
 
 // Save the image with hidden data, then free the memory of the data structures used for steganography
