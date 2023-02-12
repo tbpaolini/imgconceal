@@ -752,6 +752,22 @@ static bool __resolve_filename_collision(char *path)
     return false;
 }
 
+// Copy the "last access" and "last mofified" times from the one file (source) to the other (dest)
+static void __copy_file_times(FILE *source_file, const char *dest_path)
+{
+    // Get the "last access" and "last mofified" times from the original file
+    const int og_descriptor = fileno(source_file);
+    struct stat og_stats;
+    fstat(og_descriptor, &og_stats);
+    const struct timespec og_last_times[2] = {
+        og_stats.st_atim,
+        og_stats.st_mtim
+    };
+
+    // Set those times on the new file to the same as in the original
+    utimensat(AT_FDCWD, dest_path, og_last_times, 0);
+}
+
 // Write the carrier bytes back to the JPEG image, and save it as a new file
 int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
 {
@@ -866,17 +882,8 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
     jpeg_destroy_compress(&jpeg_obj_out);
     fclose(jpeg_file);
 
-    // Get the "last access" and "last mofified" times from the original image
-    const int og_descriptor = fileno(carrier_img->file);
-    struct stat og_stats;
-    fstat(og_descriptor, &og_stats);
-    const struct timespec og_last_times[2] = {
-        og_stats.st_atim,
-        og_stats.st_mtim
-    };
-
-    // Set those times on the new file to the same as in the original
-    utimensat(AT_FDCWD, jpeg_path, og_last_times, 0);
+    // Copy the "last access" and "last mofified" times from the original image
+    __copy_file_times(carrier_img->file, jpeg_path);
 
     return IMC_SUCCESS;
 }

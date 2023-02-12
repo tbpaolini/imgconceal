@@ -105,6 +105,9 @@ void imc_png_carrier_open(CarrierImage *carrier_img);
 // (at most 5 characters are added to the path)
 static bool __resolve_filename_collision(char *path);
 
+// Copy the "last access" and "last mofified" times from the one file (source) to the other (dest)
+static void __copy_file_times(FILE *source_file, const char *dest_path);
+
 // Write the carrier bytes back to the JPEG image, and save it as a new file
 int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path);
 
