@@ -1142,6 +1142,11 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
     png_write_end(png_obj_out, png_info_out);
     png_destroy_write_struct(&png_obj_out, &png_info_out);
     fclose(png_file);
+
+    // Copy the "last access" and "last mofified" times from the original image
+    __copy_file_times(carrier_img->file, png_path);
+
+    return IMC_SUCCESS;
 }
 
 // Free the memory of the array of heap pointers in a CarrierImage struct
