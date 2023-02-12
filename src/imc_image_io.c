@@ -979,6 +979,62 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
             png_set_eXIf_1(png_obj_out, png_info_out, num_exif, exif);
         }
     }
+
+    // Copy the gamma value from the input
+    {
+        double gamma;
+        png_uint_32 status = png_get_gAMA(png_obj_in, png_info_in, &gamma);
+        if (status == PNG_INFO_gAMA)
+        {
+            png_set_gAMA(png_obj_out, png_info_out, gamma);
+        }
+    }
+
+    // Copy the primary chromaticities from the input
+    {
+        double white_x, white_y, red_x, red_y, green_x, green_y, blue_x, blue_y;
+        png_uint_32 status = png_get_cHRM(
+            png_obj_in, png_info_in,
+            &white_x, &white_y,
+            &red_x, &red_y,
+            &green_x, &green_y,
+            &blue_x, &blue_y
+        );
+
+        if (status == PNG_INFO_cHRM)
+        {
+            png_set_cHRM(
+                png_obj_out, png_info_out,
+                white_x, white_y,
+                red_x, red_y,
+                green_x, green_y,
+                blue_x, blue_y
+            );
+        }
+    }
+
+    // Copy the stardand RGB color space from the input
+    {
+        int srgb_intent;
+        png_uint_32 status = png_get_sRGB(png_obj_in, png_info_in, &srgb_intent);
+        if (status == PNG_INFO_sRGB)
+        {
+            png_set_sRGB(png_obj_out, png_info_out, srgb_intent);
+        }
+    }
+    
+    // Copy the color profile from the input
+    {
+        png_charp name;
+        int compression_type;
+        png_bytep profile;
+        png_uint_32 proflen;
+        png_uint_32 status = png_get_iCCP(png_obj_in, png_info_in, &name, &compression_type, &profile, &proflen);
+        if (status == PNG_INFO_iCCP)
+        {
+            png_set_iCCP(png_obj_out, png_info_out, name, compression_type, profile, proflen);
+        }
+    }
 }
 
 // Free the memory of the array of heap pointers in a CarrierImage struct
