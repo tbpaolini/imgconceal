@@ -48,8 +48,8 @@ int imc_crypto_context_create(const char *password, CryptoContext **out);
 // It writes a given amount of bytes to the output.
 void imc_crypto_prng(CryptoContext *state, size_t num_bytes, uint8_t *output);
 
-// Generate an unsigned 64-bit integer that can be up to the 'max' value (inclusive)
-uint64_t imc_crypto_prng_uint64(CryptoContext *state, uint64_t max);
+// Generate a pseudo-random unsigned 64-bit integer (from zero to its maximum possible value)
+uint64_t imc_crypto_prng_uint64(CryptoContext *state);
 
 // Randomize the order of the elements in an array of pointers
 void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_elements);
