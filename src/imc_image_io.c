@@ -669,7 +669,7 @@ void imc_png_carrier_open(CarrierImage *carrier_img)
             {
                 // Cast the value to 16-bit unsigned integer, then convert it to the same byte order as the system
                 // (16-bit PNG uses the big-endian byte order)
-                const uint16_t alpha = be16toh( *(uint16_t*)(&pixel[(num_channels - 1) * 2]) );
+                const uint16_t alpha = has_alpha ? be16toh( *(uint16_t*)(&pixel[(num_channels - 1) * 2]) ) : UINT16_MAX;
                 if (alpha > 0)
                 {
                     for (size_t n = 0; n < num_colors; n++)
