@@ -19,6 +19,8 @@
 #include <libgen.h>     // For the basename() function
 #include <endian.h>
 #include <fcntl.h>      // For the AT_FDCWD macro
+#include <termios.h>    // For temporarily turning off input echoing in the terminal
+#include <argp.h>       // Command line interface
 
 // Third party libraries
 #include <sodium.h>     // libsodium (cryptography)
