@@ -14,22 +14,25 @@ static size_t __get_password(uint8_t *output, const size_t buffer_size)
 
     // Turn off input echoing
     new_term.c_lflag &= ~(ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &new_term);
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &new_term);
 
     size_t pos = 0; // Position on the output buffer
     
     {
-        int c = '\0';   // Current character being read
+        int c = getchar();  // Current character being read
         
         while ( (c != '\r') && (c != '\n') && (pos < buffer_size) )
         {
-            c = getchar();
             output[pos++] = c;
+            c = getchar();
         }
+
+        // Discard the remaining characters if the input was truncated
+        while ( (c != '\r') && (c != '\n') && (c != EOF) ) {c = getchar();}
     }
 
     // Turn input echoing back on
-    tcsetattr(STDIN_FILENO, TCSANOW, &old_term);
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &old_term);
 
     return pos;
 }
