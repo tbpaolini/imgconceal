@@ -9,5 +9,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
     
-    return argp_parse(NULL, argc, argv, 0, NULL, NULL);
+    // Parse the command line arguments
+    const struct argp *restrict argp_struct = imc_cli_get_argp_struct();
+    return argp_parse(argp_struct, argc, argv, 0, NULL, NULL);
 }

@@ -2,6 +2,15 @@
 
 #include "imc_includes.h"
 
+// Command line options for imgconceal
+static struct argp_option argp_options[] = {
+    // {"password", 'p', NULL, 0, "Password for encrypting and scrambling the hidden data"},
+    {0}
+};
+
+// Options and callback function for the command line interface
+static const struct argp argp_struct = {argp_options, &imc_cli_parse_options};
+
 // Get a password from the user on the command-line. The typed characters are not displayed.
 // They are stored on the 'output' buffer, up to 'buffer_size' bytes.
 // Function returns the amount of bytes in the password.
@@ -98,4 +107,17 @@ void imc_cli_password_free(PassBuff *password)
 {
     sodium_free(password);
     // Note: the above function already overwrites the memory before freeing it.
+}
+
+// Get the pointer of the struct needed by the 'argp_parse()' function
+const struct argp *restrict imc_cli_get_argp_struct()
+{
+    return &argp_struct;
+}
+
+// Main callback function for the command line interface
+// It receives the user's arguments, then call other parts of the program in order to perform the requested operation.
+int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
+{
+    return 0;
 }
