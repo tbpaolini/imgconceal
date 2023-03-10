@@ -1,5 +1,11 @@
 #include "imc_includes.h"
 
+const char *argp_program_version = "imageconceal version 1.0.0\n"\
+    "Copyright (c) 2023 Tiago Becerra Paolini.\n"\
+    "Licensed under the MIT license.\n"\
+    "https://github.com/tbpaolini/imgconceal";
+const char *argp_program_bug_address = "<https://github.com/tbpaolini/imgconceal/issues>";
+
 int main(int argc, char *argv[])
 {
     setlocale(LC_ALL, ".utf8");
