@@ -21,7 +21,8 @@ static const struct argp_option argp_options[] = {
         "The default behavior is to overwrite the existing previously hidden files, "\
         "to avoid that add the '--apend' option.", 2},
     {"append", 'a', NULL, 0, "When hiding a file with the '--hide' option, "\
-        "append the new file instead of overwriting the existing hidden files.", 3},
+        "append the new file instead of overwriting the existing hidden files. "\
+        "For this option to work, the password must be the same as the one used for the previous files", 3},
     {"password", 'p', "TEXT", 0, "Password for encrypting and scrambling the hidden data. "\
         "This option should be used alongside '--hide', '--extract', or '--check'. "\
         "The password may contain any character that your terminal allows you to input "\
@@ -34,8 +35,20 @@ static const struct argp_option argp_options[] = {
     {0}
 };
 
+// Help text to be shown above the options (when running with '--help')
+static const char help_text[] = "\nSteganography tool for hiding and extracting files on JPEG and PNG images. "\
+    "Multiple files can be hidden in a single cover image, "\
+    "and the hidden data can be (optionally) protected with a password.\n\n"\
+    "Hiding a file on an image:\n"\
+    "  imgconceal --input=IMAGE --hide=FILE [--output=NEW_IMAGE] [--append] [--password=TEXT | --no-password]\n\n"\
+    "Extracting a hidden file from an image:\n"\
+    "  imgconceal --extract=IMAGE [--password=TEXT]\n\n"\
+    "Check if an image has data hidden by this program:\n"\
+    "  imgconceal --check=IMAGE [--password=TEXT]\n\n"\
+    "All options:\n";
+
 // Options and callback function for the command line interface
-static const struct argp argp_struct = {argp_options, &imc_cli_parse_options};
+static const struct argp argp_struct = {argp_options, &imc_cli_parse_options, NULL, help_text};
 
 // Get a password from the user on the command-line. The typed characters are not displayed.
 // They are stored on the 'output' buffer, up to 'buffer_size' bytes.
