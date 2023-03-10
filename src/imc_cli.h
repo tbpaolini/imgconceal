@@ -28,16 +28,16 @@ static PassBuff *__alloc_passbuff();
 // If 'confirm' is true, the user is asked to type the same password again.
 // Function returns NULL if the password confirmation failed.
 // The returned 'PassBuff' pointer should be freed with 'imc_cli_password_free()'.
-PassBuff *imc_cli_password_input(bool confirm);
+static PassBuff *imc_cli_password_input(bool confirm);
 
 // Free the memory of a 'PassBuff' struct
-void imc_cli_password_free(PassBuff *password);
+static void imc_cli_password_free(PassBuff *password);
 
 // Get the pointer of the struct needed by the 'argp_parse()' function
 const struct argp *restrict imc_cli_get_argp_struct();
 
 // Main callback function for the command line interface
 // It receives the user's arguments, then call other parts of the program in order to perform the requested operation.
-int imc_cli_parse_options(int key, char *arg, struct argp_state *state);
+static int imc_cli_parse_options(int key, char *arg, struct argp_state *state);
 
 #endif  // _IMC_CLI_H
