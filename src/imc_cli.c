@@ -3,8 +3,34 @@
 #include "imc_includes.h"
 
 // Command line options for imgconceal
-static struct argp_option argp_options[] = {
-    // {"password", 'p', NULL, 0, "Password for encrypting and scrambling the hidden data"},
+static const struct argp_option argp_options[] = {
+    {"check", 'c', "IMAGE", 0, "Check if a given JPEG or PNG image contains data hidden by this program, "\
+    "and estimate how much data can still be hidden on the image. "\
+    "If a password was used to hide the data, you should also use the '--password' option.", 1},
+    {"extract", 'e', "IMAGE", 0, "Extracts from the cover image the files that were hidden on it by this program."\
+        "The extracted files will have the same names and timestamps as when they were hidden.", 1},
+    {"input", 'i', "IMAGE", 0, "Path to the cover image (the JPEG or PNG file where to hide another file). "\
+        "Please use the '--output' option to specify where to save the modified image.", 2},
+    {"output", 'o', "IMAGE", 0, "Path to where to save the image with hidden data. "\
+        "If this option is not used, the output file will be named automatically "\
+        "(a number is added to the name of the original file).", 2},
+    {"hide", 'h', "FILE", 0, "Path to the file being hidden in the cover image. "\
+        "This option can be specified multiple times in order to hide more than one file. "\
+        "If there is no enough space in the cover image, some files may fail being hidden "\
+        "(files specified first have priority when trying to hide). "\
+        "The default behavior is to overwrite the existing previously hidden files, "\
+        "to avoid that add the '--apend' option.", 2},
+    {"append", 'a', NULL, 0, "When hiding a file with the '--hide' option, "\
+        "append the new file instead of overwriting the existing hidden files.", 3},
+    {"password", 'p', "TEXT", 0, "Password for encrypting and scrambling the hidden data. "\
+        "This option should be used alongside '--hide', '--extract', or '--check'. "\
+        "The password may contain any character that your terminal allows you to input "\
+        "(if it has spaces, please enclose the password between quotation marks). "\
+        "If you do not want to have a password, please use '--no-password' instead of this option.", 4},
+    {"no-password", 'n', NULL, 0, "Do not use a password for encrypting and scrambling the hidden data. "\
+        "That means the data will be able to be extracted without needing a password.", 4},
+    {"verbose", 'v', NULL, 0, "Print detailed progress information.", 5},
+    {"silent", 's', NULL, 0, "Do not print any progress information (errors are still shown).", 5},
     {0}
 };
 
