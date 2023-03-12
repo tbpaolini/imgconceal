@@ -50,6 +50,18 @@ static const char help_text[] = "\nSteganography tool for hiding and extracting 
 // Options and callback function for the command line interface
 static const struct argp argp_struct = {argp_options, &imc_cli_parse_options, NULL, help_text};
 
+// Internal data structure to store the user's options
+typedef struct UserOptions {
+    char *input;        // Path to the image which will get data hidden into it
+    char *output;       // Path where to save the image with hidden data
+    char *hide;         // Path to the file being hidden on theimage
+    char *check;        // Path to the image being checked for hidden data
+    PassBuff *password; // Plain text password provided by the user
+    bool no_password;   // 'true' if not using a password
+    bool verbose;       // Prints detailed information during operation
+    bool silent;        // Do not print any information during operation
+} UserOptions;
+
 // Get a password from the user on the command-line. The typed characters are not displayed.
 // They are stored on the 'output' buffer, up to 'buffer_size' bytes.
 // Function returns the amount of bytes in the password.
@@ -158,5 +170,23 @@ const struct argp *restrict imc_cli_get_argp_struct()
 // It receives the user's arguments, then call other parts of the program in order to perform the requested operation.
 static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
 {
+    switch (key)
+    {
+        // Before parsing the options
+        case ARGP_KEY_INIT:
+            /* code */
+            break;
+        
+        // After the last option was parsed: perform the requested operation
+        case ARGP_KEY_END:
+            /* code */
+            break;
+        
+        // After the program finished the requested operation
+        case ARGP_KEY_FINI:
+            /* code */
+            break;
+    }
+
     return 0;
 }
