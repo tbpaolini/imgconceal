@@ -283,6 +283,7 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
                 argp_error(state, "you provided a password even though you specified the 'no password' option.");
             }
             ((UserOptions*)(state->hook))->no_password = true;
+            ((UserOptions*)(state->hook))->password = __alloc_passbuff();   // Store an empty password
             break;
         
         // --verbose: Prints detailed information during operation
