@@ -191,10 +191,24 @@ static inline void __check_unique_option(struct argp_state *state, const char *o
 
 // Validate the command line options, and perform the requested operation
 // This is a helper for the 'imc_cli_parse_options()' function.
-static inline void __execute_options(void *options)
+static inline void __execute_options(struct argp_state *state, void *options)
 {
     UserOptions *opt = (UserOptions*)options;
 
+    // Display a password prompt, if a password wasn't provided
+    // (and the user did not specify the '--no-password' option)
+    if (!opt->password)
+    {
+        printf("Input a password for hiding the file (may be blank)\n");
+        opt->password = imc_cli_password_input(true);
+
+        if (!opt->password)
+        {
+            // Exit the program if the user failed to confirm the password
+            argp_failure(state, EXIT_FAILURE, 0, "passwords do not match.");
+        }
+    }
+    
     /* TO DO: process the options */
 }
 
@@ -306,7 +320,7 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             }
 
             // Execute the requested operation
-            __execute_options(state->hook);
+            __execute_options(state, state->hook);
 
             break;
         
