@@ -196,27 +196,26 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         
         // --check: Image to be checked for hidden data
         case 'c':
-            if (state->hook) __store_path(arg, &((UserOptions*)(state->hook))->check);
+            __store_path(arg, &((UserOptions*)(state->hook))->check);
             break;
         
         // --extract: Image to have its hidden data extracted
         case 'e':
-            if (state->hook) __store_path(arg, &((UserOptions*)(state->hook))->extract);
+            __store_path(arg, &((UserOptions*)(state->hook))->extract);
             break;
         
         // --input: Image to get data hidden into it
         case 'i':
-            if (state->hook) __store_path(arg, &((UserOptions*)(state->hook))->input);
+            __store_path(arg, &((UserOptions*)(state->hook))->input);
             break;
         
         // --output: Where to save the image with hidden data
         case 'o':
-            if (state->hook) __store_path(arg, &((UserOptions*)(state->hook))->output);
+            __store_path(arg, &((UserOptions*)(state->hook))->output);
             break;
         
         // --hide: File being hidden on the image
         case 'h':
-            if (!state->hook) break;
             struct HideList **tail = &((UserOptions*)(state->hook))->hide_tail;
             
             // Add the path to the end of the linked list
