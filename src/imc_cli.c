@@ -55,8 +55,10 @@ typedef struct UserOptions {
     char *input;        // Path to the image which will get data hidden into it
     char *output;       // Path where to save the image with hidden data
     char *hide;         // Path to the file being hidden on theimage
+    char *extract;      // Path to the image with hidden data being extracted
     char *check;        // Path to the image being checked for hidden data
     PassBuff *password; // Plain text password provided by the user
+    bool append;        // Whether the added hidden data is being appended to the existing one
     bool no_password;   // 'true' if not using a password
     bool verbose;       // Prints detailed information during operation
     bool silent;        // Do not print any information during operation
