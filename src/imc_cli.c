@@ -177,6 +177,11 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             /* code */
             break;
         
+        // If no options are passed: display a short help text
+        case ARGP_KEY_NO_ARGS:
+            argp_state_help(state, stdout, ARGP_HELP_PRE_DOC | ARGP_HELP_SEE);
+            break;
+        
         // After the last option was parsed: perform the requested operation
         case ARGP_KEY_END:
             /* code */
