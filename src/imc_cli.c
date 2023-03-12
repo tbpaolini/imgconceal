@@ -184,6 +184,46 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             argp_state_help(state, stdout, ARGP_HELP_PRE_DOC | ARGP_HELP_SEE);
             break;
         
+        // --check: Image to be checked for hidden data
+        case 'c':
+            break;
+        
+        // --extract: Image to have its hidden data extracted
+        case 'e':
+            break;
+        
+        // --input: Image to get data hidden into it
+        case 'i':
+            break;
+        
+        // --output: Where to save the image with hidden data
+        case 'o':
+            break;
+        
+        // --hide: File being hidden on the image
+        case 'h':
+            break;
+        
+        // --append: If the file being hidden is going to be appended to existing ones
+        case 'a':
+            break;
+        
+        // --password: Password provided by the user
+        case 'p':
+            break;
+        
+        // --no-password: Do not show a password prompt if the user has not provided a password
+        case 'n':
+            break;
+        
+        // --verbose: Prints detailed information during operation
+        case 'v':
+            break;
+        
+        // --silent: Do not print detailed information
+        case 's':
+            break;
+        
         // After the last option was parsed: perform the requested operation
         case ARGP_KEY_END:
             /* code */
