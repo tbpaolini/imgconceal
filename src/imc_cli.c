@@ -189,11 +189,6 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             state->hook = imc_calloc(1, sizeof(UserOptions));
             break;
         
-        // If no options are passed: display a short help text
-        case ARGP_KEY_NO_ARGS:
-            argp_state_help(state, stdout, ARGP_HELP_PRE_DOC | ARGP_HELP_SEE);
-            break;
-        
         // --check: Image to be checked for hidden data
         case 'c':
             __store_path(arg, &((UserOptions*)(state->hook))->check);
@@ -256,7 +251,15 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         
         // After the last option was parsed: perform the requested operation
         case ARGP_KEY_END:
-            /* code */
+            if (state->argc <= 1)
+            {
+                // If no options were passed: display a short help text
+                argp_state_help(state, stdout, ARGP_HELP_PRE_DOC | ARGP_HELP_SEE);
+                break;
+            }
+
+            /* TO DO: Execute the operation */
+
             break;
         
         // After the program finished the requested operation: free the options struct
