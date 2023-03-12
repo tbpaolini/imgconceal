@@ -172,9 +172,9 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
 {
     switch (key)
     {
-        // Before parsing the options
+        // Before parsing the options: allocate memory for storing the options
         case ARGP_KEY_INIT:
-            /* code */
+            state->hook = calloc(1, sizeof(UserOptions));
             break;
         
         // If no options are passed: display a short help text
@@ -189,7 +189,7 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         
         // After the program finished the requested operation
         case ARGP_KEY_FINI:
-            /* code */
+            free(state->hook);
             break;
     }
 
