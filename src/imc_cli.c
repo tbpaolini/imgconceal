@@ -195,6 +195,18 @@ static inline void __execute_options(struct argp_state *state, void *options)
 {
     UserOptions *opt = (UserOptions*)options;
 
+    // Check if the user has specified exactly one operation
+    int mode_count = (bool)opt->input + (bool)opt->extract + (bool)opt->check;
+
+    if (mode_count == 0)
+    {
+        argp_error(state, "you must specify either the 'input', 'extract', or 'check' option.");
+    }
+    else if (mode_count > 1)
+    {
+        argp_error(state, "you can only specify one of the 'input', 'extract', or 'check' options.");
+    }
+
     // Display a password prompt, if a password wasn't provided
     // (and the user did not specify the '--no-password' option)
     if (!opt->password)
