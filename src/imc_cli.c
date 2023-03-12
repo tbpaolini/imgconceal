@@ -189,6 +189,15 @@ static inline void __check_unique_option(struct argp_state *state, const char *o
     }
 }
 
+// Validate the command line options, and perform the requested operation
+// This is a helper for the 'imc_cli_parse_options()' function.
+static inline void __execute_options(void *options)
+{
+    UserOptions *opt = (UserOptions*)options;
+
+    /* TO DO: process the options */
+}
+
 // Main callback function for the command line interface
 // It receives the user's arguments, then call other parts of the program in order to perform the requested operation.
 static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
@@ -295,7 +304,8 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
                 break;
             }
 
-            /* TO DO: Execute the operation */
+            // Execute the requested operation
+            __execute_options(state->hook);
 
             break;
         

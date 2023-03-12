@@ -44,6 +44,10 @@ static inline void __store_path(const char *path, char **destination);
 // The error message contains the name of the option, that is why it is needed.
 static inline void __check_unique_option(struct argp_state *state, const char *option_name, bool option_value);
 
+// Validate the command line options, and perform the requested operation
+// This is a helper for the 'imc_cli_parse_options()' function.
+static inline void __execute_options(void *options);
+
 // Main callback function for the command line interface
 // It receives the user's arguments, then call other parts of the program in order to perform the requested operation.
 static int imc_cli_parse_options(int key, char *arg, struct argp_state *state);
