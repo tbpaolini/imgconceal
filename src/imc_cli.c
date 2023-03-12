@@ -251,10 +251,26 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         
         // --password: Password provided by the user
         case 'p':
+            if (((UserOptions*)(state->hook))->no_password)
+            {
+                argp_error(state, "you provided a password even though you specified the 'no password' option.");
+            }
+            
+            // Create a password buffer and copy the string to it
+            PassBuff *user_password = __alloc_passbuff();
+            user_password->length = strlen(arg);
+            strncpy(user_password->buffer, arg, IMC_PASSWORD_MAX_BYTES);
+            if (user_password->length > IMC_PASSWORD_MAX_BYTES) user_password->length = IMC_PASSWORD_MAX_BYTES;
+            ((UserOptions*)(state->hook))->password = user_password;
+            
             break;
         
         // --no-password: Do not show a password prompt if the user has not provided a password
         case 'n':
+            if (((UserOptions*)(state->hook))->password)
+            {
+                argp_error(state, "you provided a password even though you specified the 'no password' option.");
+            }
             ((UserOptions*)(state->hook))->no_password = true;
             break;
         
@@ -287,6 +303,7 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             free( ((UserOptions*)(state->hook))->extract );
             free( ((UserOptions*)(state->hook))->input );
             free( ((UserOptions*)(state->hook))->output );
+            imc_cli_password_free( ((UserOptions*)(state->hook))->password );
             struct HideList *node = ((UserOptions*)(state->hook))->hide.next;
             while (node)
             {
