@@ -246,6 +246,7 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         
         // --append: If the file being hidden is going to be appended to existing ones
         case 'a':
+            ((UserOptions*)(state->hook))->append = true;
             break;
         
         // --password: Password provided by the user
@@ -254,14 +255,17 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         
         // --no-password: Do not show a password prompt if the user has not provided a password
         case 'n':
+            ((UserOptions*)(state->hook))->no_password = true;
             break;
         
         // --verbose: Prints detailed information during operation
         case 'v':
+            ((UserOptions*)(state->hook))->verbose = true;
             break;
         
         // --silent: Do not print detailed information
         case 's':
+            ((UserOptions*)(state->hook))->silent = true;
             break;
         
         // After the last option was parsed: perform the requested operation
