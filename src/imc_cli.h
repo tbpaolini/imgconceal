@@ -36,6 +36,9 @@ static void imc_cli_password_free(PassBuff *password);
 // Get the pointer of the struct needed by the 'argp_parse()' function
 const struct argp *restrict imc_cli_get_argp_struct();
 
+// Store on a pointer the full path of a file
+static inline void __store_path(const char *path, char **destination);
+
 // Main callback function for the command line interface
 // It receives the user's arguments, then call other parts of the program in order to perform the requested operation.
 static int imc_cli_parse_options(int key, char *arg, struct argp_state *state);

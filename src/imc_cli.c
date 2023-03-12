@@ -172,6 +172,12 @@ const struct argp *restrict imc_cli_get_argp_struct()
     return &argp_struct;
 }
 
+// Store on a pointer the full path of a file
+static inline void __store_path(const char *path, char **destination)
+{
+    if (path) *destination = realpath(path, NULL);
+}
+
 // Main callback function for the command line interface
 // It receives the user's arguments, then call other parts of the program in order to perform the requested operation.
 static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
@@ -180,7 +186,7 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
     {
         // Before parsing the options: allocate memory for storing the options
         case ARGP_KEY_INIT:
-            state->hook = calloc(1, sizeof(UserOptions));
+            state->hook = imc_calloc(1, sizeof(UserOptions));
             break;
         
         // If no options are passed: display a short help text
@@ -190,22 +196,22 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         
         // --check: Image to be checked for hidden data
         case 'c':
-            ((UserOptions*)(state->hook))->check = realpath(arg, NULL);
+            if (state->hook) __store_path(arg, &((UserOptions*)(state->hook))->check);
             break;
         
         // --extract: Image to have its hidden data extracted
         case 'e':
-            ((UserOptions*)(state->hook))->extract = realpath(arg, NULL);
+            if (state->hook) __store_path(arg, &((UserOptions*)(state->hook))->extract);
             break;
         
         // --input: Image to get data hidden into it
         case 'i':
-            ((UserOptions*)(state->hook))->input = realpath(arg, NULL);
+            if (state->hook) __store_path(arg, &((UserOptions*)(state->hook))->input);
             break;
         
         // --output: Where to save the image with hidden data
         case 'o':
-            ((UserOptions*)(state->hook))->output = realpath(arg, NULL);
+            if (state->hook) __store_path(arg, &((UserOptions*)(state->hook))->output);
             break;
         
         // --hide: File being hidden on the image
@@ -252,7 +258,7 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             free( ((UserOptions*)(state->hook))->extract );
             free( ((UserOptions*)(state->hook))->input );
             free( ((UserOptions*)(state->hook))->output );
-            free(state->hook);
+            imc_free(state->hook);
             break;
     }
 
