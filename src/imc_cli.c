@@ -172,10 +172,10 @@ const struct argp *restrict imc_cli_get_argp_struct()
     return &argp_struct;
 }
 
-// Store on a pointer the full path of a file
+// Store a copy of the path of a file
 static inline void __store_path(const char *path, char **destination)
 {
-    if (path) *destination = realpath(path, NULL);
+    if (path) *destination = strdup(path);
 }
 
 // Main callback function for the command line interface
