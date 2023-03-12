@@ -216,15 +216,23 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         
         // --hide: File being hidden on the image
         case 'h':
+            if (!state->hook) break;
             struct HideList **tail = &((UserOptions*)(state->hook))->hide_tail;
+            
+            // Add the path to the end of the linked list
             if (*tail)
             {
-
+                struct HideList *node = imc_calloc(1, sizeof(struct HideList));
+                __store_path(arg, &node->data);
+                (*tail)->next = node;
+                *tail = node;
             }
             else
             {
-
+                __store_path(arg, &((UserOptions*)(state->hook))->hide.data);
+                *tail = &((UserOptions*)(state->hook))->hide;
             }
+            
             break;
         
         // --append: If the file being hidden is going to be appended to existing ones
@@ -252,12 +260,19 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             /* code */
             break;
         
-        // After the program finished the requested operation
+        // After the program finished the requested operation: free the options struct
         case ARGP_KEY_FINI:
             free( ((UserOptions*)(state->hook))->check );
             free( ((UserOptions*)(state->hook))->extract );
             free( ((UserOptions*)(state->hook))->input );
             free( ((UserOptions*)(state->hook))->output );
+            struct HideList *node = ((UserOptions*)(state->hook))->hide.next;
+            while (node)
+            {
+                struct HideList *next_node = node->next;
+                imc_free(node);
+                node = next_node;
+            };
             imc_free(state->hook);
             break;
     }
