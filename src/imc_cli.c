@@ -54,9 +54,13 @@ static const struct argp argp_struct = {argp_options, &imc_cli_parse_options, NU
 typedef struct UserOptions {
     char *input;        // Path to the image which will get data hidden into it
     char *output;       // Path where to save the image with hidden data
-    char *hide;         // Path to the file being hidden on theimage
     char *extract;      // Path to the image with hidden data being extracted
     char *check;        // Path to the image being checked for hidden data
+    struct HideList {
+        char *data;
+        struct HideList *next;
+    } hide;             // Linked list with the paths to the files being hidden on the image
+    struct HideList *hide_tail; // Last element of the 'hide' linked list
     PassBuff *password; // Plain text password provided by the user
     bool append;        // Whether the added hidden data is being appended to the existing one
     bool no_password;   // 'true' if not using a password
@@ -206,7 +210,15 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         
         // --hide: File being hidden on the image
         case 'h':
-            // ((UserOptions*)(state->hook))->hide = realpath(arg, NULL);
+            struct HideList **tail = &((UserOptions*)(state->hook))->hide_tail;
+            if (*tail)
+            {
+
+            }
+            else
+            {
+
+            }
             break;
         
         // --append: If the file being hidden is going to be appended to existing ones
