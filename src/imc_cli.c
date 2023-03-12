@@ -257,11 +257,13 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             }
             
             // Create a password buffer and copy the string to it
-            PassBuff *user_password = __alloc_passbuff();
-            user_password->length = strlen(arg);
-            strncpy(user_password->buffer, arg, IMC_PASSWORD_MAX_BYTES);
-            if (user_password->length > IMC_PASSWORD_MAX_BYTES) user_password->length = IMC_PASSWORD_MAX_BYTES;
-            ((UserOptions*)(state->hook))->password = user_password;
+            {
+                PassBuff *user_password = __alloc_passbuff();
+                user_password->length = strlen(arg);
+                strncpy(user_password->buffer, arg, IMC_PASSWORD_MAX_BYTES);
+                if (user_password->length > IMC_PASSWORD_MAX_BYTES) user_password->length = IMC_PASSWORD_MAX_BYTES;
+                ((UserOptions*)(state->hook))->password = user_password;
+            }
             
             break;
         
@@ -304,13 +306,18 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             free( ((UserOptions*)(state->hook))->input );
             free( ((UserOptions*)(state->hook))->output );
             imc_cli_password_free( ((UserOptions*)(state->hook))->password );
-            struct HideList *node = ((UserOptions*)(state->hook))->hide.next;
-            while (node)
+
+            // Freeing the linked list
             {
-                struct HideList *next_node = node->next;
-                imc_free(node);
-                node = next_node;
-            };
+                struct HideList *node = ((UserOptions*)(state->hook))->hide.next;
+                while (node)
+                {
+                    struct HideList *next_node = node->next;
+                    imc_free(node);
+                    node = next_node;
+                };
+            }
+
             imc_free(state->hook);
             break;
     }
