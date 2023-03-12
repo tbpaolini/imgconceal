@@ -178,6 +178,17 @@ static inline void __store_path(const char *path, char **destination)
     if (path) *destination = strdup(path);
 }
 
+// Check if an option has not been passed before (program exits if this check fails)
+// The idea is to check if the option's value evaluates to 'false'. If it doesn't, then the check fails.
+// The error message contains the name of the option, that is why it is needed.
+static inline void __check_unique_option(struct argp_state *state, const char *option_name, bool option_value)
+{
+    if (option_value)
+    {
+        argp_error(state, "the '%s' option can be used only once.", option_name);
+    }
+}
+
 // Main callback function for the command line interface
 // It receives the user's arguments, then call other parts of the program in order to perform the requested operation.
 static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
@@ -191,21 +202,25 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         
         // --check: Image to be checked for hidden data
         case 'c':
+            __check_unique_option(state, "check", ((UserOptions*)(state->hook))->check);
             __store_path(arg, &((UserOptions*)(state->hook))->check);
             break;
         
         // --extract: Image to have its hidden data extracted
         case 'e':
+            __check_unique_option(state, "extract", ((UserOptions*)(state->hook))->extract);
             __store_path(arg, &((UserOptions*)(state->hook))->extract);
             break;
         
         // --input: Image to get data hidden into it
         case 'i':
+            __check_unique_option(state, "input", ((UserOptions*)(state->hook))->input);
             __store_path(arg, &((UserOptions*)(state->hook))->input);
             break;
         
         // --output: Where to save the image with hidden data
         case 'o':
+            __check_unique_option(state, "output", ((UserOptions*)(state->hook))->output);
             __store_path(arg, &((UserOptions*)(state->hook))->output);
             break;
         

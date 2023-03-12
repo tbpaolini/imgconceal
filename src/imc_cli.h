@@ -39,6 +39,11 @@ const struct argp *restrict imc_cli_get_argp_struct();
 // Store on a pointer the full path of a file
 static inline void __store_path(const char *path, char **destination);
 
+// Check if an option has not been passed before (program exits if this check fails)
+// The idea is to check if the option's value evaluates to 'false'. If it doesn't, then the check fails.
+// The error message contains the name of the option, that is why it is needed.
+static inline void __check_unique_option(struct argp_state *state, const char *option_name, bool option_value);
+
 // Main callback function for the command line interface
 // It receives the user's arguments, then call other parts of the program in order to perform the requested operation.
 static int imc_cli_parse_options(int key, char *arg, struct argp_state *state);
