@@ -186,22 +186,27 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         
         // --check: Image to be checked for hidden data
         case 'c':
+            ((UserOptions*)(state->hook))->check = realpath(arg, NULL);
             break;
         
         // --extract: Image to have its hidden data extracted
         case 'e':
+            ((UserOptions*)(state->hook))->extract = realpath(arg, NULL);
             break;
         
         // --input: Image to get data hidden into it
         case 'i':
+            ((UserOptions*)(state->hook))->input = realpath(arg, NULL);
             break;
         
         // --output: Where to save the image with hidden data
         case 'o':
+            ((UserOptions*)(state->hook))->output = realpath(arg, NULL);
             break;
         
         // --hide: File being hidden on the image
         case 'h':
+            // ((UserOptions*)(state->hook))->hide = realpath(arg, NULL);
             break;
         
         // --append: If the file being hidden is going to be appended to existing ones
@@ -231,6 +236,10 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         
         // After the program finished the requested operation
         case ARGP_KEY_FINI:
+            free( ((UserOptions*)(state->hook))->check );
+            free( ((UserOptions*)(state->hook))->extract );
+            free( ((UserOptions*)(state->hook))->input );
+            free( ((UserOptions*)(state->hook))->output );
             free(state->hook);
             break;
     }
