@@ -260,8 +260,29 @@ static inline void __execute_options(struct argp_state *state, void *options)
             opt->password = imc_cli_password_input(false);  // Input the passowrd once
         }
     }
+
+    CarrierImage *steg_image = NULL;    // Info about the image with steganographic data
+    char *steg_path = NULL;             // Path to the steganographic image
+    int steg_status = 0;                // Return code of the steganographic functions
+
+    // Initialize the image's path
+    switch (mode)
+    {
+        case HIDE:
+            steg_path = opt->input;
+            break;
+        case EXTRACT:
+            steg_path = opt->extract;
+            break;
+        case CHECK:
+            steg_path = opt->check;
+            break;
+    }
     
-    /* TO DO: process the options */
+    // Initialize the steganography data structure
+    // (generate a secret key and seed the pseudo-random number generator)
+    steg_status = imc_steg_init(steg_path, opt->password, &steg_image);
+    imc_cli_password_free( ((UserOptions*)(state->hook))->password );
 }
 
 // Main callback function for the command line interface
@@ -391,7 +412,6 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             free( ((UserOptions*)(state->hook))->extract );
             free( ((UserOptions*)(state->hook))->input );
             free( ((UserOptions*)(state->hook))->output );
-            imc_cli_password_free( ((UserOptions*)(state->hook))->password );
 
             // Freeing the linked list
             {
