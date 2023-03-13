@@ -48,7 +48,8 @@ int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **out
     carrier_img->file = image;
 
     // Generate a secret key, and seed the number generator
-    imc_crypto_context_create(password, &carrier_img->crypto);
+    const int crypto_status = imc_crypto_context_create(password, &carrier_img->crypto);
+    if (crypto_status != IMC_SUCCESS) return crypto_status;
 
     // Set the struct's methods
     switch (img_type)
