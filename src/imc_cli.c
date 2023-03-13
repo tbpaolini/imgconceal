@@ -234,6 +234,11 @@ static inline void __execute_options(struct argp_state *state, void *options)
         argp_error(state, "unknown operation.");
     }
 
+    if (mode != HIDE && opt->input)
+    {
+        argp_error(state, "the 'input' option is used only when hiding a file.");
+    }
+
     // Display a password prompt, if a password wasn't provided
     // (and the user did not specify the '--no-password' option)
     if (!opt->password)
