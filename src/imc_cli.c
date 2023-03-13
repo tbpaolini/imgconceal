@@ -212,7 +212,14 @@ static inline void __execute_options(struct argp_state *state, void *options)
 
     if (opt->hide.data)
     {
-        mode = HIDE;
+        if (opt->input)
+        {
+            mode = HIDE;
+        }
+        else
+        {
+            argp_error(state, "please use '--input' to specify the image where to hide the file.");
+        }
     }
     else if (opt->extract)
     {
