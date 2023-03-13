@@ -305,6 +305,21 @@ static inline void __execute_options(struct argp_state *state, void *options)
             argp_failure(state, EXIT_FAILURE, 0, "unknown error when hashing the password.");
             break;
     }
+
+    /* TO DO: Operation on the image */
+
+    // Path where to save the output image
+    char *save_path = NULL;
+
+    if (mode == HIDE)
+    {
+        save_path = opt->output ? opt->output : opt->input;
+        /* Note: The input image will not be overwritten because our file name
+           collision resolution is going to append a number to the output's name. */
+    }
+
+    // Save the output image (if any) and free the memory used by the steganography struct
+    imc_steg_finish(steg_image, save_path);
 }
 
 // Main callback function for the command line interface
