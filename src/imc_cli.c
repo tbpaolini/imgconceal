@@ -228,6 +228,15 @@ static inline void __execute_options(struct argp_state *state, void *options)
 // It receives the user's arguments, then call other parts of the program in order to perform the requested operation.
 static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
 {
+    if ( (key != ARGP_KEY_INIT) && !state->hook )
+    {
+        // This should be unreachable if the program is being operated normally
+        // This error means that there is either a bug that I didn't notice,
+        // or that the user has edited the memory somehow.
+        argp_failure(state, EXIT_FAILURE, 0, "memory error.");
+    }
+    
+    // Handle the Argp's events
     switch (key)
     {
         // Before parsing the options: allocate memory for storing the options
