@@ -207,6 +207,26 @@ static inline void __execute_options(struct argp_state *state, void *options)
         argp_error(state, "you can specify only one among the 'hide', 'extract', or 'check' options.");
     }
 
+    // Mode of operation
+    enum {HIDE, EXTRACT, CHECK} mode;
+
+    if (opt->hide.data)
+    {
+        mode = HIDE;
+    }
+    else if (opt->extract)
+    {
+        mode = EXTRACT;
+    }
+    else if (opt->check)
+    {
+        mode = CHECK;
+    }
+    else
+    {
+        argp_error(state, "unknown operation.");
+    }
+
     // Display a password prompt, if a password wasn't provided
     // (and the user did not specify the '--no-password' option)
     if (!opt->password)
