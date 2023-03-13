@@ -42,7 +42,7 @@ typedef struct CryptoContext
 } CryptoContext;
 
 // Generate cryptographic secrets key from a password
-int imc_crypto_context_create(const char *password, CryptoContext **out);
+int imc_crypto_context_create(const PassBuff *password, CryptoContext **out);
 
 // Pseudorandom number generator using the SHISHUA algorithm
 // It writes a given amount of bytes to the output.

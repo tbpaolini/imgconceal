@@ -1,7 +1,7 @@
 #include "imc_includes.h"
 
 // Generate cryptographic secrets key from a password
-int imc_crypto_context_create(const char *password, CryptoContext **out)
+int imc_crypto_context_create(const PassBuff *password, CryptoContext **out)
 {
     // Salt for generating a secret key from a password
     uint8_t salt[crypto_pwhash_SALTBYTES];
@@ -30,8 +30,8 @@ int imc_crypto_context_create(const char *password, CryptoContext **out)
     int status = crypto_pwhash(
         (uint8_t * const)&output,
         sizeof(output),
-        password,
-        strlen(password),
+        password->buffer,
+        password->length,
         salt,
         IMC_OPSLIMIT,
         IMC_MEMLIMIT,

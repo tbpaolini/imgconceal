@@ -5,7 +5,7 @@ static const uint8_t lsb_get   = 1;     // (0b00000001) Mask for clearing the le
 static const uint8_t lsb_clear = 254;   // (0b11111110) Mask for clearing the least significant bit of a byte
 
 // Initialize an image for hiding data in it
-int imc_steg_init(const char *path, const char *password, CarrierImage **output)
+int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **output)
 {
     FILE *image = fopen(path, "rb");
     if (image == NULL) return IMC_ERR_FILE_NOT_FOUND;

@@ -72,7 +72,7 @@ typedef struct PngState {
 } PngState;
 
 // Initialize an image for hiding data in it
-int imc_steg_init(const char *path, const char *password, CarrierImage **output);
+int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **output);
 
 // Convenience function for converting the bytes from a timespec struct into
 // the byte layout used by this program: 64-bit little endian (each value)
