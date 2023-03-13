@@ -390,6 +390,7 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
 
             // Freeing the linked list
             {
+                free( ((UserOptions*)(state->hook))->hide.data );
                 struct HideList *node = ((UserOptions*)(state->hook))->hide.next;
                 while (node)
                 {
