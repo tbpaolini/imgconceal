@@ -231,13 +231,21 @@ static inline void __execute_options(struct argp_state *state, void *options)
     // (and the user did not specify the '--no-password' option)
     if (!opt->password)
     {
-        printf("Input a password for hiding the file (may be blank)\n");
-        opt->password = imc_cli_password_input(true);
+        printf("Input password for the hidden file (may be blank)\n");
 
-        if (!opt->password)
+        if (mode == HIDE)
         {
-            // Exit the program if the user failed to confirm the password
-            argp_failure(state, EXIT_FAILURE, 0, "passwords do not match.");
+            opt->password = imc_cli_password_input(true);   // Input the password twice
+
+            if (!opt->password)
+            {
+                // Exit the program if the user failed to confirm the password
+                argp_failure(state, EXIT_FAILURE, 0, "passwords do not match.");
+            }
+        }
+        else // (mode == EXTRACT) || (mode == CHECK)
+        {
+            opt->password = imc_cli_password_input(false);  // Input the passowrd once
         }
     }
     
