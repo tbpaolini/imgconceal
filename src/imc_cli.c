@@ -283,6 +283,28 @@ static inline void __execute_options(struct argp_state *state, void *options)
     // (generate a secret key and seed the pseudo-random number generator)
     steg_status = imc_steg_init(steg_path, opt->password, &steg_image);
     imc_cli_password_free( ((UserOptions*)(state->hook))->password );
+
+    switch (steg_status)
+    {
+        case IMC_SUCCESS:
+            break;
+        
+        case IMC_ERR_FILE_NOT_FOUND:
+            argp_failure(state, EXIT_FAILURE, 0, "file '%s' was not found.", steg_path);
+            break;
+        
+        case IMC_ERR_FILE_INVALID:
+            argp_failure(state, EXIT_FAILURE, 0, "file '%s' is not a valid JPEG or PNG image.", steg_path);
+            break;
+        
+        case IMC_ERR_NO_MEMORY:
+            argp_failure(state, EXIT_FAILURE, 0, "no enough memory for hashing the password.");
+            break;
+        
+        default:
+            argp_failure(state, EXIT_FAILURE, 0, "unknown error when hashing the password.");
+            break;
+    }
 }
 
 // Main callback function for the command line interface
