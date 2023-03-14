@@ -239,6 +239,11 @@ static inline void __execute_options(struct argp_state *state, void *options)
         argp_error(state, "the 'input' option is used only when hiding a file.");
     }
 
+    if (mode != HIDE && opt->append)
+    {
+        argp_error(state, "the 'append' option can only be used when hiding a file.");
+    }
+
     // Display a password prompt, if a password wasn't provided
     // (and the user did not specify the '--no-password' option)
     if (!opt->password)
