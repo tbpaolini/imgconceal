@@ -32,6 +32,11 @@ typedef struct CarrierImage
     carrier_save_func save;     // Hide data in the carrier
     carrier_close_func close;   // Free the memory used for the carrier operation
     
+    // Operation parameters
+    bool verbose;       // Whether to print the progress of each operation
+    bool just_check;    // Whether to just check for the info of the hidden file instead of saving the file
+    struct FileInfo *check_info;    // Stores a copy of the FileInfo struct if 'just_check' is true
+    
     // Memory management
     void **heap;            // Array of pointers to other heap allocated memory for this image
     size_t heap_lenght;     // Amount of elements on the 'heap' array
