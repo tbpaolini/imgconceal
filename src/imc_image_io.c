@@ -435,6 +435,59 @@ int imc_steg_extract(CarrierImage *carrier_img)
     return IMC_SUCCESS;
 }
 
+// Move the read position of the carrier bytes to right after the end of the last hidden file
+// Note: this function is intended to be used when in "append mode" while hiding a file.
+void imc_steg_seek_to_end(CarrierImage *carrier_img)
+{
+    // Start from the beginning
+    carrier_img->carrier_pos = 0;
+    size_t original_pos = 0;
+    
+    while (true)
+    {
+        // Read position after the last successfull check
+        original_pos = carrier_img->carrier_pos;
+        
+        // Magic bytes of the current data segment
+        char magic[5];
+        const size_t magic_size = sizeof(magic) - 1;
+        memset(magic, 0, sizeof(magic));
+        const bool read_success = __read_payload(carrier_img, magic_size, (uint8_t *)(&magic));
+
+        // Keep parsing the data segments the magic bytes are not found
+        if ( read_success && (strcmp(magic, IMC_CRYPTO_MAGIC) == 0) )
+        {
+            // Check the version of the encrypted data
+            uint32_t crypto_version = 0;
+            {
+                const bool read_success = __read_payload(carrier_img, sizeof(crypto_version), (uint8_t *)&crypto_version);
+                if (!read_success) break;
+            }
+            crypto_version = le32toh(crypto_version);
+            if (crypto_version > IMC_CRYPTO_VERSION) break;
+
+            // Get the size of the encrypted stream
+            uint32_t crypto_size = 0;
+            {
+                const bool read_success = __read_payload(carrier_img, sizeof(crypto_size), (uint8_t *)&crypto_size);
+                if (!read_success) break;
+            }
+            crypto_size = le32toh(crypto_size);
+
+            // Skip the encrypted stream
+            carrier_img->carrier_pos += crypto_size;
+        }
+        else
+        {
+            // The magic bytes were not found
+            break;
+        }
+    }
+
+    // Return the read position to where it was before the failed check
+    carrier_img->carrier_pos = original_pos;
+}
+
 // Get bytes of a JPEG image that will carry the hidden data
 void imc_jpeg_carrier_open(CarrierImage *carrier_img)
 {

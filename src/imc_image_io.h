@@ -99,6 +99,10 @@ static bool __read_payload(CarrierImage *carrier_img, size_t num_bytes, uint8_t 
 // Note: The filename is stored with the hidden data
 int imc_steg_extract(CarrierImage *carrier_img);
 
+// Move the read position of the carrier bytes to right after the end of the last hidden file
+// Note: this function is intended to be used when in "append mode" while hiding a file.
+void imc_steg_seek_to_end(CarrierImage *carrier_img);
+
 // Get bytes of a JPEG image that will carry the hidden data
 void imc_jpeg_carrier_open(CarrierImage *carrier_img);
 
