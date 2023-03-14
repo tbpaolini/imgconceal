@@ -314,6 +314,9 @@ static inline void __execute_options(struct argp_state *state, void *options)
     // Operation on the image
     if (mode == HIDE)
     {
+        // If on "append mode": Skip to the end of the hidden data
+        if (opt->append) imc_steg_seek_to_end(steg_image);
+        
         // Hide the files on the image
         struct HideList *node = &opt->hide;
         while (node)
