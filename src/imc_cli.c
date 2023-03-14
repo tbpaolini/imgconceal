@@ -306,7 +306,30 @@ static inline void __execute_options(struct argp_state *state, void *options)
             break;
     }
 
-    /* TO DO: Operation on the image */
+    // Operation on the image
+    if (mode == HIDE)
+    {
+        // Hide the files on the image
+        struct HideList *node = &opt->hide;
+        while (node)
+        {
+            int hide_status = imc_steg_insert(steg_image, node->data);
+            node = node->next;
+
+            /* TO DO: Error handling and status messages */
+        }
+    }
+    else // (mode == EXTRACT) || (mode == CHECK)
+    {
+        // Save or just check the files hidden on the image
+        int unhide_status = IMC_SUCCESS;
+        while (unhide_status == IMC_SUCCESS)
+        {
+            unhide_status = imc_steg_extract(steg_image);
+
+            /* TO DO: Error handling and status messages */
+        }
+    }
 
     // Path where to save the output image
     char *save_path = NULL;
