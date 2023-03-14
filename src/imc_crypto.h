@@ -17,6 +17,7 @@
 
 // Signature that this program will add to the beginning of the data stream that was hidden
 #define IMC_CRYPTO_MAGIC "imcl"
+#define IMC_CRYPTO_MAGIC_SIZE sizeof(IMC_CRYPTO_MAGIC)
 
 // Salt appended to the password when hashing
 // The salt does not need to be secret, but password validation will fail if using a different salt.

@@ -291,13 +291,13 @@ int imc_steg_extract(CarrierImage *carrier_img)
     bool read_status;
     
     // File magic (should be "imcl")
-    char magic[5];
+    char magic[IMC_CRYPTO_MAGIC_SIZE];
     memset(magic, 0, sizeof(magic));
     read_status = __read_payload(carrier_img, sizeof(magic)-1, (uint8_t *)magic);
     if (!read_status) return IMC_ERR_PAYLOAD_OOB;
 
     // Check magic
-    if ( strncmp(magic, IMC_CRYPTO_MAGIC, strlen(IMC_CRYPTO_MAGIC)) != 0 )
+    if ( strcmp(magic, IMC_CRYPTO_MAGIC) != 0 )
     {
         return IMC_ERR_INVALID_MAGIC;
     }
@@ -449,7 +449,7 @@ void imc_steg_seek_to_end(CarrierImage *carrier_img)
         original_pos = carrier_img->carrier_pos;
         
         // Magic bytes of the current data segment
-        char magic[5];
+        char magic[IMC_CRYPTO_MAGIC_SIZE];
         const size_t magic_size = sizeof(magic) - 1;
         memset(magic, 0, sizeof(magic));
         const bool read_success = __read_payload(carrier_img, magic_size, (uint8_t *)(&magic));
