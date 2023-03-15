@@ -311,6 +311,10 @@ static inline void __execute_options(struct argp_state *state, void *options)
             break;
     }
 
+    // Store the '--verbose' and '--check' flags
+    steg_image->just_check = opt->check;
+    steg_image->verbose = opt->verbose;
+
     // Operation on the image
     if (mode == HIDE)
     {
