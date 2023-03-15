@@ -35,12 +35,22 @@ typedef struct CarrierImage
     // Operation parameters
     bool verbose;       // Whether to print the progress of each operation
     bool just_check;    // Whether to just check for the info of the hidden file instead of saving the file
-    struct FileInfo *check_info;    // Stores a copy of the FileInfo struct if 'just_check' is true
+    struct CheckInfo *check_info;   // Stores a copy of the FileInfo struct if 'just_check' is true
     
     // Memory management
     void **heap;            // Array of pointers to other heap allocated memory for this image
     size_t heap_lenght;     // Amount of elements on the 'heap' array
 } CarrierImage;
+
+// Store the metadata of the hidden file (when running imgconceal for just checking the file's info)
+typedef struct CheckInfo {
+    struct timespec access_time;    // Last access time of the file
+    struct timespec mod_time;       // Last modified time of the file
+    struct timespec steg_time;      // Time when the file was hidden by this program
+    size_t file_size;               // Size in bytes of the hidden file
+    size_t name_size;               // Size in bytes of the file's name (counting the null terminator)
+    char file_name[];               // Name of the file as a C-style string
+} CheckInfo;
 
 // Ensure that the values on our 'timespec struct' will be 64-bit, just to be on the safe side
 struct timespec64
