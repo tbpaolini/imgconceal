@@ -3,8 +3,9 @@
 const char *argp_program_version = "imageconceal version 1.0.0\n"\
     "Copyright (c) 2023 Tiago Becerra Paolini.\n"\
     "Licensed under the MIT license.\n"\
-    "https://github.com/tbpaolini/imgconceal";
-const char *argp_program_bug_address = "<https://github.com/tbpaolini/imgconceal/issues>";
+    "https://github.com/tbpaolini/imgconceal\n"\
+    "Contact: <tpaolini@gmail.com>";
+const char *argp_program_bug_address = "<https://github.com/tbpaolini/imgconceal/issues> or <tpaolini@gmail.com>";
 
 int main(int argc, char *argv[])
 {
