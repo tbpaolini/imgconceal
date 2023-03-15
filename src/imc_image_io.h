@@ -22,6 +22,7 @@ typedef struct CarrierImage
     void *object;           // Pointer to the handler that should be passed to the image processing functions
     CryptoContext *crypto;  // Secret parameters generated from the password
     enum ImageType type;    // Format of the image
+    struct FileMetadata *steg_info; // The metadata of the most recent extracted file
     
     // Manipulation of the file's carrier
     carrier_bytes_t bytes;      // Carrier bytes (same order as on the image)
@@ -32,25 +33,24 @@ typedef struct CarrierImage
     carrier_save_func save;     // Hide data in the carrier
     carrier_close_func close;   // Free the memory used for the carrier operation
     
-    // Operation parameters
+    // Operation flags
     bool verbose;       // Whether to print the progress of each operation
     bool just_check;    // Whether to just check for the info of the hidden file instead of saving the file
-    struct CheckInfo *check_info;   // Stores a copy of the FileInfo struct if 'just_check' is true
     
     // Memory management
     void **heap;            // Array of pointers to other heap allocated memory for this image
     size_t heap_lenght;     // Amount of elements on the 'heap' array
 } CarrierImage;
 
-// Store the metadata of the hidden file (when running imgconceal for just checking the file's info)
-typedef struct CheckInfo {
+// Store the metadata of the hidden file
+typedef struct FileMetadata {
     struct timespec access_time;    // Last access time of the file
     struct timespec mod_time;       // Last modified time of the file
     struct timespec steg_time;      // Time when the file was hidden by this program
     size_t file_size;               // Size in bytes of the hidden file
     size_t name_size;               // Size in bytes of the file's name (counting the null terminator)
     char file_name[];               // Name of the file as a C-style string
-} CheckInfo;
+} FileMetadata;
 
 // Ensure that the values on our 'timespec struct' will be 64-bit, just to be on the safe side
 struct timespec64

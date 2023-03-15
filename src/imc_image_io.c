@@ -411,20 +411,25 @@ int imc_steg_extract(CarrierImage *carrier_img)
     const size_t file_start = sizeof(FileInfo) + name_len;  // Data offset where the file begins
     const size_t file_size  = offsetof(FileInfo, access_time) + decompress_size - file_start;   // Size of the file (bytes)
 
-    // If on "check mode", just store the file's metadata instead of extracting the file
+    // Store the file's metadata
+    if (!carrier_img->steg_info)
+    {
+        carrier_img->steg_info = imc_malloc(sizeof(FileMetadata) + name_len);
+    }
+
+    *(carrier_img->steg_info) = (FileMetadata){
+        .access_time = __timespec_from_64le(file_info->access_time),
+        .mod_time = __timespec_from_64le(file_info->mod_time),
+        .steg_time = __timespec_from_64le(file_info->steg_time),
+        .file_size = file_size,
+        .name_size = name_len,
+    };
+
+    memcpy( carrier_img->steg_info->file_name, file_info->file_name, name_len );
+    
+    // If on "check mode": Exit the function without saving the file
     if (carrier_img->just_check)
     {
-        CheckInfo *check_info = imc_malloc(sizeof(CheckInfo) + name_len);
-        *check_info = (CheckInfo){
-            .access_time = __timespec_from_64le(file_info->access_time),
-            .mod_time = __timespec_from_64le(file_info->mod_time),
-            .steg_time = __timespec_from_64le(file_info->steg_time),
-            .file_size = file_size,
-            .name_size = name_len,
-        };
-        memcpy(check_info->file_name, file_info->file_name, name_len);
-
-        // Exit the function without saving the file
         imc_free(decompress_buffer);
         return IMC_SUCCESS;
     }
@@ -1267,6 +1272,6 @@ void imc_steg_finish(CarrierImage *carrier_img, const char *save_path)
     carrier_img->close(carrier_img);
     fclose(carrier_img->file);
     imc_crypto_context_destroy(carrier_img->crypto);
-    imc_free(carrier_img->check_info);
+    imc_free(carrier_img->steg_info);
     imc_free(carrier_img);
 }
