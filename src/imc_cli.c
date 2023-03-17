@@ -207,6 +207,27 @@ static inline void __timespec_to_string(struct timespec *time, char *out_buff, s
     }
 }
 
+// Convert a file size (in bytes) to a string in the appropriate scale, and store it on 'out_buff'
+static inline void __filesize_to_string(size_t file_size, char *out_buff, size_t buff_size)
+{
+    static const char *scale[] = {"bytes", "KB", "MB", "GB", "TB"};
+    static const size_t scale_len = sizeof(scale) / sizeof(char *);
+    
+    // File size as a floating point number
+    double size_fp = (double)file_size;
+    const char *unit = scale[0];
+
+    // Increase the scale until the value is smaller than 1000 or the maximum scale is reached
+    for (size_t i = 0; (i < scale_len - 1) && (size_fp > 1000.0); i++)
+    {
+        size_fp /= 1000.0;
+        unit = scale[i + 1];
+    }
+
+    // Store the file size string on the buffer
+    snprintf(out_buff, buff_size, "%.2f %s", size_fp, unit);
+}
+
 // Validate the command line options, and perform the requested operation
 // This is a helper for the 'imc_cli_parse_options()' function.
 static inline void __execute_options(struct argp_state *state, void *options)

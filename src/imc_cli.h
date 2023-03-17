@@ -47,6 +47,9 @@ static inline void __check_unique_option(struct argp_state *state, const char *o
 // Convert a timespec struct to a date string, and store it on 'out_buff'
 static inline void __timespec_to_string(struct timespec *time, char *out_buff, size_t buff_size);
 
+// Convert a file size (in bytes) to a string in the appropriate scale, and store it on 'out_buff'
+static inline void __filesize_to_string(size_t file_size, char *out_buff, size_t buff_size);
+
 // Validate the command line options, and perform the requested operation
 // This is a helper for the 'imc_cli_parse_options()' function.
 static inline void __execute_options(struct argp_state *state, void *options);
