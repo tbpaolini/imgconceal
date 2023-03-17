@@ -504,18 +504,27 @@ static inline void __execute_options(struct argp_state *state, void *options)
         }
     }
 
-    // Path where to save the output image
-    char *save_path = NULL;
-
+    // Save the modified image (when hiding a file)
     if (mode == HIDE)
     {
-        save_path = opt->output ? opt->output : opt->input;
+        const char *const save_path = opt->output ? opt->output : opt->input;
+        const int save_status = imc_steg_save(steg_image, save_path);
         /* Note: The input image will not be overwritten because our file name
            collision resolution is going to append a number to the output's name. */
+        
+        switch (save_status)
+        {
+            case IMC_SUCCESS:
+                /* code */
+                break;
+            
+            default:
+                break;
+        }
     }
 
-    // Save the output image (if any) and free the memory used by the steganography struct
-    imc_steg_finish(steg_image, save_path);
+    // Close the open files and free the memory
+    imc_steg_finish(steg_image);
 }
 
 // Main callback function for the command line interface

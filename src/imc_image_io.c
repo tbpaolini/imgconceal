@@ -1280,13 +1280,16 @@ void imc_png_carrier_close(CarrierImage *carrier_img)
     free(png);
 }
 
-// Save the image with hidden data, then free the memory of the data structures used for steganography
-// The path should be NULL if no output image is going to be saved.
-int imc_steg_finish(CarrierImage *carrier_img, const char *save_path)
+// Save the image with hidden data
+int imc_steg_save(CarrierImage *carrier_img, const char *save_path)
 {
-    // Save the output image
-    int status = IMC_SUCCESS;
-    if (save_path) status = carrier_img->save(carrier_img, save_path);
+    return carrier_img->save(carrier_img, save_path);
+}
+
+// Free the memory of the data structures used for steganography
+void imc_steg_finish(CarrierImage *carrier_img)
+{
+    // Close the open files
     carrier_img->close(carrier_img);
     fclose(carrier_img->file);
 
@@ -1295,6 +1298,4 @@ int imc_steg_finish(CarrierImage *carrier_img, const char *save_path)
     imc_free(carrier_img->out_path);
     imc_free(carrier_img->steg_info);
     imc_free(carrier_img);
-    
-    return status;
 }

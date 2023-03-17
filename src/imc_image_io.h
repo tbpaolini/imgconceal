@@ -147,8 +147,10 @@ void imc_jpeg_carrier_close(CarrierImage *carrier_img);
 // Close the PNG object and free the memory associated to it
 void imc_png_carrier_close(CarrierImage *carrier_img);
 
-// Save the image with hidden data, then free the memory of the data structures used for steganography
-// The path should be NULL if no output image is going to be saved.
-int imc_steg_finish(CarrierImage *carrier_img, const char *save_path);
+// Save the image with hidden data
+int imc_steg_save(CarrierImage *carrier_img, const char *save_path);
+
+// Free the memory of the data structures used for steganography
+void imc_steg_finish(CarrierImage *carrier_img);
 
 #endif  // _IMC_IMAGE_IO_H
