@@ -11,6 +11,7 @@
 #include <locale.h>
 #include <time.h>
 #include <ctype.h>
+#include <errno.h>
 
 // System libraries
 #include <unistd.h>
