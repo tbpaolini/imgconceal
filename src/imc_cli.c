@@ -307,7 +307,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
             break;
         
         default:
-            argp_failure(state, EXIT_FAILURE, 0, "unknown error when hashing the password.");
+            argp_failure(state, EXIT_FAILURE, 0, "unknown error when hashing the password. (%d)", steg_status);
             break;
     }
 
