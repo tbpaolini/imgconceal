@@ -135,7 +135,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     
     // Calculate the size for the file's metadata that will be stored
     const size_t name_size = strlen(file_name) + 1;
-    if (name_size > UINT16_MAX) return IMC_ERR_FILE_INVALID;
+    if (name_size > UINT16_MAX) return IMC_ERR_NAME_TOO_LONG;
     const size_t info_size = sizeof(FileInfo) + name_size;
     
     // Read the file into a buffer
@@ -143,7 +143,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     uint8_t *const raw_buffer = imc_malloc(raw_size);
     const size_t read_count = fread(&raw_buffer[info_size], 1, file_size, file);
     fclose(file);
-    if (read_count != file_size) return IMC_ERR_FILE_INVALID;
+    if (read_count != file_size) return IMC_ERR_FILE_CORRUPTED;
 
     // The offset from which the data will be compressed
     const size_t compressed_offset = offsetof(FileInfo, access_time);
