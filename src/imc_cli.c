@@ -189,6 +189,24 @@ static inline void __check_unique_option(struct argp_state *state, const char *o
     }
 }
 
+// Convert a timespec struct to a date string, and store it on 'out_buff'
+static inline void __timespec_to_string(struct timespec *time, char *out_buff, size_t buff_size)
+{
+    // ISO C 'broken-down time' structure
+    struct tm my_time;
+    const struct tm *time_status = localtime_r(&time->tv_sec, &my_time);
+    
+    if (time_status)
+    {
+        const size_t date_status = strftime(out_buff, buff_size, "%c", &my_time);
+        if (!date_status) strncpy(out_buff, "(unknown)", buff_size);
+    }
+    else
+    {
+        strncpy(out_buff, "(unknown)", buff_size);
+    }
+}
+
 // Validate the command line options, and perform the requested operation
 // This is a helper for the 'imc_cli_parse_options()' function.
 static inline void __execute_options(struct argp_state *state, void *options)

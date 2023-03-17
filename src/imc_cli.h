@@ -44,6 +44,9 @@ static inline void __store_path(const char *path, char **destination);
 // The error message contains the name of the option, that is why it is needed.
 static inline void __check_unique_option(struct argp_state *state, const char *option_name, bool option_value);
 
+// Convert a timespec struct to a date string, and store it on 'out_buff'
+static inline void __timespec_to_string(struct timespec *time, char *out_buff, size_t buff_size);
+
 // Validate the command line options, and perform the requested operation
 // This is a helper for the 'imc_cli_parse_options()' function.
 static inline void __execute_options(struct argp_state *state, void *options);
