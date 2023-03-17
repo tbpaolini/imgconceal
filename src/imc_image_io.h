@@ -22,6 +22,7 @@ typedef struct CarrierImage
     void *object;           // Pointer to the handler that should be passed to the image processing functions
     CryptoContext *crypto;  // Secret parameters generated from the password
     enum ImageType type;    // Format of the image
+    char *out_path;         // Path where was saved the image with the hidden data
     struct FileMetadata *steg_info; // The metadata of the most recent extracted file
     
     // Manipulation of the file's carrier

@@ -881,7 +881,10 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
     // Note: The number goes up to 99, in order to avoid creating too many files accidentally
     bool is_unique = __resolve_filename_collision(jpeg_path);
     if (!is_unique) return IMC_ERR_FILE_EXISTS;
-    
+
+    // Store a copy of the resulting path
+    carrier_img->out_path = strdup(jpeg_path);
+
     FILE *jpeg_file = fopen(jpeg_path, "wb");
     if (!jpeg_file) return IMC_ERR_FILE_NOT_FOUND;
 
@@ -1001,6 +1004,9 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
     // Note: The number goes up to 99, in order to avoid creating too many files accidentally
     bool is_unique = __resolve_filename_collision(png_path);
     if (!is_unique) return IMC_ERR_FILE_EXISTS;
+
+    // Store a copy of the resulting path
+    carrier_img->out_path = strdup(png_path);
     
     // Open the output file for writing
     FILE *png_file = fopen(png_path, "wb");
@@ -1282,6 +1288,7 @@ void imc_steg_finish(CarrierImage *carrier_img, const char *save_path)
     carrier_img->close(carrier_img);
     fclose(carrier_img->file);
     imc_crypto_context_destroy(carrier_img->crypto);
+    imc_free(carrier_img->out_path);
     imc_free(carrier_img->steg_info);
     imc_free(carrier_img);
 }
