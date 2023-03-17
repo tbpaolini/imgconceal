@@ -424,10 +424,25 @@ static inline void __execute_options(struct argp_state *state, void *options)
             switch (unhide_status)
             {
                 case IMC_SUCCESS:
-                    has_file = true;
                     if (mode == CHECK)
                     {
+                        if (has_file) printf("\n");
+                        
+                        printf("File '%s':\n", steg_image->steg_info->file_name);
+                        
+                        char str_buffer[256];   // Buffer for the formatted strings
 
+                        __timespec_to_string(&steg_image->steg_info->steg_time, str_buffer, sizeof(str_buffer));
+                        printf("  hidden on:     %s\n", str_buffer);
+
+                        __timespec_to_string(&steg_image->steg_info->access_time, str_buffer, sizeof(str_buffer));
+                        printf("  last access:   %s\n", str_buffer);
+
+                        __timespec_to_string(&steg_image->steg_info->mod_time, str_buffer, sizeof(str_buffer));
+                        printf("  last modified: %s\n", str_buffer);
+                        
+                        __filesize_to_string(steg_image->steg_info->file_size, str_buffer, sizeof(str_buffer));
+                        printf("  size: %s\n", str_buffer);
                     }
                     else // (mode == EXTRACT)
                     {
@@ -441,6 +456,8 @@ static inline void __execute_options(struct argp_state *state, void *options)
                             printf("  hidden on: %s\n", date_str);
                         }
                     }
+                    
+                    has_file = true;
                     break;
                 
                 case IMC_ERR_PAYLOAD_OOB:
