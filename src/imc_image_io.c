@@ -103,6 +103,7 @@ static inline struct timespec __timespec_from_64le(struct timespec64 time)
 }
 
 // Hide a file in an image
+// Note: function can be called multiple times in order to hide more files in the same image.
 int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
 {
     FILE *file = fopen(file_path, "rb");
@@ -285,6 +286,9 @@ static bool __read_payload(CarrierImage *carrier_img, size_t num_bytes, uint8_t 
 }
 
 // Read the hidden data from the carrier bytes, and save it
+// The function extracts and save one file each time it is called.
+// So in order to extract all the hidden files, it should be called
+// until it stops returning the IMC_SUCCESS status code.
 // Note: The filename is stored with the hidden data
 int imc_steg_extract(CarrierImage *carrier_img)
 {
