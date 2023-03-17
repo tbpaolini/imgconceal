@@ -411,12 +411,18 @@ int imc_steg_extract(CarrierImage *carrier_img)
     const size_t file_start = sizeof(FileInfo) + name_len;  // Data offset where the file begins
     const size_t file_size  = offsetof(FileInfo, access_time) + decompress_size - file_start;   // Size of the file (bytes)
 
-    // Store the file's metadata
+    // Struct to store the information of the hidden file
+    // (since this function can be called multiple times, the struct is only malloc'ed on the first time)
     if (!carrier_img->steg_info)
     {
         carrier_img->steg_info = imc_malloc(sizeof(FileMetadata) + name_len);
     }
+    else
+    {
+        carrier_img->steg_info = imc_realloc(carrier_img->steg_info, sizeof(FileMetadata) + name_len);
+    }
 
+    // Store the file's metadata
     *(carrier_img->steg_info) = (FileMetadata){
         .access_time = __timespec_from_64le(file_info->access_time),
         .mod_time = __timespec_from_64le(file_info->mod_time),
