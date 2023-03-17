@@ -326,9 +326,45 @@ static inline void __execute_options(struct argp_state *state, void *options)
         while (node)
         {
             int hide_status = imc_steg_insert(steg_image, node->data);
-            node = node->next;
 
-            /* TO DO: Error handling and status messages */
+            // Error handling and status messages
+            switch (hide_status)
+            {
+                case IMC_SUCCESS:
+                    if (!opt->silent) printf("SUCCESS: hidden '%s' in '%s'.\n", basename(node->data), basename(opt->input));
+                    break;
+                
+                case IMC_ERR_FILE_NOT_FOUND:
+                    fprintf(stderr, "FAIL: file '%s' was not found.\n", node->data);
+                    break;
+                
+                case IMC_ERR_NAME_TOO_LONG:
+                    fprintf(stderr, "FAIL: file name '%16s...' is too long.\n", basename(node->data));
+                    break;
+                
+                case IMC_ERR_FILE_CORRUPTED:
+                    fprintf(stderr, "FAIL: file '%s' is corrupted or might have changed while being hidden.\n", basename(node->data));
+                    break;
+                
+                case IMC_ERR_NO_MEMORY:
+                    fprintf(stderr, "FAIL: no enough memory for handling file '%s'.\n", basename(node->data));
+                    break;
+                
+                case IMC_ERR_FILE_TOO_BIG:
+                    fprintf(stderr, "FAIL: no enough space in '%s' to hide '%s'.\n", basename(opt->input), basename(node->data));
+                    break;
+                
+                case IMC_ERR_CRYPTO_FAIL:
+                    fprintf(stderr, "FAIL: could not encrypt '%s'.\n", basename(node->data));
+                    break;
+                
+                default:
+                    argp_failure(state, EXIT_FAILURE, 0, "unknown error when hidding data. (%d)", hide_status);
+                    break;
+            }
+
+            // Move to the next file to be hidden
+            node = node->next;
         }
     }
     else // (mode == EXTRACT) || (mode == CHECK)
