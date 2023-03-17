@@ -515,10 +515,26 @@ static inline void __execute_options(struct argp_state *state, void *options)
         switch (save_status)
         {
             case IMC_SUCCESS:
-                /* code */
+                if (!opt->silent)
+                {
+                    printf("Modified image saved to '%s'.\n", steg_image->out_path);
+                }
+                break;
+            
+            case IMC_ERR_SAVE_FAIL:
+                argp_failure(state, EXIT_FAILURE, 0, "file path '%16s...' is too long.", save_path);
+                break;
+            
+            case IMC_ERR_FILE_EXISTS:
+                argp_failure(state, EXIT_FAILURE, 0, "could not save '%s' because a file with the same name already exists.", save_path);
+                break;
+            
+            case IMC_ERR_FILE_NOT_FOUND:
+                argp_failure(state, EXIT_FAILURE, 0, "could not save '%s'. Reason: %s.", save_path, strerror(errno));
                 break;
             
             default:
+                argp_failure(state, EXIT_FAILURE, 0, "unknown error when extracting hidden data. (%d)", save_status);
                 break;
         }
     }
