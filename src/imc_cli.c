@@ -369,13 +369,66 @@ static inline void __execute_options(struct argp_state *state, void *options)
     }
     else // (mode == EXTRACT) || (mode == CHECK)
     {
+        bool has_file = false;  // Whether the image contains a hidden file
+        
         // Save or just check the files hidden on the image
         int unhide_status = IMC_SUCCESS;
         while (unhide_status == IMC_SUCCESS)
         {
             unhide_status = imc_steg_extract(steg_image);
+            const char const* image_name = basename(opt->extract);  // Name of the image with hidden data
+            const char const* unhid_name = steg_image->steg_info->file_name; // Name of the unhidden file
 
-            /* TO DO: Error handling and status messages */
+            // Error handling and status messages
+            // Note: after all hidden files have been extracted, the function
+            //       will return IMC_ERR_INVALID_MAGIC or IMC_ERR_PAYLOAD_OOB
+            switch (unhide_status)
+            {
+                case IMC_SUCCESS:
+                    has_file = true;
+                    break;
+                
+                case IMC_ERR_PAYLOAD_OOB:
+                    if (!has_file)
+                    {
+                        fprintf(stderr, "FAIL: image '%s' is too small to contain hidden data.\n", image_name);
+                    }
+                    break;
+                
+                case IMC_ERR_INVALID_MAGIC:
+                    if (!has_file)
+                    {
+                        if (mode == CHECK)
+                        {
+                            printf("Image '%s' contains no hidden data or the password is incorrect.\n", image_name);
+                        }
+                        else // (mode == EXTRACT)
+                        {
+                            fprintf(stderr, "FAIL: image '%s' contains no hidden data or the password is incorrect.\n", image_name);
+                        }
+                    }
+                    break;
+                
+                case IMC_ERR_CRYPTO_FAIL:
+                    fprintf(stderr, "FAIL: could not decrypt '%s'.\n", image_name);
+                    break;
+                
+                case IMC_ERR_NEWER_VERSION:
+                    fprintf(stderr, "FAIL: a newer version of %s was used to hide the data on '%s'.\n", state->name, image_name);
+                    break;
+                
+                case IMC_ERR_FILE_EXISTS:
+                    fprintf(stderr, "FAIL: could not save '%s' because a file with the same name already exists.\n", unhid_name);
+                    break;
+                
+                case IMC_ERR_SAVE_FAIL:
+                    fprintf(stderr, "FAIL: could not save '%s'. Reason: %s.\n", unhid_name, strerror(errno));
+                    break;
+                
+                default:
+                    argp_failure(state, EXIT_FAILURE, 0, "unknown error when extracting hidden data. (%d)", unhide_status);
+                    break;
+            }
         }
     }
 
