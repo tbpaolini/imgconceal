@@ -404,6 +404,22 @@ static inline void __execute_options(struct argp_state *state, void *options)
             {
                 case IMC_SUCCESS:
                     has_file = true;
+                    if (mode == CHECK)
+                    {
+
+                    }
+                    else // (mode == EXTRACT)
+                    {
+                        if (!opt->silent)
+                        {
+                            printf("SUCCESS: extracted '%s' from '%s'.\n", unhid_name, image_name);
+                            
+                            // The date in which the extracted file was hidden on
+                            char date_str[256];
+                            __timespec_to_string(&steg_image->steg_info->steg_time, date_str, sizeof(date_str));
+                            printf("  hidden on: %s\n", date_str);
+                        }
+                    }
                     break;
                 
                 case IMC_ERR_PAYLOAD_OOB:
