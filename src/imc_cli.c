@@ -415,7 +415,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
         while (unhide_status == IMC_SUCCESS)
         {
             unhide_status = imc_steg_extract(steg_image);
-            const char const* image_name = basename(opt->extract);  // Name of the image with hidden data
+            const char const* image_name = basename(steg_path); // Name of the image with hidden data
             const char const* unhid_name = steg_image->steg_info->file_name; // Name of the unhidden file
 
             // Error handling and status messages
@@ -482,7 +482,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
                     break;
                 
                 case IMC_ERR_CRYPTO_FAIL:
-                    fprintf(stderr, "FAIL: could not decrypt '%s'.\n", image_name);
+                    fprintf(stderr, "FAIL: could not decrypt the data on '%s'.\n", image_name);
                     break;
                 
                 case IMC_ERR_NEWER_VERSION:
