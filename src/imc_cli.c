@@ -356,6 +356,9 @@ static inline void __execute_options(struct argp_state *state, void *options)
             break;
     }
 
+    // Whether a file has been successfully been hidden on the input image
+    bool image_has_changed = false;
+
     // Operation on the image
     if (mode == HIDE)
     {
@@ -373,6 +376,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
             {
                 case IMC_SUCCESS:
                     if (!opt->silent) printf("SUCCESS: hidden '%s' in '%s'.\n", basename(node->data), basename(opt->input));
+                    image_has_changed = true;
                     break;
                 
                 case IMC_ERR_FILE_NOT_FOUND:
@@ -532,7 +536,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
     }
 
     // Save the modified image (when hiding a file)
-    if (mode == HIDE)
+    if (mode == HIDE && image_has_changed)
     {
         const char *const save_path = opt->output ? opt->output : opt->input;
         const int save_status = imc_steg_save(steg_image, save_path);
