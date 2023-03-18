@@ -375,7 +375,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
             switch (hide_status)
             {
                 case IMC_SUCCESS:
-                    if (!opt->silent) printf("SUCCESS: hidden '%s' in '%s'.\n", basename(node->data), basename(opt->input));
+                    if (!opt->silent) printf("SUCCESS: hidden '%s' in the cover image.\n", basename(node->data));
                     image_has_changed = true;
                     break;
                 
@@ -548,7 +548,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
             case IMC_SUCCESS:
                 if (!opt->silent)
                 {
-                    printf("Modified image saved to '%s'.\n", steg_image->out_path);
+                    printf("The modified image was saved to '%s'.\n", steg_image->out_path);
                 }
                 break;
             
