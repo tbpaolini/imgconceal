@@ -356,10 +356,6 @@ static inline void __execute_options(struct argp_state *state, void *options)
             break;
     }
 
-    // Whether a file was successfully hidden in the image
-    // (only appliable to 'HIDE' mode)
-    bool has_file = false;
-
     // Operation on the image
     if (mode == HIDE)
     {
@@ -419,6 +415,8 @@ static inline void __execute_options(struct argp_state *state, void *options)
     }
     else // (mode == EXTRACT) || (mode == CHECK)
     {
+        bool has_file = false;  // Whether the image contains a hidden file
+        
         // Save or just check the files hidden on the image
         int unhide_status = IMC_SUCCESS;
         while (unhide_status == IMC_SUCCESS)
@@ -534,7 +532,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
     }
 
     // Save the modified image (when hiding a file)
-    if (mode == HIDE && has_file)
+    if (mode == HIDE)
     {
         const char *const save_path = opt->output ? opt->output : opt->input;
         const int save_status = imc_steg_save(steg_image, save_path);
