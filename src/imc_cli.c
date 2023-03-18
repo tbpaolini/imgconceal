@@ -27,9 +27,10 @@ static const struct argp_option argp_options[] = {
         "This option should be used alongside '--hide', '--extract', or '--check'. "\
         "The password may contain any character that your terminal allows you to input "\
         "(if it has spaces, please enclose the password between quotation marks). "\
-        "If you do not want to have a password, please use '--no-password' instead of this option.", 4},
+        "If you do not want to have a password, please use '--no-password' instead of this option.", 3},
     {"no-password", 'n', NULL, 0, "Do not use a password for encrypting and scrambling the hidden data. "\
-        "That means the data will be able to be extracted without needing a password.", 4},
+        "That means the data will be able to be extracted without needing a password. "
+        "This option can be used with '--hide', '--extract', or '--check'." , 4},
     {"verbose", 'v', NULL, 0, "Print detailed progress information.", 5},
     {"silent", 's', NULL, 0, "Do not print any progress information (errors are still shown).", 5},
     {0}
@@ -42,9 +43,9 @@ static const char help_text[] = "\nSteganography tool for hiding and extracting 
     "Hiding a file on an image:\n"\
     "  imgconceal --input=IMAGE --hide=FILE [--output=NEW_IMAGE] [--append] [--password=TEXT | --no-password]\n\n"\
     "Extracting a hidden file from an image:\n"\
-    "  imgconceal --extract=IMAGE [--password=TEXT]\n\n"\
+    "  imgconceal --extract=IMAGE [--password=TEXT | --no-password]\n\n"\
     "Check if an image has data hidden by this program:\n"\
-    "  imgconceal --check=IMAGE [--password=TEXT]\n\n"\
+    "  imgconceal --check=IMAGE [--password=TEXT | --no-password]\n\n"\
     "All options:\n";
 
 // Options and callback function for the command line interface
