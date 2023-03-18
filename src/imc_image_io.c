@@ -883,6 +883,7 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
     if (!is_unique) return IMC_ERR_FILE_EXISTS;
 
     // Store a copy of the resulting path
+    free(carrier_img->out_path);
     carrier_img->out_path = strdup(jpeg_path);
 
     FILE *jpeg_file = fopen(jpeg_path, "wb");
@@ -1006,6 +1007,7 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
     if (!is_unique) return IMC_ERR_FILE_EXISTS;
 
     // Store a copy of the resulting path
+    free(carrier_img->out_path);
     carrier_img->out_path = strdup(png_path);
     
     // Open the output file for writing
