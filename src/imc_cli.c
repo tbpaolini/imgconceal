@@ -392,7 +392,12 @@ static inline void __execute_options(struct argp_state *state, void *options)
                     break;
                 
                 case IMC_ERR_FILE_TOO_BIG:
-                    fprintf(stderr, "FAIL: no enough space in '%s' to hide '%s'.\n", basename(opt->input), basename(node->data));
+                    char size_left[256];
+                    __filesize_to_string((steg_image->carrier_lenght - steg_image->carrier_pos) / 8, size_left, sizeof(size_left));
+                    fprintf(
+                        stderr, "FAIL: no enough space in '%s' to hide '%s' (free space: %s).\n",
+                        basename(opt->input), basename(node->data), size_left
+                    );
                     break;
                 
                 case IMC_ERR_CRYPTO_FAIL:
@@ -474,7 +479,15 @@ static inline void __execute_options(struct argp_state *state, void *options)
                     {
                         if (mode == CHECK)
                         {
-                            printf("Image '%s' contains no hidden data or the password is incorrect.\n", image_name);
+                            char str_buffer[256];
+                            __filesize_to_string(steg_image->carrier_lenght / 8, str_buffer, sizeof(str_buffer));
+                            printf(
+                                "Image '%s' contains no hidden data or the password is incorrect.\n"
+                                "This image can hide approximately %s "
+                                "(it depends on how well the hidden data can be compressed).\n",
+                                image_name,
+                                str_buffer
+                            );
                         }
                         else // (mode == EXTRACT)
                         {
@@ -503,6 +516,18 @@ static inline void __execute_options(struct argp_state *state, void *options)
                     argp_failure(state, EXIT_FAILURE, 0, "unknown error when extracting hidden data. (%d)", unhide_status);
                     break;
             }
+        }
+
+        // Prints how much space the image has left, in case of checking one that already has hidden data
+        if (mode == CHECK && has_file)
+        {
+            char str_buffer[256];
+            __filesize_to_string((steg_image->carrier_lenght - steg_image->carrier_pos) / 8, str_buffer, sizeof(str_buffer));
+            printf(
+                "\nThis image can hide approximately more %s "
+                "(it depends on how well the hidden data can be compressed).\n",
+                str_buffer
+            );
         }
     }
 
