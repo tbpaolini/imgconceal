@@ -514,7 +514,7 @@ void imc_steg_seek_to_end(CarrierImage *carrier_img)
             crypto_size = le32toh(crypto_size);
 
             // Skip the encrypted stream
-            carrier_img->carrier_pos += crypto_size;
+            carrier_img->carrier_pos += crypto_size * 8;
         }
         else
         {
