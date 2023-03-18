@@ -323,9 +323,14 @@ static inline void __execute_options(struct argp_state *state, void *options)
             break;
     }
     
+    // Store the '--verbose' and '--check' flags
+    uint64_t flags = 0;
+    if (opt->check) flags &= IMC_JUST_CHECK;
+    if (opt->verbose && !opt->silent) flags &= IMC_VERBOSE;
+    
     // Initialize the steganography data structure
     // (generate a secret key and seed the pseudo-random number generator)
-    steg_status = imc_steg_init(steg_path, opt->password, &steg_image);
+    steg_status = imc_steg_init(steg_path, opt->password, &steg_image, flags);
     imc_cli_password_free( ((UserOptions*)(state->hook))->password );
 
     switch (steg_status)
@@ -349,10 +354,6 @@ static inline void __execute_options(struct argp_state *state, void *options)
             argp_failure(state, EXIT_FAILURE, 0, "unknown error when hashing the password. (%d)", steg_status);
             break;
     }
-
-    // Store the '--verbose' and '--check' flags
-    steg_image->just_check = opt->check;
-    if (!opt->silent) steg_image->verbose = opt->verbose;
 
     // Operation on the image
     if (mode == HIDE)

@@ -3,6 +3,10 @@
 
 #include "imc_includes.h"
 
+// Flags for the 'imc_steg_init()' function
+#define IMC_VERBOSE     (uint64_t)1 // Prints the progress of each step
+#define IMC_JUST_CHECK  (uint64_t)2 // Checks for the hidden file's info without saving the file
+
 // Carrier: Array with the bytes that carry the hidden data
 typedef uint8_t *carrier_bytes_t;
 
@@ -88,7 +92,7 @@ typedef struct PngState {
 } PngState;
 
 // Initialize an image for hiding data in it
-int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **output);
+int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **output, uint64_t flags);
 
 // Convenience function for converting the bytes from a timespec struct into
 // the byte layout used by this program: 64-bit little endian (each value)

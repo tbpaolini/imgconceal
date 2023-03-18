@@ -5,7 +5,7 @@ static const uint8_t lsb_get   = 1;     // (0b00000001) Mask for clearing the le
 static const uint8_t lsb_clear = 254;   // (0b11111110) Mask for clearing the least significant bit of a byte
 
 // Initialize an image for hiding data in it
-int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **output)
+int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **output, uint64_t flags)
 {
     FILE *image = fopen(path, "rb");
     if (image == NULL) return IMC_ERR_FILE_NOT_FOUND;
@@ -46,6 +46,10 @@ int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **out
     CarrierImage *carrier_img = imc_calloc(1, sizeof(CarrierImage));
     carrier_img->type = img_type;
     carrier_img->file = image;
+    
+    // Set up the flags for processing the open image
+    if (flags & IMC_JUST_CHECK) carrier_img->just_check = true; // '--check' option
+    if (flags & IMC_VERBOSE)    carrier_img->verbose = true;    // '--verbose' option
 
     // Generate a secret key, and seed the number generator
     const int crypto_status = imc_crypto_context_create(password, &carrier_img->crypto);
