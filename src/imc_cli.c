@@ -226,7 +226,16 @@ static inline void __filesize_to_string(size_t file_size, char *out_buff, size_t
     }
 
     // Store the file size string on the buffer
-    snprintf(out_buff, buff_size, "%.2f %s", size_fp, unit);
+    if (unit == scale[0])
+    {
+        // Have no decimals if the unit is 'bytes'
+        snprintf(out_buff, buff_size, "%.0f %s", size_fp, unit);
+    }
+    else
+    {
+        // Have two decimals for the other units
+        snprintf(out_buff, buff_size, "%.2f %s", size_fp, unit);
+    }
 }
 
 // Validate the command line options, and perform the requested operation
