@@ -875,7 +875,11 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
     char jpeg_path[p_len+16];
     strncpy(jpeg_path, save_path, sizeof(jpeg_path));
     
-    if ( (strncmp(&save_path[p_len-4], ".jpg", 4) != 0) && (strncmp(&save_path[p_len-5], ".jpeg", 5) != 0) )
+    if (
+        (p_len < 4 || strncmp(&save_path[p_len-4], ".jpg", 4) != 0)
+        &&
+        (p_len < 5 || strncmp(&save_path[p_len-5], ".jpeg", 5) != 0)
+    )
     {
         strcat(jpeg_path, ".jpg");
     }
@@ -999,7 +1003,7 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
     char png_path[p_len+16];
     strncpy(png_path, save_path, sizeof(png_path));
     
-    if ( (strncmp(&save_path[p_len-4], ".png", 4) != 0) )
+    if ( p_len < 4 || strncmp(&save_path[p_len-4], ".png", 4) != 0 )
     {
         strcat(png_path, ".png");
     }
