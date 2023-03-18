@@ -709,6 +709,7 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
                 while (node)
                 {
                     struct HideList *next_node = node->next;
+                    imc_free(node->data);
                     imc_free(node);
                     node = next_node;
                 };
