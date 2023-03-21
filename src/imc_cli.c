@@ -448,7 +448,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
                     {
                         if (has_file) printf("\n");
                         
-                        printf("File '%s':\n", steg_image->steg_info->file_name);
+                        printf("Hidden file '%s':\n", steg_image->steg_info->file_name);
                         
                         char str_buffer[256];   // Buffer for the formatted strings
 
