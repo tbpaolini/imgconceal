@@ -335,8 +335,8 @@ static inline void __execute_options(struct argp_state *state, void *options)
     
     // Store the '--verbose' and '--check' flags
     uint64_t flags = 0;
-    if (opt->check) flags &= IMC_JUST_CHECK;
-    if (opt->verbose && !opt->silent) flags &= IMC_VERBOSE;
+    if (opt->check) flags |= IMC_JUST_CHECK;
+    if (opt->verbose && !opt->silent) flags |= IMC_VERBOSE;
 
     // Initialize the steganography data structure
     // (generate a secret key and seed the pseudo-random number generator)
