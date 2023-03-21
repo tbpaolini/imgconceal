@@ -824,6 +824,14 @@ void imc_png_carrier_open(CarrierImage *carrier_img)
     {
         printf("Scanning cover image for suitable carrier bits... Done!  \n");
     }
+
+    // Check for edge case
+    if (pos == 0)
+    {
+        fprintf(stderr, "Error: the PNG image has no suitable bits for hiding the data. "
+            "This may happen if the image is fully transparent.\n");
+        exit(EXIT_FAILURE);
+    }
     
     // Free the unused space of the carrier buffer
     carrier = imc_realloc(carrier, pos * sizeof(carrier_bytes_t));
