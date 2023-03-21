@@ -777,6 +777,13 @@ void imc_png_carrier_open(CarrierImage *carrier_img)
     // (we are going to use pixels with alpha > 0, but the alpha channel itself will not be used as carrier)
     for (size_t y = 0; y < height; y++)
     {
+        // Print status message (on verbose)
+        if (carrier_img->verbose)
+        {
+            const double percent = ((double)y / (double)height) * 100.0;
+            printf("Scanning cover image for suitable carrier bits... %.1f %%\r", percent);
+        }
+        
         for (size_t x = 0; x < width; x++)
         {
             uint8_t *const pixel = &row_pointers[y][x * bytes_per_pixel];
@@ -810,6 +817,12 @@ void imc_png_carrier_open(CarrierImage *carrier_img)
                 }
             }
         }
+    }
+
+    // Print status message (on verbose)
+    if (carrier_img->verbose)
+    {
+        printf("Scanning cover image for suitable carrier bits... Done!  \n");
     }
     
     // Free the unused space of the carrier buffer
