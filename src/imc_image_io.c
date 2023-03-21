@@ -634,9 +634,18 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
         }
     }
 
+    // Print status message (on verbose)
     if (carrier_img->verbose)
     {
         printf("Scanning cover image for suitable carrier bits... Done!  \n");
+    }
+
+    // Check for edge case
+    if (carrier_count == 0)
+    {
+        fprintf(stderr, "Error: the JPEG image has no suitable bits for hiding the data. "
+            "This may happen if the image is just a flat color.\n");
+        exit(EXIT_FAILURE);
     }
     
     // Free the unusued space of the array
