@@ -600,7 +600,9 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
             if (carrier_img->verbose)
             {
                 const double row_count = jpeg_obj->comp_info[comp].height_in_blocks;
-                const double percent = ((double)y / row_count) * 100.0;
+                const double row_fraction = ((double)y / row_count) / (double)jpeg_obj->num_components;
+                const double comp_fraction = (double)comp / (double)jpeg_obj->num_components;
+                const double percent = (comp_fraction + row_fraction) * 100.0;
                 printf("Scanning cover image for suitable carrier bits... %.1f %%\r", percent);
             }
 
