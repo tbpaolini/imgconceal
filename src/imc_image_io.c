@@ -91,7 +91,8 @@ int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **out
     imc_crypto_shuffle_ptr(
         carrier_img->crypto,
         (uintptr_t *)(&carrier_img->carrier[0]),
-        carrier_img->carrier_lenght
+        carrier_img->carrier_lenght,
+        carrier_img->verbose    // Print the progress if on "verbose" mode
     );
     
     *output = carrier_img;

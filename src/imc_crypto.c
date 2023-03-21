@@ -92,7 +92,7 @@ uint64_t imc_crypto_prng_uint64(CryptoContext *state)
 }
 
 // Randomize the order of the elements in an array of pointers
-void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_elements)
+void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_elements, bool print_status)
 {
     if (num_elements <= 1) return;
     
@@ -109,6 +109,20 @@ void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_e
         array[i] ^= array[new_i];
         array[new_i] ^= array[i];
         array[i] ^= array[new_i];
+
+        if (print_status && (i % 4096 == 0))
+        {
+            // Print the progress if we are on "verbose" mode
+            // Note: For performance reasons, we are printing it once every 4096 steps.
+            //       The compiler can optimize (i % 4096) to (i & 4095), because 4096 is a power of 2.
+            const double percent = ((double)(num_elements - i) / (double)num_elements) * 100.0;
+            printf("Shuffling carrier read/write order... %.1f %%\r", percent);
+        }
+    }
+    
+    if (print_status)
+    {
+        printf("Shuffling carrier read/write order... Done!  \n");
     }
 }
 

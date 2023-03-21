@@ -53,7 +53,7 @@ void imc_crypto_prng(CryptoContext *state, size_t num_bytes, uint8_t *output);
 uint64_t imc_crypto_prng_uint64(CryptoContext *state);
 
 // Randomize the order of the elements in an array of pointers
-void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_elements);
+void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_elements, bool print_status);
 
 // Encrypt a data stream
 int imc_crypto_encrypt(
