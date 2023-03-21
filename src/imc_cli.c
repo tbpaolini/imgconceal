@@ -338,23 +338,10 @@ static inline void __execute_options(struct argp_state *state, void *options)
     if (opt->check) flags &= IMC_JUST_CHECK;
     if (opt->verbose && !opt->silent) flags &= IMC_VERBOSE;
 
-    // Status message (verbose)
-    if (opt->verbose)
-    {
-        if (opt->password->length > 0) printf("Generating secret key... ");
-        else printf("Generating key... ");
-    }
-    
     // Initialize the steganography data structure
     // (generate a secret key and seed the pseudo-random number generator)
     steg_status = imc_steg_init(steg_path, opt->password, &steg_image, flags);
     imc_cli_password_free( ((UserOptions*)(state->hook))->password );
-
-    if (opt->verbose)
-    {
-        if (steg_status == IMC_SUCCESS) printf("Done!\n");
-        else printf("\n");
-    }
 
     switch (steg_status)
     {

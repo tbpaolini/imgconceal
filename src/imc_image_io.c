@@ -51,8 +51,20 @@ int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **out
     if (flags & IMC_JUST_CHECK) carrier_img->just_check = true; // '--check' option
     if (flags & IMC_VERBOSE)    carrier_img->verbose = true;    // '--verbose' option
 
+    // Status message (verbose)
+    if (carrier_img->verbose)
+    {
+        if (password->length > 0) printf("Generating secret key... ");
+        else printf("Generating key... ");
+    }
+
     // Generate a secret key, and seed the number generator
     const int crypto_status = imc_crypto_context_create(password, &carrier_img->crypto);
+    if (carrier_img->verbose)
+    {
+        if (crypto_status == IMC_SUCCESS) printf("Done!\n");
+        else printf("\n");
+    }
     if (crypto_status != IMC_SUCCESS) return crypto_status;
 
     // Set the struct's methods
