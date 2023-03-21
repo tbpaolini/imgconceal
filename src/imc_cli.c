@@ -448,7 +448,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
                     {
                         if (has_file) printf("\n");
                         
-                        printf("Hidden file '%s':\n", steg_image->steg_info->file_name);
+                        printf("Found file '%s':\n", steg_image->steg_info->file_name);
                         
                         char str_buffer[256];   // Buffer for the formatted strings
 
@@ -537,8 +537,9 @@ static inline void __execute_options(struct argp_state *state, void *options)
             char str_buffer[256];
             __filesize_to_string((steg_image->carrier_lenght - steg_image->carrier_pos) / 8, str_buffer, sizeof(str_buffer));
             printf(
-                "\nThis image can hide approximately more %s "
-                "(it depends on how well the hidden data can be compressed).\n",
+                "\nThe cover image '%s' can hide approximately more %s "
+                "(after compression of hidden data).\n",
+                basename(opt->check),
                 str_buffer
             );
         }
