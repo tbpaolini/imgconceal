@@ -596,6 +596,14 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
                 false                       // Opening the array in read-only mode
             );
 
+            // Print status message (on verbose)
+            if (carrier_img->verbose)
+            {
+                const double row_count = jpeg_obj->comp_info[comp].height_in_blocks;
+                const double percent = ((double)y / row_count) * 100.0;
+                printf("Scanning cover image for suitable carrier bits... %.1f %%\r", percent);
+            }
+
             // Iterate column by column from left to right
             for (JDIMENSION x = 0; x < jpeg_obj->comp_info[comp].width_in_blocks; x++)
             {
@@ -624,6 +632,11 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
                 }
             }
         }
+    }
+
+    if (carrier_img->verbose)
+    {
+        printf("Scanning cover image for suitable carrier bits... Done!  \n");
     }
     
     // Free the unusued space of the array
