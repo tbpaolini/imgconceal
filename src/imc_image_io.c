@@ -1016,6 +1016,16 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
                 true                        // Opening the array in write mode
             );
 
+            // Print status message (on verbose)
+            if (carrier_img->verbose)
+            {
+                const double row_count = jpeg_obj_in->comp_info[comp].height_in_blocks;
+                const double row_fraction = ((double)y / row_count) / (double)jpeg_obj_in->num_components;
+                const double comp_fraction = (double)comp / (double)jpeg_obj_in->num_components;
+                const double percent = (comp_fraction + row_fraction) * 100.0;
+                printf("Writing carrier back to the cover image... %.1f %%\r", percent);
+            }
+
             // Iterate column by column from left to right
             for (JDIMENSION x = 0; x < jpeg_obj_in->comp_info[comp].width_in_blocks; x++)
             {
@@ -1039,6 +1049,12 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
                 }
             }
         }
+    }
+
+    // Print status message (on verbose)
+    if (carrier_img->verbose)
+    {
+        printf("Writing carrier back to the cover image... Done!  \n");
     }
 
     // Write the modified DCT coefficients into the new image
