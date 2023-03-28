@@ -193,8 +193,9 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     // Copy the uncompressed metadata to the beginning of the buffer
     memcpy(zlib_buffer, file_info, compressed_offset);
     zlib_buffer_size -= compressed_offset;
-    
+
     // Compress the data on the buffer (from the '.access_time' onwards)
+    if (carrier_img->verbose) printf("Compressing '%s'... ", file_name);
     int zlib_status = compress2(
         &zlib_buffer[compressed_offset],    // Output buffer to store the compressed data (starting after the uncompressed section)
         &zlib_buffer_size,                  // Size in bytes of the output buffer (the function updates the value to the used size)
@@ -208,10 +209,12 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
         // The only way for decompression to fail here is if no enough memory was available
         imc_clear_free(zlib_buffer, zlib_buffer_size + compressed_offset);
         imc_clear_free(raw_buffer, raw_size);
+        if (carrier_img->verbose) printf("\n");
         return IMC_ERR_NO_MEMORY;
     }
 
     imc_clear_free(raw_buffer, raw_size);
+    if (carrier_img->verbose) printf("Done!\n");
     
     // Store the actual size of the compressed data
     ((FileInfo *)zlib_buffer)->compressed_size = htole64(zlib_buffer_size);
