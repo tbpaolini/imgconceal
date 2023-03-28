@@ -238,6 +238,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     unsigned long long crypto_output_len;
     
     // Encrypt the data stream
+    if (carrier_img->verbose) printf("Encrypting '%s'... ", file_name);
     int crypto_status = imc_crypto_encrypt(
         carrier_img->crypto,    // Secret key (generated from the password)
         zlib_buffer,            // Unencrypted data stream
@@ -252,11 +253,13 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
         // But I still am doing this check here, just to be on the safe side.
         imc_clear_free(zlib_buffer, zlib_buffer_size);
         imc_clear_free(crypto_buffer, crypto_size);
+        if (carrier_img->verbose) printf("\n");
         return IMC_ERR_CRYPTO_FAIL;
     }
 
     // Clear and free the buffer of the unencrypted strem
     imc_clear_free(zlib_buffer, zlib_buffer_size);
+    if (carrier_img->verbose) printf("Done!\n");
 
     // Store the encrypted data stream on the least significant bits of the carrier
     for (size_t i = 0; i < crypto_size; i++)
