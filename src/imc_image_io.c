@@ -503,8 +503,10 @@ int imc_steg_extract(CarrierImage *carrier_img)
     // Write the hidden file to disk
     FILE *out_file = fopen(file_name, "wb");
     if (!out_file) return IMC_ERR_SAVE_FAIL;
+    if (carrier_img->verbose) printf("Saving extracted file to '%s'... ", file_name);
     fwrite(&decompress_buffer[file_start], file_size, 1, out_file);
     fclose(out_file);
+    if (carrier_img->verbose) printf("Done!\n");
     imc_free(decompress_buffer);
 
     // Restore the file's 'last access' and 'last modified' times
