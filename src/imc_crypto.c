@@ -116,13 +116,13 @@ void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_e
             // Note: For performance reasons, we are printing it once every 4096 steps.
             //       The compiler can optimize (i % 4096) to (i & 4095), because 4096 is a power of 2.
             const double percent = ((double)(num_elements - i) / (double)num_elements) * 100.0;
-            printf("Shuffling carrier read/write order... %.1f %%\r", percent);
+            printf("Shuffling carrier's read/write order... %.1f %%\r", percent);
         }
     }
     
     if (print_status)
     {
-        printf("Shuffling carrier read/write order... Done!  \n");
+        printf("Shuffling carrier's read/write order... Done!  \n");
     }
 }
 

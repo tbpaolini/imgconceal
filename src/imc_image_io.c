@@ -281,11 +281,11 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
         if ( carrier_img->verbose && (i % 512 == 0) )
         {
             const double percent = ((double)i / (double)crypto_size) * 100.0;
-            printf("Writing encrypted '%s' to the cover image... %.1f %%\r", file_name, percent);
+            printf("Writing encrypted '%s' to the carrier... %.1f %%\r", file_name, percent);
         }
     }
 
-    if (carrier_img->verbose) printf("Writing encrypted '%s' to the cover image... Done!  \n", file_name);
+    if (carrier_img->verbose) printf("Writing encrypted '%s' to the carrier... Done!  \n", file_name);
 
     // Clear and free the buffer of the encrypted stream
     imc_clear_free(crypto_buffer, crypto_size);
