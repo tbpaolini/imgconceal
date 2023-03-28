@@ -429,6 +429,7 @@ int imc_steg_extract(CarrierImage *carrier_img)
     memcpy(&decompress_buffer[0], decrypt_buffer, d_pos);   // Copy the header to the beginning of the buffer
 
     // Decompress the data using Zlib
+    if (print_msg) printf("Decompressing hidden file... ");
     int decompress_status = uncompress(
         &decompress_buffer[d_pos],  // Output buffer
         &decompress_size,           // Size of the output buffer
@@ -442,10 +443,12 @@ int imc_steg_extract(CarrierImage *carrier_img)
         // should be exactly the same as the size stored on the metadata
         imc_clear_free(decrypt_buffer, decrypt_size);
         imc_clear_free(decompress_buffer, d_size);
+        if (print_msg) printf("\n");
         return IMC_ERR_CRYPTO_FAIL;
     }
 
     imc_free(decrypt_buffer);
+    if (print_msg) printf("Done!\n");
     
     // Get the data needed to reconstruct the hidden file
     FileInfo *file_info = (FileInfo*)decompress_buffer;
