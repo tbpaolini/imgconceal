@@ -278,7 +278,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
         }
     }
 
-    // Clear and free the buffer of the unencrypted strem
+    // Clear and free the buffer of the encrypted stream
     imc_clear_free(crypto_buffer, crypto_size);
 
     return IMC_SUCCESS;
