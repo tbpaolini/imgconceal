@@ -4,6 +4,12 @@ static const uint8_t bit[8] = {1, 2, 4, 8, 16, 32, 64, 128};    // Masks for get
 static const uint8_t lsb_get   = 1;     // (0b00000001) Mask for clearing the least significant bit of a byte
 static const uint8_t lsb_clear = 254;   // (0b11111110) Mask for clearing the least significant bit of a byte
 
+// Info for progress monitoring of PNG images
+static _Thread_local double png_num_passes = -1.0;  // How many passes for reading or writing the image
+static _Thread_local double png_num_rows = -1.0;    // Image's height
+// Note: I am storing those in separate variables, because libpng provides no
+//       easy way to access this value from within the row callback function.
+
 // Initialize an image for hiding data in it
 int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **output, uint64_t flags)
 {
@@ -701,6 +707,13 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
     carrier_img->heap_lenght = 1;
 }
 
+// Progress monitor when reading a PNG image
+static void __png_read_callback(png_structp png_obj, png_uint_32 row, int pass)
+{
+    const double percent = (((double)pass + ((double)row / png_num_rows)) / png_num_passes) * 100.0;
+    printf("Reading PNG image... %.1f %%\r", percent);
+}
+
 // Get bytes of a PNG image that will carry the hidden data
 void imc_png_carrier_open(CarrierImage *carrier_img)
 {
@@ -761,6 +774,14 @@ void imc_png_carrier_open(CarrierImage *carrier_img)
         );
     }
 
+    // Setup the progress monitor (when on verbose)
+    if (carrier_img->verbose)
+    {
+        png_num_passes = (interlace_method == PNG_INTERLACE_ADAM7) ? PNG_INTERLACE_ADAM7_PASSES : 1.0;
+        png_num_rows = height;
+        png_set_read_status_fn(png_obj, &__png_read_callback);
+    }
+
     // Check if the bit depth has a valid value
     if (bit_depth != 8 && bit_depth != 16)
     {
@@ -791,6 +812,7 @@ void imc_png_carrier_open(CarrierImage *carrier_img)
     // Read the image into the buffer
     png_read_image(png_obj, row_pointers);
     png_read_end(png_obj, png_info);
+    if (carrier_img->verbose) printf("Reading PNG image... Done!  \n");
 
     const bool has_alpha = color_type & PNG_COLOR_MASK_ALPHA;                   // If the image has transparency
     const png_byte num_channels = png_get_channels(png_obj, png_info);          // Total amount of channels in image
