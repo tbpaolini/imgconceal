@@ -373,7 +373,11 @@ int imc_steg_extract(CarrierImage *carrier_img)
     const unsigned long long decrypt_size_start = decrypt_size;
     uint8_t *decrypt_buffer = imc_malloc(decrypt_size);
 
+    // Whether to print a status message for decryption and decompression
+    const bool print_msg = carrier_img->verbose && !carrier_img->just_check;
+
     // Decrypt the data
+    if (print_msg) printf("Decrypting hidden file... ");
     int decrypt_status = imc_crypto_decrypt(
         carrier_img->crypto,
         header,
@@ -387,10 +391,12 @@ int imc_steg_extract(CarrierImage *carrier_img)
     {
         imc_free(crypto_buffer);
         imc_free(decrypt_buffer);
+        if (print_msg) printf("\n");
         return IMC_ERR_CRYPTO_FAIL;
     }
 
     imc_free(crypto_buffer);
+    if (print_msg) printf("Done!\n");
 
     // Current position on the decrypted stream
     size_t d_pos = 0;
