@@ -142,6 +142,9 @@ static void __copy_file_times(FILE *source_file, const char *dest_path);
 // Write the carrier bytes back to the JPEG image, and save it as a new file
 int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path);
 
+// Progress monitor when writing a PNG image
+static void __png_write_callback(png_structp png_obj, png_uint_32 row, int pass);
+
 // Write the carrier bytes back to the PNG image, and save it as a new file
 int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path);
 

@@ -1118,6 +1118,13 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
     return IMC_SUCCESS;
 }
 
+// Progress monitor when writing a PNG image
+static void __png_write_callback(png_structp png_obj, png_uint_32 row, int pass)
+{
+    const double percent = (((double)pass + ((double)row / png_num_rows)) / png_num_passes) * 100.0;
+    printf("Writing PNG image... %.1f %%\r", percent);
+}
+
 // Write the carrier bytes back to the PNG image, and save it as a new file
 int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
 {
@@ -1366,6 +1373,12 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
         }
     }
 
+    // Setup the progress monitor (when on verbose)
+    if (carrier_img->verbose)
+    {
+        png_set_write_status_fn(png_obj_out, &__png_write_callback);
+    }
+
     // Write the copied data to the output image
     png_write_info(png_obj_out, png_info_out);
 
@@ -1376,6 +1389,7 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
     png_write_end(png_obj_out, png_info_out);
     png_destroy_write_struct(&png_obj_out, &png_info_out);
     fclose(png_file);
+    if (carrier_img->verbose) printf("Writing PNG image... Done!  \n");
 
     // Copy the "last access" and "last mofified" times from the original image
     __copy_file_times(carrier_img->file, png_path);
