@@ -148,7 +148,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     const size_t path_len = strlen(file_path);
     char path_temp[path_len+1];
     strcpy(path_temp, file_path);
-    char *file_name = basename(path_temp);
+    const char *const file_name = basename(path_temp);
     
     // Calculate the size for the file's metadata that will be stored
     const size_t name_size = strlen(file_name) + 1;
@@ -156,10 +156,12 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     const size_t info_size = sizeof(FileInfo) + name_size;
     
     // Read the file into a buffer
+    if (carrier_img->verbose) printf("Loading '%s'... ", file_name);
     const size_t raw_size = info_size + file_size;
     uint8_t *const raw_buffer = imc_malloc(raw_size);
     const size_t read_count = fread(&raw_buffer[info_size], 1, file_size, file);
     fclose(file);
+    if (carrier_img->verbose) printf("Done!\n");
     if (read_count != file_size) return IMC_ERR_FILE_CORRUPTED;
 
     // The offset from which the data will be compressed
