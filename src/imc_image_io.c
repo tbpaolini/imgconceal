@@ -367,12 +367,15 @@ int imc_steg_extract(CarrierImage *carrier_img)
 
     // Read the encrypted stream into a buffer
     uint8_t *crypto_buffer = imc_malloc(crypto_size);
+    if (carrier_img->verbose) printf("Reading hidden file... ");
     read_status = __read_payload(carrier_img, crypto_size, crypto_buffer);
     if (!read_status)
     {
         imc_free(crypto_buffer);
+        if (carrier_img->verbose) printf("\n");
         return IMC_ERR_PAYLOAD_OOB;
     }
+    if (carrier_img->verbose) printf("Done!\n");
 
     // Allocate a buffer for the decrypted data
     unsigned long long decrypt_size = crypto_size - crypto_secretstream_xchacha20poly1305_ABYTES;
