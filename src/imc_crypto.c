@@ -1,3 +1,5 @@
+/* Encryption, decryption, and pseudo-random number generation. */
+
 #include "imc_includes.h"
 
 // Generate cryptographic secrets key from a password

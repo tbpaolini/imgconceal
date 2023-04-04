@@ -1,3 +1,5 @@
+/* Macro definitions meant for the whole program */
+
 #ifndef _IMC_GLOBALS_H
 #define _IMC_GLOBALS_H
 

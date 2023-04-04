@@ -1,3 +1,5 @@
+/* Libraries included in the project */
+
 #ifndef _IMC_INCLUDES_H
 #define _IMC_INCLUDES_H
 

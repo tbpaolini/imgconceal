@@ -1,3 +1,5 @@
+/* Encryption, decryption, and pseudo-random number generation. */
+
 #ifndef _IMC_CRYPTO_H
 #define _IMC_CRYPTO_H
 

@@ -1,3 +1,7 @@
+/* Functions for reading or writing hidden data into a cover image.
+ * Supported cover image's formats: JPEG and PNG.
+ */
+
 #include "imc_includes.h"
 
 static const uint8_t bit[8] = {1, 2, 4, 8, 16, 32, 64, 128};    // Masks for getting each of the 8 bits of a byte
