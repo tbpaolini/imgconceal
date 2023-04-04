@@ -577,6 +577,22 @@ void imc_steg_seek_to_end(CarrierImage *carrier_img)
     carrier_img->carrier_pos = original_pos;
 }
 
+// Progress monitor when reading a JPEG image
+static void __jpeg_read_callback(j_common_ptr jpeg_obj)
+{
+    // Units of work within a reading pass
+    const double unit_count = jpeg_obj->progress->pass_counter;
+    const double unit_max   = jpeg_obj->progress->pass_limit;
+
+    // Reading passes through the image
+    const double pass_count = jpeg_obj->progress->completed_passes;
+    const double pass_max   = jpeg_obj->progress->total_passes;
+
+    // Percentage completed
+    const double percent = ((pass_count + (unit_count / unit_max)) / pass_max) * 100.0;
+    printf("Reading JPEG image... %.1f %%\r", percent);
+}
+
 // Get bytes of a JPEG image that will carry the hidden data
 void imc_jpeg_carrier_open(CarrierImage *carrier_img)
 {
@@ -601,9 +617,24 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
     }
     jpeg_save_markers(jpeg_obj, JPEG_COM, 0xFFFF);
 
+    // Setup the progress monitor for the JPEG's read operation
+    if (carrier_img->verbose)
+    {
+        jpeg_obj->progress = imc_calloc(1, sizeof(struct jpeg_progress_mgr));
+        jpeg_obj->progress->progress_monitor = &__jpeg_read_callback;
+    }
+
     // Read the DCT coefficients from the image
     jpeg_read_header(jpeg_obj, true);
     jvirt_barray_ptr *jpeg_dct = jpeg_read_coefficients(jpeg_obj);
+
+    // Finish the read's progress monitor
+    if (carrier_img->verbose)
+    {
+        imc_free(jpeg_obj->progress);
+        jpeg_obj->progress = NULL;
+        printf("Reading JPEG image... Done!  \n");
+    }
 
     // Calculate the total amount of DCT coeficients
     size_t dct_count = 0;
