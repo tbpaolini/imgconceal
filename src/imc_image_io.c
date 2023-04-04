@@ -736,9 +736,15 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
     carrier_img->object = jpeg_obj;                 // Image handler
     
     // Store the additional heap allocated memory for the purpose of memory management
-    carrier_img->heap = imc_malloc(sizeof(void *));
+    carrier_img->heap = imc_malloc(sizeof(void *) * 2);
     carrier_img->heap[0] = (void *)jpeg_err;
+    carrier_img->heap[1] = (void *)jpeg_dct;
     carrier_img->heap_lenght = 1;
+    /* Note:
+        The lenght above is set to 1, even though it is actually 2, because
+        the memory of '*jpeg_dct' is managed by libjpeg-turbo (instead of my code).
+        The lenght of 1 prevents my code from attempting to free that memory.
+    */
 }
 
 // Progress monitor when reading a PNG image
@@ -1050,7 +1056,7 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
     struct jpeg_decompress_struct *jpeg_obj_in = (struct jpeg_decompress_struct *)carrier_img->object;
     
     // Get the DCT coefficients from the original image
-    jvirt_barray_ptr *jpeg_dct = jpeg_read_coefficients(jpeg_obj_in);
+    jvirt_barray_ptr *jpeg_dct = carrier_img->heap[1];
     /* Note:
         The carrier bytes will be stored back to those DCT coefficients.
         Afterwards, the modified coefficients will be saved on the new image.
