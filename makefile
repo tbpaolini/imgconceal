@@ -4,6 +4,8 @@ CFLAGS := -static -lsodium -ljpeg -lpng -lz
 
 # Output directory and executable's name (depending on the operating system)
 ifeq ($(OS),Windows_NT)
+	SHELL := cmd.exe
+    CFLAGS := -I "lib" -I "\msys64\mingw64\include" -I "\msys64\usr\include" -L "\msys64\mingw64\lib" -L "\msys64\usr\lib" $(CFLAGS) -largp.dll -lmsys-2.0
     DIR := bin/windows
     EXECUTABLE := imgconceal.exe
 else
@@ -40,7 +42,7 @@ all: $(DIR)/$(EXECUTABLE)
 # Create the output folder and link the objects together
 $(DIR)/$(EXECUTABLE): $(OBJECTS)
     ifeq ($(OS),Windows_NT)
-	    -mkdir $(DIR)
+	    -mkdir $(subst /,\,$(DIR))
     else
 	    mkdir -p $(DIR)
     endif
