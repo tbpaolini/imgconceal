@@ -54,10 +54,10 @@ $(DIR)/$(EXECUTABLE): $(OBJECTS)
 
 # Delete the build artifacts
 clean:
-	ifeq ($(OS),Windows_NT)
-	    -del /S src/*.o
-	    -del /S lib/*.o
-	else
+    ifeq ($(OS),Windows_NT)
+	    -del /S "src\*.o"
+	    -del /S "lib\*.o"
+    else
 	    -rm -rv src/*.o
 	    -rm -rv lib/*.o
-	endif
+    endif
