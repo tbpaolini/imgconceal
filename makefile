@@ -70,7 +70,8 @@ clean:
     ifeq ($(OS),Windows_NT)
 	    -del /S "src\*.o"
 	    -del /S "lib\*.o"
-	    \msys64\msys2_shell.cmd -defterm -no-start -ucrt64 -where "lib\libargp-20110921" -c "make clean"
+		-del /S "lib\*.lo"
+		-del /S "lib\*.Plo"
     else
 	    -rm -rv src/*.o
 	    -rm -rv lib/*.o
