@@ -138,7 +138,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
 
     // Get the file's metadata
     int file_descriptor = fileno(file);
-    struct stat file_stats;
+    struct stat file_stats = {0};
     fstat(file_descriptor, &file_stats);
     const off_t file_size = file_stats.st_size;
     
@@ -188,7 +188,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     file_info->name_size = htole16(name_size);
     
     memcpy(&file_info->file_name[0], file_name, name_size);
-    struct timespec current_time;
+    struct timespec current_time = {0};
     clock_gettime(CLOCK_REALTIME, &current_time);
     
     file_info->steg_time = __timespec_to_64le(current_time);
@@ -1007,7 +1007,7 @@ static void __copy_file_times(FILE *source_file, const char *dest_path)
 {
     // Get the "last access" and "last mofified" times from the original file
     const int og_descriptor = fileno(source_file);
-    struct stat og_stats;
+    struct stat og_stats = {0};
     fstat(og_descriptor, &og_stats);
     const struct timespec og_last_times[2] = {
         og_stats.st_atim,
