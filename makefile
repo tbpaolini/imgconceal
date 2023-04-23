@@ -5,7 +5,7 @@ CFLAGS := -static -lsodium -ljpeg -lpng -lz
 # Output directory and executable's name (depending on the operating system)
 ifeq ($(OS),Windows_NT)
 	SHELL := cmd.exe
-    CFLAGS := -I "lib" -I "\msys64\mingw64\include" -I "\msys64\usr\include" -L "\msys64\mingw64\lib" -L "\msys64\usr\lib" $(CFLAGS) -largp.dll -lmsys-2.0
+    CFLAGS := -I "lib" -L "lib" -I "\msys64\ucrt64\include" -I "\msys64\usr\include" -L "\ucrt64\mingw64\lib" -L "\msys64\usr\lib" $(CFLAGS) -largp -lmsys-2.0
     DIR := bin/windows
     EXECUTABLE := imgconceal.exe
 else
@@ -36,8 +36,21 @@ memcheck: DIR := $(addsuffix /memcheck,$(DIR))
 memcheck: TARGET := memcheck
 memcheck: all
 
+# If on Windows, build the Argp library (because the one from MSYS2 just don't work for us)
+ifeq ($(OS),Windows_NT)
+lib/libargp.a: lib/libargp-20110921
+	\msys64\msys2_shell.cmd -defterm -no-start -ucrt64 -where "lib\libargp-20110921" -c "./configure; make"
+	copy /Y lib\libargp-20110921\gllib\.libs\libargp.a lib\libargp.a
+	copy /Y lib\libargp-20110921\gllib\.libs\libargp.la lib\libargp.la
+	copy /Y lib\libargp-20110921\gllib\argp.h lib\argp.h
+endif
+
 # Build the executable
+ifeq ($(OS),Windows_NT)
+all: lib/libargp.a $(DIR)/$(EXECUTABLE)
+else
 all: $(DIR)/$(EXECUTABLE)
+endif
 
 # Create the output folder and link the objects together
 $(DIR)/$(EXECUTABLE): $(OBJECTS)
@@ -57,6 +70,7 @@ clean:
     ifeq ($(OS),Windows_NT)
 	    -del /S "src\*.o"
 	    -del /S "lib\*.o"
+	    \msys64\msys2_shell.cmd -defterm -no-start -ucrt64 -where "lib\libargp-20110921" -c "make clean"
     else
 	    -rm -rv src/*.o
 	    -rm -rv lib/*.o
