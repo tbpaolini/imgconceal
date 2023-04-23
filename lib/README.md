@@ -1,0 +1,5 @@
+[SHISHUA](https://espadrine.github.io/blog/posts/shishua-the-fastest-prng-in-the-world.html) is the pseudo-random number generator, that imgconceal uses for shuffling the write position on the cover images. We are using the SSE2 version of SHISHUA, which should be a good compromise between compatibility and performance.
+
+[Argp](https://www.gnu.org/software/libc/manual/html_node/Argp.html) is the library for the command line interface. The Argp files on this folder are only used for the Windows build of imgconceal, because the Argp provided on MSYS2 simply did not work on this project. So on Windows, we are compiling Argp ourselves and then statically linking it to `imgconceal.exe`. On Linux, we just use the regular GNU version provided on it.
+
+The Argp sources for Windows were obtained from the file [libargp-20110921.tar.bz2](https://github.com/msys2/MSYS2-packages/blob/a457a256dfa2435fa721ce04d9023bf0b4137372/libargp/libargp-20110921.tar.bz2) of the MSYS2 packages repository (we did not apply the MSYS2's patches to the file, which would make the library to be exported as a DLL).
