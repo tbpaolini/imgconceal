@@ -173,4 +173,12 @@ int imc_steg_save(CarrierImage *carrier_img, const char *save_path);
 // Free the memory of the data structures used for steganography
 void imc_steg_finish(CarrierImage *carrier_img);
 
+/* Windows compatibility functions */
+#ifdef _WIN32
+
+// Convert a Windows FILETIME struct to a Unix timespec struct
+static inline struct timespec __win_filetime_to_timespec(FILETIME win_time);
+
+#endif // _WIN32
+
 #endif  // _IMC_IMAGE_IO_H

@@ -1522,3 +1522,32 @@ void imc_steg_finish(CarrierImage *carrier_img)
     imc_free(carrier_img->steg_info);
     imc_free(carrier_img);
 }
+
+/* Windows compatibility functions */
+#ifdef _WIN32
+
+// Convert a Windows FILETIME struct to a Unix timespec struct
+static inline struct timespec __win_filetime_to_timespec(FILETIME win_time)
+{
+    // Unix timestamp
+    ULARGE_INTEGER unix_time;
+    unix_time.LowPart = win_time.dwLowDateTime;
+    unix_time.HighPart = win_time.dwHighDateTime;
+
+    // Convert the FILETIME to the number of 100-nanosecond intervals since January 1st 1970 (the Unix epoch)
+    // Note: the Windows epoch is on January 1st 1601.
+    unix_time.QuadPart -= 116444736000000000ULL;
+
+    // Convert the number of 100-nanosecond intervals to microseconds
+    unix_time.QuadPart /= 10;
+
+    // Set the timespec fields
+    struct timespec output = {
+        .tv_sec = unix_time.QuadPart / 1000000,             // Seconds since the Unix epoch
+        .tv_nsec = (unix_time.QuadPart % 1000000) * 1000,   // Nanoseconds on the current second
+    };
+    
+    return output;
+}
+
+#endif // _WIN32
