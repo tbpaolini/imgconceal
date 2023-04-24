@@ -1030,6 +1030,33 @@ static bool __resolve_filename_collision(char *path)
 // Copy the "last access" and "last mofified" times from the one file (source) to the other (dest)
 static void __copy_file_times(FILE *source_file, const char *dest_path)
 {
+    #ifdef _WIN32   // Windows systems
+    
+    // Get the handles of the source and destination files
+    
+    HANDLE file_in  = __win_get_file_handle(source_file);
+    HANDLE file_out = CreateFile(
+        dest_path,              // Path to the destination file
+        FILE_WRITE_ATTRIBUTES,  // Open file for writing its attributes
+        FILE_SHARE_READ,        // Block file's write access to other programs
+        NULL,                   // Default security
+        OPEN_EXISTING,          // Open the file only if it already exists
+        FILE_ATTRIBUTE_NORMAL,  // Normal file (that is, no system or temporary file)
+        NULL                    // No template for the attributes
+    );
+    if (file_out == INVALID_HANDLE_VALUE) return;
+
+    // Timestamps from the source file
+    FILETIME access_time = {0}; // Last access time
+    FILETIME mod_time = {0};    // Last modified time
+    GetFileTime(file_in, NULL, &access_time, &mod_time);
+
+    // Set those timestamps to the destination file
+    SetFileTime(file_out, NULL, &access_time, &mod_time);
+    CloseHandle(file_out);
+    
+    #else   // Unix systems
+    
     // Get the "last access" and "last mofified" times from the original file
     const int og_descriptor = fileno(source_file);
     struct stat og_stats = {0};
@@ -1041,6 +1068,8 @@ static void __copy_file_times(FILE *source_file, const char *dest_path)
 
     // Set those times on the new file to the same as in the original
     utimensat(AT_FDCWD, dest_path, og_last_times, 0);
+
+    #endif // _WIN21
 }
 
 // Progress monitor when writing a JPEG image
