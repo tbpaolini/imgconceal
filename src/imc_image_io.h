@@ -179,6 +179,9 @@ void imc_steg_finish(CarrierImage *carrier_img);
 // Convert a Windows FILETIME struct to a Unix timespec struct
 static inline struct timespec __win_filetime_to_timespec(FILETIME win_time);
 
+// From a standard FILE* pointer, get the file handle used by the Windows API
+static inline HANDLE __win_get_file_handle(FILE* file_object);
+
 #endif // _WIN32
 
 #endif  // _IMC_IMAGE_IO_H

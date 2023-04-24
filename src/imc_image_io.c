@@ -1550,4 +1550,13 @@ static inline struct timespec __win_filetime_to_timespec(FILETIME win_time)
     return output;
 }
 
+// From a standard FILE* pointer, get the file handle used by the Windows API
+static inline HANDLE __win_get_file_handle(FILE* file_object)
+{
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+    return (HANDLE)_get_osfhandle(fileno(file_object));
+    #pragma GCC diagnostic pop
+}
+
 #endif // _WIN32
