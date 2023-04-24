@@ -195,7 +195,11 @@ static inline void __timespec_to_string(struct timespec *time, char *out_buff, s
 {
     // ISO C 'broken-down time' structure
     struct tm my_time;
+    #ifdef _WIN32
+    const struct tm *time_status = localtime(&time->tv_sec);    // The 'localtime_r()' function did not work on Windows (with the MSYS2 runtime)
+    #else
     const struct tm *time_status = localtime_r(&time->tv_sec, &my_time);
+    #endif
     
     if (time_status)
     {
