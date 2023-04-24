@@ -137,10 +137,35 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     if (file == NULL) return IMC_ERR_FILE_NOT_FOUND;
 
     // Get the file's metadata
+
+    #ifdef _WIN32
+    HANDLE file_handle = __win_get_file_handle(file);   // File handle on Windows
+    
+    // File size
+    LARGE_INTEGER file_size_win = {0};                  // A Windows struct with the file size
+    GetFileSizeEx(file_handle, &file_size_win);
+    const off_t file_size = file_size_win.QuadPart;     // File size in bytes
+
+    // Timestamps
+    FILETIME file_mod_time_win = {0};       // Last modified time (Windows timestamp)
+    FILETIME file_access_time_win = {0};    // Last access time (Windows timestamp)
+    GetFileTime(file_handle, NULL, &file_access_time_win, &file_mod_time_win);
+    const struct timespec file_mod_time = __win_filetime_to_timespec(file_mod_time_win);        // Last modified time (Unix timestamp)
+    const struct timespec file_access_time = __win_filetime_to_timespec(file_access_time_win);  // Last access time (Unix timestamp)
+    
+    #else
     int file_descriptor = fileno(file);
+    
+    // File size
     struct stat file_stats = {0};
     fstat(file_descriptor, &file_stats);
     const off_t file_size = file_stats.st_size;
+
+    // Timestamps
+    const struct timespec file_mod_time = file_stats.st_mtim;       // Last modified time (Unix timestamp)
+    const struct timespec file_access_time = file_stats.st_atim;    // Last access time (Unix timestamp)
+    
+    #endif // _WIN32
     
     // Sanity check
     if (file_size > IMC_MAX_INPUT_SIZE)
@@ -183,8 +208,8 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     
     file_info->version = htole32((uint32_t)IMC_FILEINFO_VERSION);
     file_info->uncompressed_size = htole64(raw_size - compressed_offset);
-    file_info->access_time = __timespec_to_64le(file_stats.st_atim);
-    file_info->mod_time = __timespec_to_64le(file_stats.st_mtim);
+    file_info->access_time = __timespec_to_64le(file_access_time);
+    file_info->mod_time = __timespec_to_64le(file_mod_time);
     file_info->name_size = htole16(name_size);
     
     memcpy(&file_info->file_name[0], file_name, name_size);
