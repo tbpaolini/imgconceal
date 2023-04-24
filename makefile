@@ -5,7 +5,7 @@ CFLAGS := -static -lsodium -ljpeg -lpng -lz
 # Output directory and executable's name (depending on the operating system)
 ifeq ($(OS),Windows_NT)
 	SHELL := cmd.exe
-    CFLAGS := -I "lib" -L "lib" -I "\msys64\ucrt64\include" -I "\msys64\usr\include" -L "\ucrt64\mingw64\lib" -L "\msys64\usr\lib" $(CFLAGS) -largp -lmsys-2.0
+    CFLAGS := -I "lib" -L "lib" -I "\msys64\ucrt64\include" -I "\msys64\usr\include" -L "\msys64\ucrt64\lib" -L "\msys64\usr\lib" $(CFLAGS) -largp -lmsys-2.0
     DIR := bin/windows
     EXECUTABLE := imgconceal.exe
 else
