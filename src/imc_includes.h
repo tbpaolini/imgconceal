@@ -16,6 +16,9 @@
 #include <errno.h>
 
 // System libraries
+#ifdef _WIN32
+#include <windows.h>    // Microsoft Windows API
+#endif // _WIN32
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/time.h>
