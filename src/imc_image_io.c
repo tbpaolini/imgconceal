@@ -1604,6 +1604,22 @@ static inline struct timespec __win_filetime_to_timespec(FILETIME win_time)
     return output;
 }
 
+// Convert a Unix timespec struct to a Windows FILETIME struct
+static inline FILETIME __win_timespec_to_filetime(struct timespec unix_time)
+{
+    // Windows timestamp (number of 100-nanosecond intervals since January 1st 1601)
+    // Note: The Unix timestamo is the number of seconds since January 1st 1970
+    ULARGE_INTEGER win_time;
+    win_time.QuadPart = (unix_time.tv_sec * 10000000ULL) + (unix_time.tv_nsec / 100ULL) + 116444736000000000ULL;
+    
+    // Windows file's time
+    FILETIME output;
+    output.dwLowDateTime = win_time.LowPart;
+    output.dwHighDateTime = win_time.HighPart;
+    
+    return output;
+}
+
 // From a standard FILE* pointer, get the file handle used by the Windows API
 static inline HANDLE __win_get_file_handle(FILE* file_object)
 {
