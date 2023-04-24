@@ -548,7 +548,32 @@ int imc_steg_extract(CarrierImage *carrier_img)
     imc_free(decompress_buffer);
 
     // Restore the file's 'last access' and 'last modified' times
+    
+    #ifdef _WIN32   // Windows systems
+    
+    HANDLE file_out = CreateFile(
+        file_name,              // Path to the destination file
+        FILE_WRITE_ATTRIBUTES,  // Open file for writing its attributes
+        FILE_SHARE_READ,        // Block file's write access to other programs
+        NULL,                   // Default security
+        OPEN_EXISTING,          // Open the file only if it already exists
+        FILE_ATTRIBUTE_NORMAL,  // Normal file (that is, no system or temporary file)
+        NULL                    // No template for the attributes
+    );
+    
+    if (file_out != INVALID_HANDLE_VALUE)
+    {
+        FILETIME access_time = __win_timespec_to_filetime(file_times[0]);
+        FILETIME mod_time = __win_timespec_to_filetime(file_times[1]);
+        SetFileTime(file_out, NULL, &access_time, &mod_time);
+        CloseHandle(file_out);
+    }
+    
+    #else   // Unix systems
+    
     utimensat(AT_FDCWD, file_name, file_times, 0);
+    
+    #endif // _WIN32
 
     return IMC_SUCCESS;
 }
