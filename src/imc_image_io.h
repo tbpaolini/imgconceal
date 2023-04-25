@@ -185,6 +185,10 @@ static inline FILETIME __win_timespec_to_filetime(struct timespec unix_time);
 // From a standard FILE* pointer, get the file handle used by the Windows API
 static inline HANDLE __win_get_file_handle(FILE* file_object);
 
+// Return a pointer to the file name on a path (without the leading directories or slashes)
+// Note: This is a rewrite of the POSIX function of same name, which is not present on Windows.
+char *basename(char *path);
+
 #endif // _WIN32
 
 #endif  // _IMC_IMAGE_IO_H

@@ -1660,4 +1660,20 @@ static inline HANDLE __win_get_file_handle(FILE* file_object)
     #pragma GCC diagnostic pop
 }
 
+// Return a pointer to the file name on a path (without the leading directories or slashes)
+// Note: This is a rewrite of the POSIX function of same name, which is not present on Windows.
+char *basename(char *path)
+{
+    // Search for the last backslash
+    char *file_name = strrchr(path, '\\');
+    if (file_name) return (file_name + 1);
+    
+    // Search for the last slash
+    file_name = strrchr(path, '/');
+    if (file_name) return (file_name + 1);
+
+    // If neither was found, just return the name as is
+    return path;
+}
+
 #endif // _WIN32
