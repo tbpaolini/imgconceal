@@ -15,7 +15,7 @@ else
     CFLAGS += -lm
 endif
 
-.PHONY: release debug memcheck all clean
+.PHONY: release debug memcheck all clean clean-all
 
 # Release build (no debug flags, and otimizations enabled)
 release: CFLAGS += -O3 -DNDEBUG
@@ -70,10 +70,16 @@ $(DIR)/$(EXECUTABLE): $(OBJECTS)
 clean:
     ifeq ($(OS),Windows_NT)
 	    -del /S "src\*.o"
-	    -del /S "lib\*.o"
-		-del /S "lib\*.lo"
-		-del /S "lib\*.Plo"
+	    -del "lib\*.o"
     else
 	    -rm -rv src/*.o
 	    -rm -rv lib/*.o
     endif
+
+# On Windows, also removes the artifacts of the Argp's compilation.
+# (On Linux, just does the same as the 'clean' target)
+clean-all: clean
+ifeq ($(OS),Windows_NT)
+clean-all:
+	\msys64\msys2_shell.cmd -defterm -no-start -ucrt64 -where "lib\libargp-20110921" -c "make clean"
+endif
