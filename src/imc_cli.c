@@ -216,9 +216,10 @@ static inline void __check_unique_option(struct argp_state *state, const char *o
 static inline void __timespec_to_string(struct timespec *time, char *out_buff, size_t buff_size)
 {
     // ISO C 'broken-down time' structure
-    struct tm my_time;
+    struct tm my_time = {0};
     #ifdef _WIN32
     const struct tm *time_status = localtime(&time->tv_sec);    // The 'localtime_r()' function did not work on Windows (with the MSYS2 runtime)
+    if (time_status) my_time = *time_status;
     #else
     const struct tm *time_status = localtime_r(&time->tv_sec, &my_time);
     #endif
