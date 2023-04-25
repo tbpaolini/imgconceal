@@ -591,8 +591,15 @@ int imc_steg_extract(CarrierImage *carrier_img)
     
     #ifdef _WIN32   // Windows systems
     
-    HANDLE file_out = CreateFile(
-        file_name,              // Path to the destination file
+    // Convert the file path string to wide char, in order to properly handle UTF-8 characters
+    size_t path_len = strlen(file_name) + 1;
+    int w_path_len = MultiByteToWideChar(CP_UTF8, 0, file_name, path_len, NULL, 0);
+    wchar_t w_path[w_path_len];
+    MultiByteToWideChar(CP_UTF8, 0, file_name, path_len, w_path, w_path_len);
+    
+    // Open the file with only the permission to change its attributes
+    HANDLE file_out = CreateFileW(
+        w_path,                 // Path to the destination file
         FILE_WRITE_ATTRIBUTES,  // Open file for writing its attributes
         FILE_SHARE_READ,        // Block file's write access to other programs
         NULL,                   // Default security
@@ -1098,10 +1105,18 @@ static void __copy_file_times(FILE *source_file, const char *dest_path)
     #ifdef _WIN32   // Windows systems
     
     // Get the handles of the source and destination files
+    // (the destination path string is converted to wide char,
+    //  in order to properly handle UTF-8 characters)
     
     HANDLE file_in  = __win_get_file_handle(source_file);
-    HANDLE file_out = CreateFile(
-        dest_path,              // Path to the destination file
+    
+    size_t path_len = strlen(dest_path) + 1;
+    int w_path_len = MultiByteToWideChar(CP_UTF8, 0, dest_path, path_len, NULL, 0);
+    wchar_t w_path[w_path_len];
+    MultiByteToWideChar(CP_UTF8, 0, dest_path, path_len, w_path, w_path_len);
+    
+    HANDLE file_out = CreateFileW(
+        w_path,                 // Path to the destination file
         FILE_WRITE_ATTRIBUTES,  // Open file for writing its attributes
         FILE_SHARE_READ,        // Block file's write access to other programs
         NULL,                   // Default security
