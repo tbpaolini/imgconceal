@@ -74,6 +74,19 @@ typedef struct UserOptions {
 // Function returns the amount of bytes in the password.
 static size_t __get_password(uint8_t *output, const size_t buffer_size)
 {
+    #ifdef _WIN32   // Windows systems
+
+    // Get the current terminal mode
+    DWORD mode = 0;
+    HANDLE term = GetStdHandle(STD_INPUT_HANDLE);
+    GetConsoleMode(term, &mode);
+
+    // Turn off input echoing
+    mode &= ~(ENABLE_ECHO_INPUT);
+    SetConsoleMode(term, mode);
+    
+    #else   // Unix systems
+    
     // Store the current settings of the terminal
     struct termios old_term, new_term;
     tcgetattr(STDIN_FILENO, &old_term);
@@ -82,6 +95,8 @@ static size_t __get_password(uint8_t *output, const size_t buffer_size)
     // Turn off input echoing
     new_term.c_lflag &= ~(ECHO);
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &new_term);
+    
+    #endif // _WIN32
 
     size_t pos = 0; // Position on the output buffer
     
@@ -99,7 +114,14 @@ static size_t __get_password(uint8_t *output, const size_t buffer_size)
     }
 
     // Turn input echoing back on
+    
+    #ifdef _WIN32   // Windows systems
+    mode |= ENABLE_ECHO_INPUT;
+    SetConsoleMode(term, mode);
+    
+    #else   // Unix systes
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &old_term);
+    #endif  // _WIN32
 
     return pos;
 }
