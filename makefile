@@ -3,9 +3,10 @@ OBJECTS := $(SOURCES:.c=.o)
 CFLAGS := -static -lsodium -ljpeg -lpng -lz
 
 # Output directory and executable's name (depending on the operating system)
+# The Windows version is being linked with Microsoft's Universal C Runtime (UCRT)
 ifeq ($(OS),Windows_NT)
 	SHELL := cmd.exe
-    CFLAGS := -I "lib" -L "lib" -I "\msys64\ucrt64\include" -I "\msys64\usr\include" -L "\msys64\ucrt64\lib" -L "\msys64\usr\lib" $(CFLAGS) -largp -lmsys-2.0
+    CFLAGS := -D_UCRT -I "lib" -L "lib" -I "\msys64\ucrt64\include" -L "\msys64\ucrt64\lib" $(CFLAGS) -largp
     DIR := bin/windows
     EXECUTABLE := imgconceal.exe
 else
