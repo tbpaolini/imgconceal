@@ -72,19 +72,19 @@
 
 #	if BYTE_ORDER == LITTLE_ENDIAN
 
-#		define htobe16(x) htons(x)
+#		define htobe16(x) __builtin_bswap16(x)
 #		define htole16(x) (x)
-#		define be16toh(x) ntohs(x)
+#		define be16toh(x) __builtin_bswap16(x)
 #		define le16toh(x) (x)
  
-#		define htobe32(x) htonl(x)
+#		define htobe32(x) __builtin_bswap32(x)
 #		define htole32(x) (x)
-#		define be32toh(x) ntohl(x)
+#		define be32toh(x) __builtin_bswap32(x)
 #		define le32toh(x) (x)
  
-#		define htobe64(x) htonll(x)
+#		define htobe64(x) __builtin_bswap64(x)
 #		define htole64(x) (x)
-#		define be64toh(x) ntohll(x)
+#		define be64toh(x) __builtin_bswap64(x)
 #		define le64toh(x) (x)
 
 #	elif BYTE_ORDER == BIG_ENDIAN
