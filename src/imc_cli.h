@@ -58,4 +58,7 @@ static inline void __execute_options(struct argp_state *state, void *options);
 // It receives the user's arguments, then call other parts of the program in order to perform the requested operation.
 static int imc_cli_parse_options(int key, char *arg, struct argp_state *state);
 
+// Print a summary of imgconceal's algorithm
+static void imc_cli_print_algorithm();
+
 #endif  // _IMC_CLI_H

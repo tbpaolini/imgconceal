@@ -2,6 +2,8 @@
 
 #include "imc_includes.h"
 
+#define PRINT_ALGORITHM 1001    // Option ID for printing a summary of the algorithm used by this program
+
 // Command line options for imgconceal
 static const struct argp_option argp_options[] = {
     {"check", 'c', "IMAGE", 0, "Check if a given JPEG or PNG image contains data hidden by this program, "\
@@ -33,6 +35,7 @@ static const struct argp_option argp_options[] = {
         "This option can be used with '--hide', '--extract', or '--check'." , 4},
     {"verbose", 'v', NULL, 0, "Print detailed progress information.", 5},
     {"silent", 's', NULL, 0, "Do not print any progress information (errors are still shown).", 5},
+    {"algorithm", PRINT_ALGORITHM, NULL, 0, "Print a summary of the algorithm used by imgconceal, then exit.", 6},
     {0}
 };
 
@@ -47,6 +50,34 @@ static const char help_text[] = "\nSteganography tool for hiding and extracting 
     "Check if an image has data hidden by this program:\n"\
     "  imgconceal --check=IMAGE [--password=TEXT | --no-password]\n\n"\
     "All options:\n";
+
+static const char imgconceal_algorithm_text[] = "The password is hashed using the Argon2id "\
+"algorithm, generating a pseudo-random sequence of 64 bytes. The first 32 bytes are used as "\
+"the secret key for encrypting the hidden data (XChaCha20-Poly1305 algorithm), while the "\
+"last 32 bytes are used to seed the pseudo-random number generator (SHISHUA algorithm) used for "\
+"shuffling the positions on the image where the hidden data is written.\n\n"\
+\
+"In the case of a JPEG cover image, the hidden data is written to the least significant bits of "\
+"the quantized AC coefficients that are not 0 or 1. For a PNG cover image, the hidden data is "\
+"written to the least significant bits of the RGB color values of the pixels that are not fully "\
+"transparent. Other image formats are not currently supported as cover image, however any file "\
+"format can be hidden on the cover image (size permitting). Before encryption, the hidden data is "\
+"compressed using the Deflate algorithm.\n\n"\
+\
+"All in all, the data hiding process goes as:\n"\
+"- Hash the password (output: 64 bytes).\n"\
+"- Use first half of the hash as the secret key for encryption.\n"\
+"- Seed the PRNG with the second half of the hash.\n"\
+"- Scan the cover image for suitable bits where hidden data can be stored.\n"\
+"- Using the PRNG, shuffle the order in which those bits are going to be written.\n"\
+"- Compress the file being hidden.\n"\
+"- Encrypt the compressed file.\n"\
+"- Break the bytes of the encrypted data into bits.\n"\
+"- Write those bits to the cover image (on the shuffled order).\n\n"\
+\
+"The file's name and timestamps are also stored (both of which are also encrypted), so when "\
+"extracted the file has the same name and modified time. The hidden data is extracted by doing "\
+"the file operations in reverse order, after hashing the password and unscrambling the read order.\n";
 
 // Options and callback function for the command line interface
 static const struct argp argp_struct = {argp_options, &imc_cli_parse_options, NULL, help_text};
@@ -718,6 +749,12 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             ((UserOptions*)(state->hook))->silent = true;
             break;
         
+        // --algorithm: Print the algorithm used by imgconceal, then exit
+        case PRINT_ALGORITHM:
+            imc_cli_print_algorithm();
+            exit(EXIT_SUCCESS);
+            break;
+        
         // After the last option was parsed: perform the requested operation
         case ARGP_KEY_END:
             if (state->argc <= 1)
@@ -758,3 +795,11 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
 
     return 0;
 }
+
+// Print a summary of imgconceal's algorithm
+static void imc_cli_print_algorithm()
+{
+    printf(imgconceal_algorithm_text);
+}
+
+#undef PRINT_ALGORITHM
