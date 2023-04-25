@@ -235,15 +235,32 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     memcpy(zlib_buffer, file_info, compressed_offset);
     zlib_buffer_size -= compressed_offset;
 
+    #ifdef _WIN32
+    uLongf compress_size_win = zlib_buffer_size;
+    /* Note: For some reason, on Windows the lenght of the buffer size variable
+       is 4 bytes, while on Linux its 8 bytes. Since my code assumes that it is
+       going to be 8 bytes, then I am creating this additional variable so I do
+       not pass to the compression function a pointer to a size different than
+       what the function expects. */
+    #endif // _WIN32
+
     // Compress the data on the buffer (from the '.access_time' onwards)
     if (carrier_img->verbose) printf("Compressing '%s'... ", file_name);
     int zlib_status = compress2(
         &zlib_buffer[compressed_offset],    // Output buffer to store the compressed data (starting after the uncompressed section)
+        #ifdef _WIN32
+        &compress_size_win,                 // Size in bytes of the output buffer (the function updates the value to the used size)
+        #else
         &zlib_buffer_size,                  // Size in bytes of the output buffer (the function updates the value to the used size)
+        #endif // _WIN32
         input_buffer,                       // Data being compressed
         file_info->uncompressed_size,       // Size in bytes of the data
         9                                   // Compression level
     );
+
+    #ifdef _WIN32
+    zlib_buffer_size = compress_size_win;
+    #endif // _WIN32
 
     if (zlib_status != 0)
     {
@@ -472,14 +489,31 @@ int imc_steg_extract(CarrierImage *carrier_img)
     uint8_t *decompress_buffer = imc_malloc(d_size);
     memcpy(&decompress_buffer[0], decrypt_buffer, d_pos);   // Copy the header to the beginning of the buffer
 
+    #ifdef _WIN32
+    uLongf decompress_size_win = decompress_size;
+    /* Note: For some reason, on Windows the lenght of the buffer size variable
+       is 4 bytes, while on Linux its 8 bytes. Since my code assumes that it is
+       going to be 8 bytes, then I am creating this additional variable so I do
+       not pass to the decompression function a pointer to a size different than
+       what the function expects. */
+    #endif // _WIN32
+
     // Decompress the data using Zlib
     if (print_msg) printf("Decompressing hidden file... ");
     int decompress_status = uncompress(
-        &decompress_buffer[d_pos],  // Output buffer
+        &decompress_buffer[d_pos],  // Output 
+        #ifdef _WIN32
+        &decompress_size_win,       // Size of the output buffer
+        #else
         &decompress_size,           // Size of the output buffer
+        #endif // _WIN32
         &decrypt_buffer[d_pos],     // Input buffer
         compress_size               // Size of the input buffer
     );
+
+    #ifdef _WIN32
+    decompress_size = decompress_size_win;
+    #endif // _WIN32
 
     if (decompress_status != 0 || decompress_size + d_pos != d_size)
     {
