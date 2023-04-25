@@ -213,8 +213,14 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     file_info->name_size = htole16(name_size);
     
     memcpy(&file_info->file_name[0], file_name, name_size);
+    
+    // Get the current time (UTC)
     struct timespec current_time = {0};
+    #ifdef _WIN32
+    timespec_get(&current_time, TIME_UTC);
+    #else
     clock_gettime(CLOCK_REALTIME, &current_time);
+    #endif
     
     file_info->steg_time = __timespec_to_64le(current_time);
 
