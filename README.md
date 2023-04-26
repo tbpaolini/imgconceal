@@ -2,6 +2,10 @@
 
 *imgconceal* is a tool for image steganography, that can hide files inside JPEG and PNG images, with or without a password for extracting the data later. The image with hidden data looks the same to the human eye as the regular image.
 
+**Downloads:**
+* [imgconceal for Windows](https://github.com/tbpaolini/imgconceal/releases/download/v1.0.0/imgconceal.exe)
+* [imgconceal for Linux](https://github.com/tbpaolini/imgconceal/releases/download/v1.0.0/imgconceal)
+
 This is a command line program that is available for both Windows and Linux operating systems.  *imgconceal* is a standalone executable, requiring no installation or shared libraries (DLL or SO).
 
 ## Basic usage
