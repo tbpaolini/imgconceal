@@ -113,6 +113,7 @@ static size_t __get_password(uint8_t *output, const size_t buffer_size)
     GetConsoleMode(term, &mode);
 
     // Turn off input echoing
+    const DWORD old_mode = mode;
     mode &= ~(ENABLE_ECHO_INPUT);
     SetConsoleMode(term, mode);
     
@@ -144,10 +145,10 @@ static size_t __get_password(uint8_t *output, const size_t buffer_size)
         while ( (c != '\r') && (c != '\n') && (c != EOF) ) {c = getchar();}
     }
 
-    // Turn input echoing back on
+    // Turn back to the previous terminal mode
     
     #ifdef _WIN32   // Windows systems
-    mode |= ENABLE_ECHO_INPUT;
+    mode = old_mode;
     SetConsoleMode(term, mode);
     
     #else   // Unix systes
