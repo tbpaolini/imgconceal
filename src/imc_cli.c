@@ -230,7 +230,29 @@ const struct argp *restrict imc_cli_get_argp_struct()
 // Store a copy of the path of a file
 static inline void __store_path(const char *path, char **destination)
 {
-    if (path) *destination = strdup(path);
+    if (!path) return;
+    
+    #ifdef _WIN32   // Windows systems
+    
+    // Convert the terminal input to wide char string
+    const int w_path_len = MultiByteToWideChar(CP_ACP, 0, path, -1, NULL, 0);
+    wchar_t w_path[w_path_len];
+    MultiByteToWideChar(CP_ACP, 0, path, -1, w_path, w_path_len);
+
+    // Convert wide char to UTF-8 string
+    const int u8_path_len = WideCharToMultiByte(CP_UTF8, 0, w_path, -1, NULL, 0, NULL, NULL);;
+    char *u8_path = imc_malloc(u8_path_len * sizeof(char));
+    WideCharToMultiByte(CP_UTF8, 0, w_path, -1, u8_path, u8_path_len, NULL, NULL);
+
+    // Store the unicode path string
+    *destination = u8_path;
+    
+    #else   // Linux systems
+
+    // Duplicate the path string and store it
+    *destination = strdup(path);
+    
+    #endif // _WIN32
 }
 
 // Check if an option has not been passed before (program exits if this check fails)
