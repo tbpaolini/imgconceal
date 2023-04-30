@@ -17,7 +17,7 @@ endif
 
 .PHONY: release debug memcheck all clean clean-all
 
-# Release build (no debug flags, and otimizations enabled)
+# Release build (no debug flags, and optimizations enabled)
 release: CFLAGS += -O3 -DNDEBUG
 release: DIR := $(addsuffix /release,$(DIR))
 release: TARGET := release
@@ -29,7 +29,7 @@ debug: DIR := $(addsuffix /debug,$(DIR))
 debug: TARGET := debug
 debug: all
 
-# Check whether there are memory leaks or overruns, and also for undefined behaviour
+# Check whether there are memory leaks or overruns, and also for undefined behavior
 # Note: '-static' cannot be used with '-fsanitize=address'
 memcheck: CFLAGS += -g -fsanitize=address -fsanitize=leak -fsanitize=undefined
 memcheck: CFLAGS := $(patsubst -static,,$(CFLAGS))
@@ -40,7 +40,7 @@ memcheck: all
 # If on Windows, build the Argp library (because the one from MSYS2 just don't work for us)
 ifeq ($(OS),Windows_NT)
 lib/libargp.a: lib/libargp-20110921
-	\msys64\msys2_shell.cmd -defterm -no-start -ucrt64 -where "lib\libargp-20110921" -c "./configure; make"
+	\msys64\msys2_shell.cmd -defterm -no-start -ucrt64 -where "lib\libargp-20110921" -c "./configure; $(MAKE)"
 	copy /Y lib\libargp-20110921\gllib\.libs\libargp.a lib\libargp.a
 	copy /Y lib\libargp-20110921\gllib\.libs\libargp.la lib\libargp.la
 	copy /Y lib\libargp-20110921\gllib\argp.h lib\argp.h
@@ -81,5 +81,5 @@ clean:
 clean-all: clean
 ifeq ($(OS),Windows_NT)
 clean-all:
-	\msys64\msys2_shell.cmd -defterm -no-start -ucrt64 -where "lib\libargp-20110921" -c "make clean"
+	\msys64\msys2_shell.cmd -defterm -no-start -ucrt64 -where "lib\libargp-20110921" -c "$(MAKE) clean"
 endif
