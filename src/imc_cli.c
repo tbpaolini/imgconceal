@@ -212,35 +212,45 @@ static PassBuff *imc_cli_password_input(bool confirm)
     }
 
     // Convert the password to the UTF-8 encoding
+    __password_normalize(pass_1, false);
 
+    return pass_1;
+}
+
+// Convert an already parsed password string from the system's locale to UTF-8
+// 'from_argv' sould be set to 'true' if the string was parsed from the command line options (char *argv[]),
+// otherwise its should be 'false' (that is, read from stdin).
+static inline __password_normalize(PassBuff *password, bool from_argv)
+{
     #ifdef _WIN32   // Windows systems
 
     // Get the terminal's encoding
-    const UINT term_cp = GetConsoleCP();
+    const UINT term_cp = from_argv ? CP_ACP : GetConsoleCP();
+    /* Note: From my tests, Windows uses the default system's code page when parsing command line arguments,
+        but may use a different code page when text is entered by the user on the terminal.
+        I believe that this happens because locale is set once the program reaches 'main()' */
 
     // Convert the terminal input to wide char string
-    const int w_pass_len = MultiByteToWideChar(term_cp, 0, pass_1->buffer, pass_1->length, NULL, 0);
+    const int w_pass_len = MultiByteToWideChar(term_cp, 0, password->buffer, password->length, NULL, 0);
     wchar_t w_pass[w_pass_len];
     sodium_mlock(w_pass, sizeof(w_pass));
-    MultiByteToWideChar(term_cp, 0, pass_1->buffer, -1, w_pass, w_pass_len);
+    MultiByteToWideChar(term_cp, 0, password->buffer, -1, w_pass, w_pass_len);
 
     // Convert wide char to UTF-8 string
-    int u8_pass_len = WideCharToMultiByte(CP_UTF8, 0, w_pass, pass_1->length, NULL, 0, NULL, NULL);;
+    int u8_pass_len = WideCharToMultiByte(CP_UTF8, 0, w_pass, password->length, NULL, 0, NULL, NULL);;
     char u8_pass[u8_pass_len];
     sodium_mlock(u8_pass, sizeof(u8_pass));
-    WideCharToMultiByte(CP_UTF8, 0, w_pass, pass_1->length, u8_pass, u8_pass_len, NULL, NULL);
+    WideCharToMultiByte(CP_UTF8, 0, w_pass, password->length, u8_pass, u8_pass_len, NULL, NULL);
     sodium_munlock(w_pass, sizeof(w_pass));
 
     // Clear the old password buffer and copy the new UTF-8 string to it
-    sodium_memzero(pass_1->buffer, pass_1->capacity);
-    if (u8_pass_len > pass_1->capacity) u8_pass_len = pass_1->capacity;
-    memcpy(pass_1->buffer, u8_pass, u8_pass_len);
+    sodium_memzero(password->buffer, password->capacity);
+    if (u8_pass_len > password->capacity) u8_pass_len = password->capacity;
+    memcpy(password->buffer, u8_pass, u8_pass_len);
     sodium_munlock(u8_pass, sizeof(u8_pass));
-    pass_1->length = u8_pass_len;
+    password->length = u8_pass_len;
 
     #endif
-
-    return pass_1;
 }
 
 // Free the memory of a 'PassBuff' struct
@@ -778,30 +788,7 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
                 if (user_password->length > IMC_PASSWORD_MAX_BYTES) user_password->length = IMC_PASSWORD_MAX_BYTES;
                 
                 // Encode the password string to UTF-8
-
-                #ifdef _WIN32   // Windows systems
-                
-                // Convert the terminal input to wide char string
-                const int w_pass_len = MultiByteToWideChar(CP_ACP, 0, user_password->buffer, user_password->length, NULL, 0);
-                wchar_t w_pass[w_pass_len];
-                sodium_mlock(w_pass, sizeof(w_pass));
-                MultiByteToWideChar(CP_ACP, 0, user_password->buffer, -1, w_pass, w_pass_len);
-
-                // Convert wide char to UTF-8 string
-                int u8_pass_len = WideCharToMultiByte(CP_UTF8, 0, w_pass, user_password->length, NULL, 0, NULL, NULL);;
-                char u8_pass[u8_pass_len];
-                sodium_mlock(u8_pass, sizeof(u8_pass));
-                WideCharToMultiByte(CP_UTF8, 0, w_pass, user_password->length, u8_pass, u8_pass_len, NULL, NULL);
-                sodium_munlock(w_pass, sizeof(w_pass));
-
-                // Clear the old password buffer and copy the new UTF-8 string to it
-                sodium_memzero(user_password->buffer, user_password->capacity);
-                if (u8_pass_len > user_password->capacity) u8_pass_len = user_password->capacity;
-                memcpy(user_password->buffer, u8_pass, u8_pass_len);
-                sodium_munlock(u8_pass, sizeof(u8_pass));
-                user_password->length = u8_pass_len;
-                
-                #endif // _WIN32
+                __password_normalize(user_password, true);
                 
                 // Store the password
                 ((UserOptions*)(state->hook))->password = user_password;
