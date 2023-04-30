@@ -9,7 +9,12 @@ const char *argp_program_bug_address = "<https://github.com/tbpaolini/imgconceal
 
 int main(int argc, char *argv[])
 {
+    #ifdef _WIN32
     setlocale(LC_ALL, ".utf8");
+    #else // Linux
+    setlocale(LC_ALL, "C.UTF-8");
+    #endif // _WIN32
+    
     if (sodium_init() < 0)
     {
         fprintf(stderr, "Error: Failed to initialize libsodium\n");
