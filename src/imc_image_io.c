@@ -4,15 +4,17 @@
 
 #include "imc_includes.h"
 
+/* Note: See the 'imc_image_io.h' file for the binary format that we use to store the hidden data. */
+
 static const uint8_t bit[8] = {1, 2, 4, 8, 16, 32, 64, 128};    // Masks for getting each of the 8 bits of a byte
-static const uint8_t lsb_get   = 1;     // (0b00000001) Mask for clearing the least significant bit of a byte
+static const uint8_t lsb_get   = 1;     // (0b00000001) Mask for getting the least significant bit of a byte
 static const uint8_t lsb_clear = 254;   // (0b11111110) Mask for clearing the least significant bit of a byte
 
 // Info for progress monitoring of PNG images
 static _Thread_local double png_num_passes = -1.0;  // How many passes for reading or writing the image
 static _Thread_local double png_num_rows = -1.0;    // Image's height
-// Note: I am storing those in separate variables, because libpng provides no
-//       easy way to access this value from within the row callback function.
+// Note: I am storing these thread local variables, because libpng provides no
+//       easy way to access those values from within the row callback function.
 
 // Initialize an image for hiding data in it
 int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **output, uint64_t flags)
@@ -78,6 +80,7 @@ int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **out
     if (crypto_status != IMC_SUCCESS) return crypto_status;
 
     // Set the struct's methods
+    // ("open", "save", and "close" functions for the different supported image formats)
     switch (img_type)
     {
         case IMC_JPEG:
@@ -99,9 +102,9 @@ int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **out
     // Shuffle the array of pointers
     // (so the order that the bytes are written depends on the password)
     imc_crypto_shuffle_ptr(
-        carrier_img->crypto,
-        (uintptr_t *)(&carrier_img->carrier[0]),
-        carrier_img->carrier_lenght,
+        carrier_img->crypto,    // Has the state of the pseudo-random number generator
+        (uintptr_t *)(&carrier_img->carrier[0]),    // Beginning of the array
+        carrier_img->carrier_lenght,                // Amount of elements on the array
         carrier_img->verbose    // Print the progress if on "verbose" mode
     );
     
@@ -138,7 +141,8 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
 
     // Get the file's metadata
 
-    #ifdef _WIN32
+    #ifdef _WIN32   // Windows systems
+    
     HANDLE file_handle = __win_get_file_handle(file);   // File handle on Windows
     
     // File size
@@ -153,7 +157,8 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     const struct timespec file_mod_time = __win_filetime_to_timespec(file_mod_time_win);        // Last modified time (Unix timestamp)
     const struct timespec file_access_time = __win_filetime_to_timespec(file_access_time_win);  // Last access time (Unix timestamp)
     
-    #else
+    #else   // Linux systems
+    
     int file_descriptor = fileno(file);
     
     // File size
@@ -298,7 +303,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     // Encrypt the data stream
     if (carrier_img->verbose) printf("Encrypting '%s'... ", file_name);
     int crypto_status = imc_crypto_encrypt(
-        carrier_img->crypto,    // Secret key (generated from the password)
+        carrier_img->crypto,    // Has the secret key (generated from the password)
         zlib_buffer,            // Unencrypted data stream
         zlib_buffer_size,       // Size in bytes of the unencrypted stream
         crypto_buffer,          // Output buffer for the encrypted data
@@ -440,12 +445,12 @@ int imc_steg_extract(CarrierImage *carrier_img)
     // Decrypt the data
     if (print_msg) printf("Decrypting hidden file... ");
     int decrypt_status = imc_crypto_decrypt(
-        carrier_img->crypto,
-        header,
-        crypto_buffer,
-        crypto_size,
-        decrypt_buffer,
-        &decrypt_size
+        carrier_img->crypto,    // Has the secret key (generated from the password)
+        header,                 // Header generated during encryption
+        crypto_buffer,          // Encrypted data
+        crypto_size,            // Size in bytes of the encrypted data
+        decrypt_buffer,         // Output buffer for the decrypted data
+        &decrypt_size           // Size in bytes of the output buffer
     );
 
     if (decrypt_status < 0 || decrypt_size != decrypt_size_start)
@@ -608,6 +613,7 @@ int imc_steg_extract(CarrierImage *carrier_img)
         NULL                    // No template for the attributes
     );
     
+    // Write the timestamps to the file's metadata
     if (file_out != INVALID_HANDLE_VALUE)
     {
         FILETIME access_time = __win_timespec_to_filetime(file_times[0]);
@@ -618,6 +624,7 @@ int imc_steg_extract(CarrierImage *carrier_img)
     
     #else   // Unix systems
     
+    // Write the timestamps to the file's metadata
     utimensat(AT_FDCWD, file_name, file_times, 0);
     
     #endif // _WIN32
@@ -779,7 +786,8 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
             for (JDIMENSION x = 0; x < jpeg_obj->comp_info[comp].width_in_blocks; x++)
             {
                 // Iterate over the 63 AC coefficients
-                // (the DC coefficient of the block is skipped, because modifying it causes a bigger impact)
+                // (the DC coefficient of the block is skipped, because modifying it causes a bigger visual impact,
+                //  because this coefficient represents the average color of the current block of pixels)
                 for (JCOEF i = 1; i < DCTSIZE2; i++)
                 {
                     // Resize the array of carriers if it is full
@@ -1149,7 +1157,7 @@ static void __copy_file_times(FILE *source_file, const char *dest_path)
     // Set those times on the new file to the same as in the original
     utimensat(AT_FDCWD, dest_path, og_last_times, 0);
 
-    #endif // _WIN21
+    #endif // _WIN32
 }
 
 // Progress monitor when writing a JPEG image
@@ -1246,7 +1254,8 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
             for (JDIMENSION x = 0; x < jpeg_obj_in->comp_info[comp].width_in_blocks; x++)
             {
                 // Iterate over the 63 AC coefficients
-                // (the DC coefficient of the block is skipped, because modifying it causes a bigger impact)
+                // (the DC coefficient of the block is skipped, because modifying it causes a bigger visual impact,
+                //  because this coefficient represents the average color of the current block of pixels)
                 for (JCOEF i = 1; i < DCTSIZE2; i++)
                 {   
                     // The current coefficient
@@ -1284,7 +1293,7 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
         https://github.com/libjpeg-turbo/libjpeg-turbo/blob/4e028ecd63aaa13c8a14937f9f1e9a272ed4b543/jctrans.c#L143
         
         It causes the outputs (from different original images) to have the same Huffman tables.
-        That would facilitate "firgerprinting" the output, so I am using 'optimize_coding' to generate
+        That would facilitate "fingerprinting" the output, so I am using 'optimize_coding' to generate
         an optimized table for the image, which should make the table be different depending on the image.
 
         Also by default, the library might create a JFIF or Abobe marker to an image that did not originally had one.

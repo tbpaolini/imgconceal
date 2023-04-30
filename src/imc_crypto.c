@@ -30,14 +30,14 @@ int imc_crypto_context_create(const PassBuff *password, CryptoContext **out)
     
     // Password hashing: generate enough bytes for both the secret key and the PRNG seed
     int status = crypto_pwhash(
-        (uint8_t * const)&output,
-        sizeof(output),
-        password->buffer,
-        password->length,
-        salt,
-        IMC_OPSLIMIT,
-        IMC_MEMLIMIT,
-        crypto_pwhash_ALG_ARGON2ID13
+        (uint8_t * const)&output,   // Output buffer for the hash
+        sizeof(output),             // Size in bytes of the output buffer
+        password->buffer,           // Input buffer with the password
+        password->length,           // Size in bytes of the input buffer
+        salt,                       // Salt to be appended to the password
+        IMC_OPSLIMIT,               // Amound of times that the hashing is repeated
+        IMC_MEMLIMIT,               // Amount of memory used for hashing
+        crypto_pwhash_ALG_ARGON2ID13    // Hashing algorithm
     );
     if (status < 0) return IMC_ERR_NO_MEMORY;
 

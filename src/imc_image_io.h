@@ -7,6 +7,31 @@
 
 #include "imc_includes.h"
 
+/*  Binary format of the hidden data stream
+    (Note: all numeric values are stored as positive integers in little-endian byte order)
+
+    Payload hidden in the carrier image:
+    - 4 bytes: ASCII characters "imcl" (used to verify if there is hidden data on the image)
+    - 4 bytes: version number of the encrypted stream
+    - 4 bytes: size in bytes of the encrypted stream (counting the header and the encrypted data itself)
+    - 24 bytes: header used for the decryption
+    - (variable): encrypted data
+
+    Once the data is decrypted, the resulting stream has this binary structure:
+    - 4 Bytes: version of the compressed data
+    - 8 bytes: size of the data after uncompressed
+    - 8 bytes: size of the compressed data (everything after this point)
+    - (variable): compressed data stream
+
+    After the data is decompressed, the resulting stream has this binary structure:
+    - 8 bytes: Unix timestamp of the hidden file's last access time
+    - 8 bytes: Unix timestamp of the hidden file's last modified time
+    - 8 bytes: Unix timestamp of when the file was hidden
+    - 8 bytes: size in bytes of the file's name (counting the null terminator at the end)
+    - (variable): file's name (null-terminated string encoded in UTF-8)
+    - (variable): the file itself
+*/
+
 // Flags for the 'imc_steg_init()' function
 #define IMC_VERBOSE     (uint64_t)1 // Prints the progress of each step
 #define IMC_JUST_CHECK  (uint64_t)2 // Checks for the hidden file's info without saving the file
