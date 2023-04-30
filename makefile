@@ -29,9 +29,9 @@ debug: DIR := $(addsuffix /debug,$(DIR))
 debug: TARGET := debug
 debug: all
 
-# Check whether there are memory leaks or overruns
+# Check whether there are memory leaks or overruns, and also for undefined behaviour
 # Note: '-static' cannot be used with '-fsanitize=address'
-memcheck: CFLAGS += -g -fsanitize=address -fsanitize=leak
+memcheck: CFLAGS += -g -fsanitize=address -fsanitize=leak -fsanitize=undefined
 memcheck: CFLAGS := $(patsubst -static,,$(CFLAGS))
 memcheck: DIR := $(addsuffix /memcheck,$(DIR))
 memcheck: TARGET := memcheck
