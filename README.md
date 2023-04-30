@@ -20,7 +20,7 @@ To hide a file in a image using a password, run this command:
 ./imgconceal --input "path to the cover image" --hide "path to the file being hidden" --password "the password to be used for extraction"
 ```
 
-If there is enough space in the cover image to hide the file, the image with hidden data will be saved to a new file (the original image file is left untouched). The new image is named automatically (by adding a number to the original name), but if you want to specify the name you can add the command line argument `--output "new image name"`.
+If there is enough space in the cover image to hide the file, the image with hidden data will be saved to a new file (the original image and the hidden files are left untouched). The new image is named automatically (by adding a number to the original name), but if you want to specify the name you can add the command line argument `--output "new image name"`.
 
 The `--hide "..."` argument can be provided multiple times in order to hide more than one file in a single image. Size permitting, as many files as possible will be hidden (you get a status message which files succeeded or not).
 
@@ -55,6 +55,15 @@ This program cannot differentiate between a wrong password and non-existing hidd
 ## Advanced usage
 
 It is possible to abbreviate a command line argument by just writing a `-` and its first letter. For example, `--input` can be `-i`, and `--extract` can be `-e`.
+
+Examples (the arguments' order does not matter):
+```shell
+# Hiding a file on an image
+./imgconceal -i "input image" -h "file being hidden" - o "output image" -p "password for unhiding"
+
+# Extracting a hidden file from an image
+./imgconceal -e "input image" -p "same password as before"
+```
 
 You can add the argument `--verbose` (or `-v`) to any operation in order to display the progress of each step performed during the hiding, extraction, or checking. Alternatively, you can add `--silent` (or `-s`) in order to print no status messages at all (errors are still shown).
 
@@ -178,7 +187,7 @@ The following third party libraries where used, and need to have their developme
 * `libsodium` (hashing and encryption) - version 1.0.18
 * `zlib` (data compression) - version 1.2.11
 * `libjpeg-turbo` (low level manipulation of JPEG images) - version 2.1.2
-* `libpng` (low level manipulation of JPEG images) - version 1.6.37
+* `libpng` (low level manipulation of PNG images) - version 1.6.37
 
 In order to compile the program on Linux, on the terminal navigate to the root directory of the project and then run `make`. On Windows, you can do the same but on the MSYS2 UCRT64 terminal.
 
@@ -237,7 +246,7 @@ cd "directory of your choice"
 git clone https://github.com/tbpaolini/imgconceal.git
 ```
 
-Then navigate to the newly created `imgconceal` subdirectory, and run `make`:
+Then navigate to the newly created `imgconceal` subdirectory, and run `mingw32-make`:
 
 ```shell
 cd imgconceal
@@ -246,7 +255,7 @@ make
 
 Once the build is finished, the compiled executable is saved to the subdirectory `bin/windows/release`.
 
-You can instead run `make debug` to compile the program with debug symbols (the output will be on `bin/windows/debug`), so it is possible debug it on GDB. Before compiling a different type of build, you should run `make clean` to delete the temporary files created by the compilation, this way release and debug binaries do not get mixed with each other.
+You can instead run `mingw32-make debug` to compile the program with debug symbols (the output will be on `bin/windows/debug`), so it is possible debug it on GDB. Before compiling a different type of build, you should run `mingw32-make clean` to delete the temporary files created by the compilation, this way release and debug binaries do not get mixed with each other.
 
 ## Disclaimer
 
