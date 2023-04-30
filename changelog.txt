@@ -1,0 +1,8 @@
+Version 1.0.1 - April 30, 2023
+- Windows version now handles properly special characters on terminal.
+- Handling special characters on passwords consistently across Windows and Linux (the password string is now encoded to UTF-8 on both systems).
+- More descriptive error messages if a file could not be opened, detailing the reason for that.
+
+Version 1.0.0 - April 25, 2023
+- Initial release.
+
