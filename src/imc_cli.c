@@ -222,6 +222,9 @@ static PassBuff *imc_cli_password_input(bool confirm)
 // otherwise its should be 'false' (that is, read from stdin).
 static inline void __password_normalize(PassBuff *password, bool from_argv)
 {
+    // Return if there is no password
+    if (!password || password->length == 0) return;
+    
     #ifdef _WIN32   // Windows systems
 
     // Get the terminal's encoding
@@ -249,6 +252,43 @@ static inline void __password_normalize(PassBuff *password, bool from_argv)
     memcpy(password->buffer, u8_pass, u8_pass_len);
     sodium_munlock(u8_pass, sizeof(u8_pass));
     password->length = u8_pass_len;
+
+    #else // Linux systems
+
+    if (password->length == 0) return;
+
+    // Open the descriptor for converting text from the system's locale to UTF-8
+    iconv_t u8_conv = iconv_open("UTF-8", "");
+    if (!u8_conv) return;
+
+    char *const in_text = password->buffer; // Input text in the system's enconding
+    size_t in_text_left = password->length; // Amount of bytes of the input remaining to be converted
+
+    const size_t out_size = in_text_left * 4;   // Size of the output buffer (UTF-8 characters can use up to 4 bytes each)
+    char out_text[out_size];                    // Buffer for the output text encoded to UTF-8
+    sodium_mlock(out_text, sizeof(out_text));
+    sodium_memzero(out_text, sizeof(out_text));
+    size_t out_text_left = out_size;            // Amount of bytes left in the buffer
+
+    // Pointers to the inut and output buffers
+    char *in_text_ptr = in_text;        // Current position on the input
+    char *out_text_ptr = &out_text[0];  // Current position on the output
+    
+    // Convert text to UTF-8
+    size_t char_count = iconv(u8_conv, &in_text_ptr, &in_text_left, &out_text_ptr, &out_text_left);
+    iconv_close(u8_conv);
+    if ( char_count == (size_t)(-1) )
+    {
+        sodium_munlock(out_text, sizeof(out_text));
+        return;
+    }
+
+    // Clear the old password buffer and copy the new UTF-8 string to it
+    password->length = out_size - out_text_left;
+    if (password->length > password->capacity) password->length = password->capacity;
+    sodium_memzero(password->buffer, password->capacity);
+    memcpy(password->buffer, out_text, password->length);
+    sodium_munlock(out_text, sizeof(out_text));
 
     #endif
 }
