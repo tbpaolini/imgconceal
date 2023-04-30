@@ -32,6 +32,7 @@ some conflicts with the symbols defined by `windows.h` or the standard libraries
 #include <libgen.h>     // For the basename() function
 #include <fcntl.h>      // For the AT_FDCWD macro
 #include <termios.h>    // For temporarily turning off input echoing in the terminal
+#include <iconv.h>      // For encoding text to UTF-8
 #endif // _WIN32
 #include <endian.h>     // Converting between different byte orders
 #include <argp.h>       // Command line interface
