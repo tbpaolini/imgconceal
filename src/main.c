@@ -1,6 +1,6 @@
 #include "imc_includes.h"
 
-const char *argp_program_version = "imageconceal version 1.0.0 (built on "__DATE__" at "__TIME__")\n"\
+const char *argp_program_version = "imageconceal version 1.0.1 (built on "__DATE__" at "__TIME__")\n"\
     "Copyright (c) 2023 Tiago Becerra Paolini.\n"\
     "Licensed under the MIT license.\n"\
     "https://github.com/tbpaolini/imgconceal\n"\
