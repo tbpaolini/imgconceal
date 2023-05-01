@@ -250,7 +250,7 @@ Then navigate to the newly created `imgconceal` subdirectory, and run `mingw32-m
 
 ```shell
 cd imgconceal
-make
+mingw32-make
 ```
 
 Once the build is finished, the compiled executable is saved to the subdirectory `bin/windows/release`.
