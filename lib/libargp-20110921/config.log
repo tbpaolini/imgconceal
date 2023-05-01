@@ -84,7 +84,7 @@ configure:3726: found /ucrt64/bin/gcc
 configure:3737: result: gcc
 configure:3966: checking for C compiler version
 configure:3975: gcc --version >&5
-gcc.exe (Rev10, Built by MSYS2 project) 12.2.0
+gcc.exe (Rev11, Built by MSYS2 project) 12.2.0
 Copyright (C) 2022 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -95,10 +95,10 @@ Using built-in specs.
 COLLECT_GCC=C:\msys64\ucrt64\bin\gcc.exe
 COLLECT_LTO_WRAPPER=C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/lto-wrapper.exe
 Target: x86_64-w64-mingw32
-Configured with: ../gcc-12.2.0/configure --prefix=/ucrt64 --with-local-prefix=/ucrt64/local --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --with-native-system-header-dir=/ucrt64/include --libexecdir=/ucrt64/lib --enable-bootstrap --enable-checking=release --with-arch=nocona --with-tune=generic --enable-languages=c,lto,c++,fortran,ada,objc,obj-c++,jit --enable-shared --enable-static --enable-libatomic --enable-threads=posix --enable-graphite --enable-fully-dynamic-string --enable-libstdcxx-filesystem-ts --enable-libstdcxx-time --disable-libstdcxx-pch --enable-lto --enable-libgomp --disable-multilib --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --with-libiconv --with-system-zlib --with-gmp=/ucrt64 --with-mpfr=/ucrt64 --with-mpc=/ucrt64 --with-isl=/ucrt64 --with-pkgversion='Rev10, Built by MSYS2 project' --with-bugurl=https://github.com/msys2/MINGW-packages/issues --with-gnu-as --with-gnu-ld --disable-libstdcxx-debug --with-boot-ldflags=-static-libstdc++ --with-stage1-ldflags=-static-libstdc++
+Configured with: ../gcc-12.2.0/configure --prefix=/ucrt64 --with-local-prefix=/ucrt64/local --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --with-native-system-header-dir=/ucrt64/include --libexecdir=/ucrt64/lib --enable-bootstrap --enable-checking=release --with-arch=nocona --with-tune=generic --enable-languages=c,lto,c++,fortran,ada,objc,obj-c++,jit --enable-shared --enable-static --enable-libatomic --enable-threads=posix --enable-graphite --enable-fully-dynamic-string --enable-libstdcxx-filesystem-ts --enable-libstdcxx-time --disable-libstdcxx-pch --enable-lto --enable-libgomp --disable-multilib --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --with-libiconv --with-system-zlib --with-gmp=/ucrt64 --with-mpfr=/ucrt64 --with-mpc=/ucrt64 --with-isl=/ucrt64 --with-pkgversion='Rev11, Built by MSYS2 project' --with-bugurl=https://github.com/msys2/MINGW-packages/issues --with-gnu-as --with-gnu-ld --disable-libstdcxx-debug --with-boot-ldflags=-static-libstdc++ --with-stage1-ldflags=-static-libstdc++
 Thread model: posix
 Supported LTO compression algorithms: zlib zstd
-gcc version 12.2.0 (Rev10, Built by MSYS2 project) 
+gcc version 12.2.0 (Rev11, Built by MSYS2 project) 
 configure:3986: $? = 0
 configure:3975: gcc -V >&5
 gcc.exe: error: unrecognized command-line option '-V'
@@ -554,7 +554,7 @@ configure:12889: found /ucrt64/bin/g++
 configure:12900: result: g++
 configure:12927: checking for C++ compiler version
 configure:12936: g++ --version >&5
-g++.exe (Rev10, Built by MSYS2 project) 12.2.0
+g++.exe (Rev11, Built by MSYS2 project) 12.2.0
 Copyright (C) 2022 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -565,10 +565,10 @@ Using built-in specs.
 COLLECT_GCC=C:\msys64\ucrt64\bin\g++.exe
 COLLECT_LTO_WRAPPER=C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/lto-wrapper.exe
 Target: x86_64-w64-mingw32
-Configured with: ../gcc-12.2.0/configure --prefix=/ucrt64 --with-local-prefix=/ucrt64/local --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --with-native-system-header-dir=/ucrt64/include --libexecdir=/ucrt64/lib --enable-bootstrap --enable-checking=release --with-arch=nocona --with-tune=generic --enable-languages=c,lto,c++,fortran,ada,objc,obj-c++,jit --enable-shared --enable-static --enable-libatomic --enable-threads=posix --enable-graphite --enable-fully-dynamic-string --enable-libstdcxx-filesystem-ts --enable-libstdcxx-time --disable-libstdcxx-pch --enable-lto --enable-libgomp --disable-multilib --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --with-libiconv --with-system-zlib --with-gmp=/ucrt64 --with-mpfr=/ucrt64 --with-mpc=/ucrt64 --with-isl=/ucrt64 --with-pkgversion='Rev10, Built by MSYS2 project' --with-bugurl=https://github.com/msys2/MINGW-packages/issues --with-gnu-as --with-gnu-ld --disable-libstdcxx-debug --with-boot-ldflags=-static-libstdc++ --with-stage1-ldflags=-static-libstdc++
+Configured with: ../gcc-12.2.0/configure --prefix=/ucrt64 --with-local-prefix=/ucrt64/local --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --with-native-system-header-dir=/ucrt64/include --libexecdir=/ucrt64/lib --enable-bootstrap --enable-checking=release --with-arch=nocona --with-tune=generic --enable-languages=c,lto,c++,fortran,ada,objc,obj-c++,jit --enable-shared --enable-static --enable-libatomic --enable-threads=posix --enable-graphite --enable-fully-dynamic-string --enable-libstdcxx-filesystem-ts --enable-libstdcxx-time --disable-libstdcxx-pch --enable-lto --enable-libgomp --disable-multilib --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --with-libiconv --with-system-zlib --with-gmp=/ucrt64 --with-mpfr=/ucrt64 --with-mpc=/ucrt64 --with-isl=/ucrt64 --with-pkgversion='Rev11, Built by MSYS2 project' --with-bugurl=https://github.com/msys2/MINGW-packages/issues --with-gnu-as --with-gnu-ld --disable-libstdcxx-debug --with-boot-ldflags=-static-libstdc++ --with-stage1-ldflags=-static-libstdc++
 Thread model: posix
 Supported LTO compression algorithms: zlib zstd
-gcc version 12.2.0 (Rev10, Built by MSYS2 project) 
+gcc version 12.2.0 (Rev11, Built by MSYS2 project) 
 configure:12947: $? = 0
 configure:12936: g++ -V >&5
 g++.exe: error: unrecognized command-line option '-V'
@@ -2034,7 +2034,7 @@ configure: failed program was:
 configure:16880: result: no
 configure:16899: checking for flockfile
 configure:16899: gcc -o conftest.exe -g -O2   conftest.c  >&5
-C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\msys64\tmp\cc0890sv.o: in function `main':
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\msys64\tmp\ccu7RDyL.o: in function `main':
 C:/Users/tpaol/Documents/proj/imgconceal/lib/libargp-20110921/conftest.c:77: undefined reference to `flockfile'
 collect2.exe: error: ld returned 1 exit status
 configure:16899: $? = 1
@@ -2122,7 +2122,7 @@ configure: failed program was:
 configure:16899: result: no
 configure:16899: checking for funlockfile
 configure:16899: gcc -o conftest.exe -g -O2   conftest.c  >&5
-C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\msys64\tmp\ccAjpRpJ.o: in function `main':
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\msys64\tmp\cc6ofzvV.o: in function `main':
 C:/Users/tpaol/Documents/proj/imgconceal/lib/libargp-20110921/conftest.c:77: undefined reference to `funlockfile'
 collect2.exe: error: ld returned 1 exit status
 configure:16899: $? = 1
@@ -2221,7 +2221,7 @@ configure:16899: gcc -o conftest.exe -g -O2   conftest.c  >&5
 conftest.c:68:6: warning: conflicting types for built-in function 'strndup'; expected 'char *(const char *, long long unsigned int)' [-Wbuiltin-declaration-mismatch]
    68 | char strndup ();
       |      ^~~~~~~
-C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\msys64\tmp\cchWhy3p.o: in function `main':
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\msys64\tmp\ccKGucxF.o: in function `main':
 C:/Users/tpaol/Documents/proj/imgconceal/lib/libargp-20110921/conftest.c:79: undefined reference to `strndup'
 collect2.exe: error: ld returned 1 exit status
 configure:16899: $? = 1
@@ -2311,7 +2311,7 @@ configure: failed program was:
 configure:16899: result: no
 configure:16899: checking for vasnprintf
 configure:16899: gcc -o conftest.exe -g -O2   conftest.c  >&5
-C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\msys64\tmp\ccyAz2qx.o: in function `main':
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\msys64\tmp\ccYI7AAT.o: in function `main':
 C:/Users/tpaol/Documents/proj/imgconceal/lib/libargp-20110921/conftest.c:79: undefined reference to `vasnprintf'
 collect2.exe: error: ld returned 1 exit status
 configure:16899: $? = 1
@@ -3430,7 +3430,7 @@ configure: failed program was:
 configure:18235: result: no
 configure:18330: checking for mmap
 configure:18330: gcc -o conftest.exe -g -O2   conftest.c  >&5
-C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\msys64\tmp\cc82p5LP.o: in function `main':
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\msys64\tmp\ccqjzuPu.o: in function `main':
 C:/Users/tpaol/Documents/proj/imgconceal/lib/libargp-20110921/conftest.c:90: undefined reference to `mmap'
 collect2.exe: error: ld returned 1 exit status
 configure:18330: $? = 1
@@ -5885,7 +5885,7 @@ configure:21217: $? = 0
 configure:21217: result: yes
 configure:21267: checking for rawmemchr
 configure:21267: gcc -o conftest.exe -g -O2   conftest.c  >&5
-C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\msys64\tmp\ccEiQCtz.o: in function `main':
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\msys64\tmp\ccbWCRcn.o: in function `main':
 C:/Users/tpaol/Documents/proj/imgconceal/lib/libargp-20110921/conftest.c:129: undefined reference to `rawmemchr'
 collect2.exe: error: ld returned 1 exit status
 configure:21267: $? = 1
@@ -9592,7 +9592,7 @@ configure:21971: checking whether strncasecmp is declared
 configure:21971: result: yes
 configure:22023: checking for strchrnul
 configure:22023: gcc -o conftest.exe -g -O2   conftest.c  >&5
-C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\msys64\tmp\ccgrQkSe.o: in function `main':
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:\msys64\tmp\ccCSQbMY.o: in function `main':
 C:/Users/tpaol/Documents/proj/imgconceal/lib/libargp-20110921/conftest.c:147: undefined reference to `strchrnul'
 collect2.exe: error: ld returned 1 exit status
 configure:22023: $? = 1
@@ -16741,6 +16741,7 @@ config.status:1859: creating Makefile
 config.status:1859: creating gllib/Makefile
 config.status:1859: creating glm4/Makefile
 config.status:1859: creating config.h
+config.status:2040: config.h is unchanged
 config.status:2088: executing depfiles commands
 config.status:2088: executing libtool commands
 
