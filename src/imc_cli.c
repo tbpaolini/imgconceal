@@ -898,6 +898,12 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
 
             imc_free(state->hook);
             break;
+        
+        // Exit with error if an unknown option has been received
+        default:
+            argp_error(state, "unrecognized option '%s'\n"
+                "Hint: you should surround an argument with \"quotation marks\" if it contains spaces.", arg);
+            break;
     }
 
     return 0;

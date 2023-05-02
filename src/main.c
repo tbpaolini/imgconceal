@@ -23,5 +23,5 @@ int main(int argc, char *argv[])
     
     // Parse the command line arguments
     const struct argp *restrict argp_struct = imc_cli_get_argp_struct();
-    return argp_parse(argp_struct, argc, argv, ARGP_NO_ARGS, NULL, NULL);
+    return argp_parse(argp_struct, argc, argv, ARGP_IN_ORDER, NULL, NULL);
 }
