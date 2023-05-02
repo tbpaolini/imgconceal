@@ -24,9 +24,11 @@
     - (variable): compressed data stream
 
     After the data is decompressed, the resulting stream has this binary structure:
-    - 8 bytes: Unix timestamp of the hidden file's last access time
-    - 8 bytes: Unix timestamp of the hidden file's last modified time
-    - 8 bytes: Unix timestamp of when the file was hidden
+    (the first 8 bytes in a timestamp are the seconds since the Unix epoch,
+     the last 8 bytes are the nanoseconds in the current second)
+    - 16 bytes: Unix timestamp of the hidden file's last access time
+    - 16 bytes: Unix timestamp of the hidden file's last modified time
+    - 16 bytes: Unix timestamp of when the file was hidden
     - 8 bytes: size in bytes of the file's name (counting the null terminator at the end)
     - (variable): file's name (null-terminated string encoded in UTF-8)
     - (variable): the file itself

@@ -35,7 +35,7 @@ int imc_crypto_context_create(const PassBuff *password, CryptoContext **out)
         password->buffer,           // Input buffer with the password
         password->length,           // Size in bytes of the input buffer
         salt,                       // Salt to be appended to the password
-        IMC_OPSLIMIT,               // Amound of times that the hashing is repeated
+        IMC_OPSLIMIT,               // Amount of times that the hashing is repeated
         IMC_MEMLIMIT,               // Amount of memory used for hashing
         crypto_pwhash_ALG_ARGON2ID13    // Hashing algorithm
     );
