@@ -22,7 +22,7 @@ static const struct argp_option argp_options[] = {
         "If there is no enough space in the cover image, some files may fail being hidden "\
         "(files specified first have priority when trying to hide). "\
         "The default behavior is to overwrite the existing previously hidden files, "\
-        "to avoid that add the '--apend' option.", 2},
+        "to avoid that add the '--append' option.", 2},
     {"append", 'a', NULL, 0, "When hiding a file with the '--hide' option, "\
         "append the new file instead of overwriting the existing hidden files. "\
         "For this option to work, the password must be the same as the one used for the previous files", 3},
