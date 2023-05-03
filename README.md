@@ -3,14 +3,16 @@
 *imgconceal* is a tool for image steganography, that can hide files inside JPEG and PNG images, with or without a password for extracting the data later. The image with hidden data looks the same to the human eye as the regular image.
 
 **Downloads:**
-* [imgconceal for Windows](https://github.com/tbpaolini/imgconceal/releases/download/v1.0.1/imgconceal.exe)
-* [imgconceal for Linux](https://github.com/tbpaolini/imgconceal/releases/download/v1.0.1/imgconceal)
+* [imgconceal for Windows](https://github.com/tbpaolini/imgconceal/releases/download/v1.0.2/imgconceal.exe)
+* [imgconceal for Linux](https://github.com/tbpaolini/imgconceal/releases/download/v1.0.2/imgconceal)
 
 This is a command line program that is available for both Windows and Linux operating systems.  *imgconceal* is a standalone executable, requiring no installation or shared libraries (DLL or SO).
 
 ## Basic usage
 
 This is a command line program, so you need to run `imgconceal` on a terminal. Currently there is no graphical user interface (GUI), though that is not off the table for a future update.
+
+You can just put the executable on the folder where you want to run it, or add the executable's folder to the `PATH` enviroment variable of your system so you can run `imgconceal` from anywhere.
 
 ### Hiding
 
@@ -22,9 +24,19 @@ To hide a file in a image using a password, run this command:
 
 If there is enough space in the cover image to hide the file, the image with hidden data will be saved to a new file (the original image and the hidden files are left untouched). The new image is named automatically (by adding a number to the original name), but if you want to specify the name you can add the command line argument `--output "new image name"`.
 
-The `--hide "..."` argument can be provided multiple times in order to hide more than one file in a single image. Size permitting, as many files as possible will be hidden (you get a status message which files succeeded or not).
+The `--hide "..."` argument can receive multiple paths (or be provided multiple times) in order to hide more than one file in a single image. Size permitting, as many files as possible will be hidden (you get a status message which files succeeded or not). For example:
+
+```shell
+# Providing multiple files to be hidden in a single cover image
+./imgconceal --input "cover image" --hide "file 1" "file 2" "file 3" --password "password for extraction"
+
+# This also works for hiding multiple files
+./imgconceal --input "cover image" --hide "file 1" --hide "file 2" --hide "file 3" --password "password for extraction"
+```
 
 If you do not want to use a password, you can provide the argument `--no-password` instead of `--password "..."`. It is important to note that if you lose the password, **there are no way of recovering it**. The password is not stored, it is used instead for generating the encryption key, and without that key it's not possible to decrypt the data.
+
+If you do not provide the `--no-password` or `--password "..."` options, then you are asked to type the password on the terminal. In this case, the typed characters are not shown, and you can just type nothing to use no password. Afterwards, you are asked to type the password again to confirm.
 
 ### Extraction
 
@@ -67,7 +79,7 @@ Examples (the arguments' order does not matter):
 
 You can add the argument `--verbose` (or `-v`) to any operation in order to display the progress of each step performed during the hiding, extraction, or checking. Alternatively, you can add `--silent` (or `-s`) in order to print no status messages at all (errors are still shown).
 
-When hiding a file, the default behavior is to overwrite the existing hidden files on the cover image. You can avoid that by adding the `--append` (or `-a`) argument. In order for appending to work, **the password used must be the same** as used for the previous files, otherwise the files will be just overwritten.
+When hiding a file, the default behavior is to overwrite the existing hidden files on the cover image. You can avoid that by adding the `--append` (or `-a`) argument. In order for appending to work, **the password used must be the same** as used for the previous files, otherwise the operation will fail (the existing files remain untouched).
 
 You can run `./imgconceal --help` in order to see all available command line arguments and their descriptions. For convenience's sake, here is the full help text:
 
@@ -101,13 +113,14 @@ All options:
                              they were hidden.
   -h, --hide=FILE            Path to the file being hidden in the cover image.
                              This option can be specified multiple times in
-                             order to hide more than one file. If there is no
-                             enough space in the cover image, some files may
-                             fail being hidden (files specified first have
-                             priority when trying to hide). The default
-                             behavior is to overwrite the existing previously
-                             hidden files, to avoid that add the '--apend'
-                             option.
+                             order to hide more than one file. You can also
+                             pass more than one path to this option in order to
+                             hide multiple files. If there is no enough space
+                             in the cover image, some files may fail being
+                             hidden (files specified first have priority when
+                             trying to hide). The default behavior is to
+                             overwrite the existing previously hidden files, to
+                             avoid that add the '--apend' option.
   -i, --input=IMAGE          Path to the cover image (the JPEG or PNG file
                              where to hide another file). Please use the
                              '--output' option to specify where to save the
@@ -180,7 +193,7 @@ Pre-compiled binaries are already provided. But if you want to build the program
 
 This program was built using the GCC compiler (version 11.3.0 on Linux, version 12.2.0 on Windows). We believe that later versions of GCC should be able to compile *imgconceal* without issues.
 
-The GNU toolchain was used to develop the program on Linux (package `build-essential` of Ubuntu 22.04.2, running on WSL). On Windows, we used the GNU toolchain on the MSYS2/MingW framework (package `mingw-w64-ucrt-x86_64-toolchain`), linking with the Microsoft's Universal C Runtime (UCRT).
+The GNU toolchain was used to develop the program on Linux (package `build-essential` of Ubuntu 22.04.2, running on WSL). On Windows, we used the GNU toolchain on the MSYS2/MinGW framework (package `mingw-w64-ucrt-x86_64-toolchain`), linking with the Microsoft's Universal C Runtime (UCRT).
 
 The following third party libraries where used, and need to have their development versions installed on your system before compiling *imgconceal*:
 
@@ -223,7 +236,7 @@ You can instead run `make debug` to compile the program with debug symbols (the 
 
 #### Windows
 
-Download MSYS2 from its [official webside](https://www.msys2.org/), and install it. A few different terminals are installed on your system, they go to your start menu. The one that you should use for this project is **MSYS2 UCRT64**, all commands listed on this section should be run on it.
+Download MSYS2 from its [official website](https://www.msys2.org/), and install it. A few different terminals are installed on your system, they go to your start menu. The one that you should use for this project is **MSYS2 UCRT64**, all commands listed on this section should be run on it.
 
 First, update the packages to the latest version by running:
 
@@ -259,8 +272,8 @@ You can instead run `mingw32-make debug` to compile the program with debug symbo
 
 ## Disclaimer
 
-The *imgconceal* program, besides scrambling the data through the whole image, makes no attempt of fooling statistical analysis methods that attempt to detect whether an image contains data hidden through steganographic means. But it is worthy noting that probably not too many people know about steganography and steganoanalysis, so it should suffice to conceal files from a casual observer :)
+The *imgconceal* program, besides scrambling the data through the whole image, makes no attempt of fooling statistical analysis methods that attempt to detect whether an image contains data hidden through steganographic means. But it is worthy noting that probably not too many people know about steganography and steganalysis, so it should suffice to conceal files from a casual observer :)
 
 Anyways, I do not intend the program to be used for any critical or serious purposes. It is just a fun tool for entertainment, like perhaps some sort of crypto puzzle / ARG (alternate reality game), exchanging hidden files with a friend, etc. 
 
-With all that considered, though this program comes with no guarantees, using a strong password should be enough to prevent the data from being extracted, even if someone knows that there is hidden data. The password hashing algorithm was intentionally slowed down, which should be hardly noticeable under normal usage but quickly adds up when bruteforcing a password.
+With all that considered, though this program comes with no guarantees, using a strong password should be enough to prevent the data from being extracted, even if someone knows that there is hidden data. The password hashing algorithm was intentionally slowed down, which should be hardly noticeable under normal usage but quickly adds up when brute-forcing a password.
