@@ -534,7 +534,20 @@ static inline void __execute_options(struct argp_state *state, void *options)
     if (mode == HIDE)
     {
         // If on "append mode": Skip to the end of the hidden data
-        if (opt->append) imc_steg_seek_to_end(steg_image);
+        if (opt->append)
+        {
+            imc_steg_seek_to_end(steg_image);
+
+            if (steg_image->carrier_pos == 0)
+            {
+                // Safeguard to prevent the user from overwriting files in case the password is wrong
+                argp_failure(state, EXIT_FAILURE, 0,
+                    "FAIL: Image '%s' contains no hidden data or the password is incorrect.\n"\
+                    "In order to append files to the image, you have to use the same password as the previously files hidden there.\n"\
+                    "If you want to overwite the existing hidden files (if any), please run the program without the '--append' option.",
+                    basename(steg_path));
+            }
+        }
         
         // Hide the files on the image
         struct HideList *node = &opt->hide;
