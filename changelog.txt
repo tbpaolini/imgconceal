@@ -1,3 +1,9 @@
+Version 1.0.2 - May 3, 2023
+- Now it is possible to pass multiple file paths to the `--hide` (or `-h`) argument.
+- Now when using the `--append` option while hiding files, the operation will fail if no existing hidden files can be found. This prevents the existing data from being overwritten in case of a wrong password.
+- When an invalid command line option is passed to the program, now the error message says which option was wrong.
+- Check if the paths provided by the user are directories, so the program can give the appropriate error message.
+
 Version 1.0.1 - April 30, 2023
 - Windows version now handles properly special characters on terminal.
 - Handling special characters on passwords consistently across Windows and Linux (the password string is now encoded to UTF-8 on both systems).
@@ -5,4 +11,3 @@ Version 1.0.1 - April 30, 2023
 
 Version 1.0.0 - April 25, 2023
 - Initial release.
-
