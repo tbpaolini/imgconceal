@@ -929,7 +929,8 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             
             // Exit with error if an unknown option has been received
             argp_error(state, "unrecognized option '%s'\n"
-                "Hint: you should surround an argument with \"quotation marks\" if it contains spaces.", arg);
+                "Hint: you should surround an argument with \"quotation marks\" if it contains spaces "
+                "or other characters that might confuse the terminal.", arg);
             break;
         
         // Unknown argument
