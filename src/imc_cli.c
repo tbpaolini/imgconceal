@@ -511,7 +511,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
             break;
         
         case IMC_ERR_FILE_NOT_FOUND:
-            argp_failure(state, EXIT_FAILURE, 0, "file '%s' could not be opened. Reason: %s", steg_path, strerror(errno));
+            argp_failure(state, EXIT_FAILURE, 0, "file '%s' could not be opened. Reason: %s.", steg_path, strerror(errno));
             break;
         
         case IMC_ERR_FILE_INVALID:
@@ -564,7 +564,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
                     break;
                 
                 case IMC_ERR_FILE_NOT_FOUND:
-                    fprintf(stderr, "FAIL: file '%s' could not be opened. Reason: %s\n", node->data, strerror(errno));
+                    fprintf(stderr, "FAIL: file '%s' could not be opened. Reason: %s\n.", node->data, strerror(errno));
                     break;
                 
                 case IMC_ERR_NAME_TOO_LONG:
