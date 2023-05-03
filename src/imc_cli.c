@@ -18,6 +18,7 @@ static const struct argp_option argp_options[] = {
         "(a number is added to the name of the original file).", 2},
     {"hide", 'h', "FILE", 0, "Path to the file being hidden in the cover image. "\
         "This option can be specified multiple times in order to hide more than one file. "\
+        "You can also pass more than one path to this option in order to hide multiple files. "\
         "If there is no enough space in the cover image, some files may fail being hidden "\
         "(files specified first have priority when trying to hide). "\
         "The default behavior is to overwrite the existing previously hidden files, "\
@@ -94,6 +95,7 @@ typedef struct UserOptions {
     } hide;             // Linked list with the paths to the files being hidden on the image
     struct HideList *hide_tail; // Last element of the 'hide' linked list
     PassBuff *password; // Plain text password provided by the user
+    int prev_arg;       // The key of the previous parsed command line argument
     bool append;        // Whether the added hidden data is being appended to the existing one
     bool no_password;   // 'true' if not using a password
     bool verbose;       // Prints detailed information during operation
@@ -790,6 +792,7 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         
         // --hide: File being hidden on the image
         case 'h':
+            hide:
             struct HideList **tail = &((UserOptions*)(state->hook))->hide_tail;
             
             // Add the path to the end of the linked list
@@ -899,11 +902,33 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             imc_free(state->hook);
             break;
         
-        // Exit with error if an unknown option has been received
-        default:
+        // When we receive an argument that does not begin with "--" or "-"
+        case ARGP_KEY_ARG:
+            /* We are going to check if the previous "--" or "-" argument accepts more than one option.
+            If so, them we are going to treat the current argument as an option of that "--" or "-" argument. */
+
+            // We are jumping back to the clause that handles the previously parsed argument
+            if (((UserOptions*)(state->hook))->prev_arg == 'h')
+            {
+                // The '--hide' argument accepts more than one file to hide
+                goto hide;
+            }
+            
+            // Exit with error if an unknown option has been received
             argp_error(state, "unrecognized option '%s'\n"
                 "Hint: you should surround an argument with \"quotation marks\" if it contains spaces.", arg);
             break;
+        
+        // Unknown argument
+        default:
+            return ARGP_ERR_UNKNOWN;
+            break;
+    }
+
+    // Remember the command line argument that was just parsed (if it begins with "--" or "-")
+    if (key != ARGP_KEY_ARG)
+    {
+        ((UserOptions*)(state->hook))->prev_arg = key;
     }
 
     return 0;
