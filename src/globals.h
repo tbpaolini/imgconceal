@@ -25,6 +25,7 @@
 #define IMC_ERR_SAVE_FAIL      -11  // Failed to save the extracted file
 #define IMC_ERR_NAME_TOO_LONG  -12  // The file name has more characters than the maximum allowed
 #define IMC_ERR_FILE_CORRUPTED -13  // The file read has a different size than expected
+#define IMC_ERR_PATH_IS_DIR    -14  // The path is of a directory rather than a file
 
 // Maximum size in bytes of the file being hidden
 #define IMC_MAX_INPUT_SIZE  500000000

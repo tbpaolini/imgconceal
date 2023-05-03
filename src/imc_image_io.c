@@ -19,6 +19,7 @@ static _Thread_local double png_num_rows = -1.0;    // Image's height
 // Initialize an image for hiding data in it
 int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **output, uint64_t flags)
 {
+    if (__is_directory(path)) return IMC_ERR_PATH_IS_DIR;
     FILE *image = fopen(path, "rb");
     if (image == NULL) return IMC_ERR_FILE_NOT_FOUND;
 
@@ -136,6 +137,7 @@ static inline struct timespec __timespec_from_64le(struct timespec64 time)
 // Note: function can be called multiple times in order to hide more files in the same image.
 int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
 {
+    if (__is_directory(file_path)) return IMC_ERR_PATH_IS_DIR;
     FILE *file = fopen(file_path, "rb");
     if (file == NULL) return IMC_ERR_FILE_NOT_FOUND;
 

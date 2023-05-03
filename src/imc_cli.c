@@ -510,6 +510,10 @@ static inline void __execute_options(struct argp_state *state, void *options)
         case IMC_SUCCESS:
             break;
         
+        case IMC_ERR_PATH_IS_DIR:
+            argp_failure(state, EXIT_FAILURE, 0, "'%s' is a directory, instead of a JPEG or PNG image.", steg_path);
+            break;
+        
         case IMC_ERR_FILE_NOT_FOUND:
             argp_failure(state, EXIT_FAILURE, 0, "file '%s' could not be opened. Reason: %s.", steg_path, strerror(errno));
             break;
@@ -561,6 +565,10 @@ static inline void __execute_options(struct argp_state *state, void *options)
                 case IMC_SUCCESS:
                     if (!opt->silent) printf("SUCCESS: hidden '%s' in the cover image.\n", basename(node->data));
                     image_has_changed = true;
+                    break;
+                
+                case IMC_ERR_PATH_IS_DIR:
+                    fprintf(stderr, "FAIL: '%s' is a directory, instead of a single file.\n", node->data);
                     break;
                 
                 case IMC_ERR_FILE_NOT_FOUND:
