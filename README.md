@@ -34,7 +34,7 @@ The `--hide "..."` argument can receive multiple paths (or be provided multiple 
 ./imgconceal --input "cover image" --hide "file 1" --hide "file 2" --hide "file 3" --password "password for extraction"
 ```
 
-If you do not want to use a password, you can provide the argument `--no-password` instead of `--password "..."`. It is important to note that if you lose the password, **there are no way of recovering it**. The password is not stored, it is used instead for generating the encryption key, and without that key it's not possible to decrypt the data.
+If you do not want to use a password, you can provide the argument `--no-password` instead of `--password "..."`. It is important to note that if you lose the password, **there is no way of recovering it**. The password is not stored, it is used instead for generating the encryption key, and without that key it's not possible to decrypt the data.
 
 If you do not provide the `--no-password` or `--password "..."` options, then you are asked to type the password on the terminal. In this case, the typed characters are not shown, and you can just type nothing to use no password. Afterwards, you are asked to type the password again to confirm.
 
