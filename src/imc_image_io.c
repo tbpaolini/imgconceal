@@ -1107,6 +1107,26 @@ static bool __resolve_filename_collision(char *path)
     return false;
 }
 
+// Check if a given path is a directory
+static bool __is_directory(const char *path)
+{
+    #ifdef _WIN32   // Windows systems
+    DWORD path_attrib = GetFileAttributes(path);
+    if (path_attrib != INVALID_FILE_ATTRIBUTES)
+    {
+        return (path_attrib & FILE_ATTRIBUTE_DIRECTORY);
+    }
+    
+    #else   // Linux systems
+    struct stat path_stat;
+    const bool status = stat(path, &path_stat);
+    if (status == 0) return S_ISDIR(path_stat.st_mode);
+    
+    #endif  // _WIN32
+
+    return false;
+}
+
 // Copy the "last access" and "last mofified" times from the one file (source) to the other (dest)
 static void __copy_file_times(FILE *source_file, const char *dest_path)
 {

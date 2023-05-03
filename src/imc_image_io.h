@@ -170,6 +170,9 @@ void imc_png_carrier_open(CarrierImage *carrier_img);
 // (at most 5 characters are added to the path)
 static bool __resolve_filename_collision(char *path);
 
+// Check if a given path is a directory
+static bool __is_directory(const char *path);
+
 // Copy the "last access" and "last mofified" times from the one file (source) to the other (dest)
 static void __copy_file_times(FILE *source_file, const char *dest_path);
 
