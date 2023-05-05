@@ -120,7 +120,7 @@ All options:
                              hidden (files specified first have priority when
                              trying to hide). The default behavior is to
                              overwrite the existing previously hidden files, to
-                             avoid that add the '--apend' option.
+                             avoid that add the '--append' option.
   -i, --input=IMAGE          Path to the cover image (the JPEG or PNG file
                              where to hide another file). Please use the
                              '--output' option to specify where to save the
