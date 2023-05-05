@@ -7,6 +7,8 @@ permalink: /examples/
 <style>
 table {
     width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 table img {
