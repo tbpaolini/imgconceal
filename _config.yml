@@ -1,0 +1,13 @@
+# Site's address
+url: "https://tbpaolini.github.io" # Hostname of the site
+baseurl: "/imgconceal" # Subpath were the site is
+
+# Markdown and code highlighting
+markdown: kramdown
+highlighter: rouge
+input: GFM
+
+# The site's pages are on the `_pages` folder
+collections:
+  pages:
+    output: true

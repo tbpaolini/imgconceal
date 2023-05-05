@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>{{ page.title }} - imgconceal</title>
+  
+  <link rel="icon" type="image/svg+xml" href="{% link favicon.svg %}" />
+  <link rel="stylesheet" type="text/css" href="{% link assets/style.css %}" />
+  <link rel="stylesheet" type="text/css" href="{% link /assets/syntax.css %}" />
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="left-column">
+      <pre style="color: #7cc990; font-size: x-large; text-align: center;">&lt;imgconceal&gt;</pre>
+      <!-- Links to other pages -->
+      <a href="/">Home</a>
+      <a href="{{ 'help' | relative_url}}">How to use</a>
+      <a href="{{ 'docs' | relative_url}}">Documentation</a>
+      <a href="{{ 'algorithm' | relative_url}}">How it works</a>
+      <a href="{{ 'examples' | relative_url}}">Example images</a>
+      <a href="https://github.com/tbpaolini/imgconceal/releases">Downloads</a>
+      <a href="https://github.com/tbpaolini/imgconceal">Source code</a>
+    </div>
+    <div class="right-column">
+      <!-- Main text of the page -->
+      {{ content }}
+    </div>
+  </div>
+  <small style="text-align: right; display: block;">Copyright © 2023 by Tiago Becerra Paolini</small>
+</body>
+
+</html>

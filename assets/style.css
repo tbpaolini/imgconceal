@@ -1,0 +1,51 @@
+body {
+  background-color: #7EA7D8;
+  margin: 10px;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.left-column {
+  width: 20%;
+  background-color: #002147;
+  color: #FFFFFF;
+  font-size: larger;
+  font-family: math;
+  padding: 10px;
+}
+
+.right-column {
+  width: 80%;
+  background-color: #7ED4D9;
+  color: #333333;
+  border: 2px solid #002147;
+  padding: 0px 10px;
+  font-family: sans-serif;
+}
+
+/* Scroll code blocks if they would go beyond the page */
+.container .right-column pre {
+  overflow: auto;
+  display: block;
+  padding: 10px;
+  border-style: ridge;
+}
+
+/* Additional styling for links */
+.left-column a {
+  color: #FFFFFF;
+  text-decoration: none;
+  display: inline-block;
+  width: 100%;
+  padding: 5px 0px;
+  text-indent: 10px;
+}
+
+.left-column a:hover {
+  text-decoration: underline;
+  color: yellow;
+  background-color: #002f66;
+}
