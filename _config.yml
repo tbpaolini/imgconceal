@@ -11,3 +11,6 @@ input: GFM
 collections:
   pages:
     output: true
+
+plugins:
+  - jekyll-sitemap  # Generate a sitemap.xml file for search engines
