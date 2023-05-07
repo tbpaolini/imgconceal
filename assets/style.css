@@ -34,6 +34,13 @@ body {
   border-style: ridge;
 }
 
+/* Do not break inlined code between lines */
+.right-column p > code,
+.right-column td > code
+{
+  white-space: nowrap;
+}
+
 /* Additional styling for links */
 .left-column a {
   color: #FFFFFF;
