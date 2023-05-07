@@ -56,3 +56,9 @@ body {
   color: yellow;
   background-color: #002f66;
 }
+
+/* Keep the sidebar's links always visible when scrolling the page */
+.left-column .sidebar {
+  position: sticky;
+  top: 1em;
+}
