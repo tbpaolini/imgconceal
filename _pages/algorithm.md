@@ -2,6 +2,7 @@
 layout: default
 title: Algorithm
 permalink: /algorithm/
+last_modified_at: 2023-05-06 16:55:04 -0300
 ---
 
 # Algorithm of *imgconceal*

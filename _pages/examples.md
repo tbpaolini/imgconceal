@@ -2,6 +2,7 @@
 layout: default
 title: Example images
 permalink: /examples/
+last_modified_at: 2023-05-09 16:37:06 -0300
 ---
 
 <style>
