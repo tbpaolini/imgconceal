@@ -7,20 +7,24 @@ title: Home
 **imgconceal** is a free and open source steganography tool for hiding files inside JPEG and PNG images. The images with hidden data look the same to the human eye as a regular image. A password can be used so only those who you want can extract the data.
 
 Features:
+* Available for **Windows** and **Linux**.
+* Self-contained (requires no installation and has no dependencies).
 * Compression and encryption of the hidden data.
 * Can hide multiple files in a single image.
 * Can hide other files after on the same image.
 * Preserves the metadata of the cover image and the hiddes files.
 
-## Downloads - version {{ site.data.imgconceal.version }}:
-* [imgconceal for Windows]({{ site.data.imgconceal.download }}v{{ site.data.imgconceal.version }}{{ site.data.imgconceal.windows }})
-* [imgconceal for Linux]({{ site.data.imgconceal.download }}v{{ site.data.imgconceal.version }}{{ site.data.imgconceal.linux }})
+<p style="padding-top: 0.5em;">
+    <a href="https://github.com/tbpaolini/imgconceal/releases/tag/v{{ site.data.imgconceal.version }}" id="download" title="Get the latest release of imgconceal" rel="external" target="_blank">
+    Download - version {{ site.data.imgconceal.version }}
+    </a>
+</p>
 
-This is a self-contained command line program, it requires no installation and has no dependencies. It is licensed under the [MIT License](https://github.com/tbpaolini/imgconceal/blob/master/License.txt).
+Software licensed under the <a href="https://github.com/tbpaolini/imgconceal/blob/master/License.txt" rel="license" target="_blank">MIT License</a>.
 
 ## Quickstart
 
-This is a command-line tool, so it needs to be run from a terminal. For Hiding a file in an image:
+This is a command-line tool. For Hiding a file in an image, run on a terminal:
 ```shell
 imgconceal -i "path to cover image" -h "path to file being hidden" -p "password for extraction"
 ```

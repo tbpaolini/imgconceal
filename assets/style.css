@@ -57,6 +57,19 @@ body {
   background-color: #002f66;
 }
 
+a#download {
+  background-color: #033a16;
+  color: white;
+  padding: 0.5em;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+a#download:hover {
+  border: 1px solid gold;
+  margin: -1px;
+}
+
 /* Keep the sidebar's links always visible when scrolling the page */
 .left-column .sidebar {
   position: sticky;
