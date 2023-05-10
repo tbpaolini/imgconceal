@@ -10,6 +10,7 @@
 
   <meta name="description" content="imgconceal is a steganography tool for hiding files in JPEG and PNG images." />
   <meta http-equiv="content-language" content="en-us" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
 
 </head>
 
@@ -17,23 +18,27 @@
   <div class="container">
     <div class="left-column">
       <div class="sidebar">
-      <pre style="color: #7cc990; font-size: x-large; text-align: center;">&lt;imgconceal&gt;</pre>
-      <!-- Links to other pages -->
-      <a href="{{ '/' | relative_url}}">Home</a>
-      <a href="{{ 'help' | relative_url}}" rel="help">How to use</a>
-      <a href="{{ 'docs' | relative_url}}">Documentation</a>
-      <a href="{{ 'algorithm' | relative_url}}">How it works</a>
-      <a href="{{ 'examples' | relative_url}}">Example images</a>
-      <a href="https://github.com/tbpaolini/imgconceal/releases" rel="external" target="_blank">Downloads</a>
-      <a href="https://github.com/tbpaolini/imgconceal" rel="external" target="_blank">Source code</a>
+        <span id="sidebar-title">&lt;imgconceal&gt;</span>
+        <a href="javascript:void(0);" id="sidebar-toggle" onclick="menu_toggle()">&#9776;</a>
+        <!-- Links to other pages -->
+        <nav id="sidebar-links">
+          <a href="{{ '/' | relative_url}}">Home</a>
+          <a href="{{ 'help' | relative_url}}" rel="help">How to use</a>
+          <a href="{{ 'docs' | relative_url}}">Documentation</a>
+          <a href="{{ 'algorithm' | relative_url}}">How it works</a>
+          <a href="{{ 'examples' | relative_url}}">Example images</a>
+          <a href="https://github.com/tbpaolini/imgconceal/releases" rel="external" target="_blank">Downloads</a>
+          <a href="https://github.com/tbpaolini/imgconceal" rel="external" target="_blank">Source code</a>
+        </nav>
       </div>
     </div>
-    <div class="right-column">
+    <div class="right-column" onclick="menu_hide()">
       <!-- Main text of the page -->
       {{ content }}
     </div>
   </div>
   <small style="text-align: right; display: block;">Copyright © 2023 by Tiago Becerra Paolini</small>
+  <script src="{{ 'assets/menu.js' | relative_url }}"></script>
 </body>
 
 </html>

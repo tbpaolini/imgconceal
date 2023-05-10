@@ -26,6 +26,19 @@ body {
   font-family: sans-serif;
 }
 
+#sidebar-title {
+  display: block;
+  margin: 1em 0;
+  color: #7cc990;
+  font-size: x-large;
+  text-align: center;
+  font-family: monospace;
+}
+
+#sidebar-toggle {
+  display: none;
+}
+
 /* Scroll code blocks if they would go beyond the page */
 .container .right-column pre {
   overflow: auto;
@@ -74,4 +87,63 @@ a#download:hover {
 .left-column .sidebar {
   position: sticky;
   top: 1em;
+}
+
+/* Mobile layout (sidebar links can be shown or hidden through an "hamburger menu") */
+
+@media (max-width: 768px) {
+  body {
+    background-color: #7ED4D9;
+    margin: 0;
+    text-size-adjust: auto;
+    -ms-text-size-adjust: auto;
+    -moz-text-size-adjust: auto;
+    -webkit-text-size-adjust: auto;
+  }
+  
+  .container {
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .left-column {
+    width: 100%;
+    padding: 0.5em 0;
+    position: sticky;
+    top: 0;
+  }
+
+  .right-column {
+    width: 95%;
+    padding: 0;
+    border: 0;
+    margin: 0 auto;
+  }
+
+  #sidebar-title {
+    margin: 0;
+    display: block;
+    text-align: left;
+    padding-left: 0.25em;
+  }
+
+  #sidebar-toggle {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    font-size: 1.5em;
+    width: auto;
+    padding: 0 0.25em;
+    text-indent: 0;
+  }
+
+  #sidebar-toggle:hover {
+    text-decoration: none;
+  }
+
+  #sidebar-links {
+    display: none;
+    margin-top: 0.5em;
+  }
 }
