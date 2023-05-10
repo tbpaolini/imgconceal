@@ -11,7 +11,7 @@ function menu_toggle() {
 // Hide the navigation links when clicking outside the sidebar
 function menu_hide() {
     var x = document.getElementById("sidebar-links");
-    if (x.style.display === "block") {
+    if (x.style.display === "block" && window.innerWidth <= 768) {
         x.style.display = "none";
     }
 }
