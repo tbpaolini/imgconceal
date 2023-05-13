@@ -32,7 +32,7 @@ These are all the command-line arguments that `imgconceal` accepts:
 |`-n`, `--no-password` | Do not use a password for encrypting and scrambling the hidden data. That means the data will be able to be extracted without needing a password. This option can be used with `--hide`, `--extract`, or `--check`. |
 |`-s`, `--silent` |  Do not print any progress information (errors are still shown). |
 |`-v`, `--verbose` | Print detailed progress information. |
-|`--algorithm` | Print a summary of the [algorithm used by imgconceal]({{ 'algorithm' | relative_url}}), then exit. |
+|`--algorithm` | Print a summary of the [algorithm used by imgconceal]({{ 'algorithm/' | relative_url }}), then exit. |
 |`-?`, `--help` |  give this help list |
 |`--usage` | give a short usage message |
 |`-V`, `--version` | print program version |

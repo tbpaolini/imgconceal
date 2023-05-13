@@ -80,4 +80,4 @@ You can add the argument `--verbose` (or `-v`) to any operation in order to disp
 
 When hiding a file, the default behavior is to overwrite the existing hidden files on the cover image. You can avoid that by adding the `--append` (or `-a`) argument. In order for appending to work, **the password used must be the same** as used for the previous files, otherwise the operation will fail (the existing files remain untouched).
 
-You can run `imgconceal --help` in order to see all available command line arguments and their descriptions, or just check the [Documentation]({{ 'docs' | relative_url}}). We also provide [some images]({{ 'examples' | relative_url}}) for you to test the program on.
+You can run `imgconceal --help` in order to see all available command line arguments and their descriptions, or just check the [Documentation]({{ 'docs/' | relative_url}}). We also provide [some images]({{ 'examples/' | relative_url }}) for you to test the program on.

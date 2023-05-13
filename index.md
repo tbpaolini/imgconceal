@@ -34,4 +34,4 @@ And for extracting the file hidden in the image:
 imgconceal -e "path to cover image" -p "password for extraction"
 ```
 
-For all commands, please refer to [How to use]({{ 'help' | relative_url }}) and the [Documentation]({{ 'docs' | relative_url }}). You can also try the program on some [example images]({{ 'examples' | relative_url}}).
+For all commands, please refer to [How to use]({{ 'help/' | relative_url }}) and the [Documentation]({{ 'docs/' | relative_url }}). You can also try the program on some [example images]({{ 'examples/' | relative_url}}).
