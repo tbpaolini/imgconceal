@@ -12,7 +12,7 @@ This is a command line program that is available for both Windows and Linux oper
 
 This is a command line program, so you need to run `imgconceal` on a terminal. Currently there is no graphical user interface (GUI), though that is not off the table for a future update.
 
-You can just put the executable on the folder where you want to run it, or add the executable's folder to the `PATH` enviroment variable of your system so you can run `imgconceal` from anywhere.
+You can just put the executable on the folder where you want to run it, or add the executable's folder to the `PATH` environment variable of your system so you can run `imgconceal` from anywhere.
 
 ### Hiding
 
