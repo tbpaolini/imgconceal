@@ -582,6 +582,30 @@ int imc_steg_extract(CarrierImage *carrier_img)
     char file_name[name_len + 16];  // Extra size added in case it needs to be renamed for avoinding name collision
     memset(file_name, 0, sizeof(file_name));
     memcpy(file_name, file_info->file_name, name_len);
+
+    // On Windows, replace by an underscore the forbidden filename characters
+    #ifdef _WIN32
+    static const char forbidden_chars[] = "\\/|;:*?<>";
+    for (size_t i = 0; i < (name_len - 1); i++)
+    {
+        char *const my_char = &file_name[i];
+        for (size_t j = 0; j < (sizeof(forbidden_chars) - 1); j++)
+        {
+            if (*my_char == forbidden_chars[j]) *my_char = '_';
+        }
+        if (iscntrl(*my_char)) *my_char = '_';
+    }
+    #endif
+    /* Note:
+        I am doing this because Linux allows some characters that Windows doesn't,
+        so the extraction works on Windows, even if the user had a filename on Linux
+        that is not allowed on Windows.
+        Other than what the operating system itself already disallows, I don't want to
+        limit which characters the user can have on filenames. Because my design choice
+        is to restore the file as close to the original as possible.
+    */
+    
+    // Make the filename unique (if it already isn't)
     bool is_unique = __resolve_filename_collision(file_name);
     if (!is_unique) return IMC_ERR_FILE_EXISTS;
 
