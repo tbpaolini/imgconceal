@@ -630,6 +630,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
                     if (mode == CHECK)
                     {
                         if (has_file) printf("\n");
+                        else if (opt->verbose) printf("\n");
                         
                         printf("Found file '%s':\n", steg_image->steg_info->file_name);
                         

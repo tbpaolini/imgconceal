@@ -426,6 +426,7 @@ int imc_steg_extract(CarrierImage *carrier_img)
 
     // Read the encrypted stream into a buffer
     uint8_t *crypto_buffer = imc_malloc(crypto_size);
+    if (carrier_img->verbose && carrier_img->just_check) printf("\n");
     if (carrier_img->verbose) printf("Reading hidden file... ");
     read_status = __read_payload(carrier_img, crypto_size, crypto_buffer);
     if (!read_status)
