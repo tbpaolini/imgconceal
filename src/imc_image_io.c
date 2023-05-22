@@ -346,7 +346,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
         if ( carrier_img->verbose && (i % 512 == 0) )
         {
             const double percent = ((double)i / (double)crypto_size) * 100.0;
-            printf("Writing encrypted '%s' to the carrier... %.1f %%\r", file_name, percent);
+            printf_prog("Writing encrypted '%s' to the carrier... %.1f %%\r", file_name, percent);
         }
     }
 
@@ -725,7 +725,7 @@ static void __jpeg_read_callback(j_common_ptr jpeg_obj)
 
     // Percentage completed
     const double percent = ((pass_count + (unit_count / unit_max)) / pass_max) * 100.0;
-    printf("Reading JPEG image... %.1f %%\r", percent);
+    printf_prog("Reading JPEG image... %.1f %%\r", percent);
 }
 
 // Get bytes of a JPEG image that will carry the hidden data
@@ -806,7 +806,7 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
                 const double row_fraction = ((double)y / row_count) / (double)jpeg_obj->num_components;
                 const double comp_fraction = (double)comp / (double)jpeg_obj->num_components;
                 const double percent = (comp_fraction + row_fraction) * 100.0;
-                printf("Scanning cover image for suitable carrier bits... %.1f %%\r", percent);
+                printf_prog("Scanning cover image for suitable carrier bits... %.1f %%\r", percent);
             }
 
             // Iterate column by column from left to right
@@ -887,7 +887,7 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
 static void __png_read_callback(png_structp png_obj, png_uint_32 row, int pass)
 {
     const double percent = (((double)pass + ((double)row / png_num_rows)) / png_num_passes) * 100.0;
-    printf("Reading PNG image... %.1f %%\r", percent);
+    printf_prog("Reading PNG image... %.1f %%\r", percent);
 }
 
 // Get bytes of a PNG image that will carry the hidden data
@@ -1007,7 +1007,7 @@ void imc_png_carrier_open(CarrierImage *carrier_img)
         if (carrier_img->verbose)
         {
             const double percent = ((double)y / (double)height) * 100.0;
-            printf("Scanning cover image for suitable carrier bits... %.1f %%\r", percent);
+            printf_prog("Scanning cover image for suitable carrier bits... %.1f %%\r", percent);
         }
         
         for (size_t x = 0; x < width; x++)
@@ -1220,7 +1220,7 @@ static void __jpeg_write_callback(j_common_ptr jpeg_obj)
 
     // Percentage completed
     const double percent = ((pass_count + (unit_count / unit_max)) / pass_max) * 100.0;
-    printf("Writing JPEG image... %.1f %%\r", percent);
+    printf_prog("Writing JPEG image... %.1f %%\r", percent);
 }
 
 // Write the carrier bytes back to the JPEG image, and save it as a new file
@@ -1294,7 +1294,7 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
                 const double row_fraction = ((double)y / row_count) / (double)jpeg_obj_in->num_components;
                 const double comp_fraction = (double)comp / (double)jpeg_obj_in->num_components;
                 const double percent = (comp_fraction + row_fraction) * 100.0;
-                printf("Writing carrier back to the cover image... %.1f %%\r", percent);
+                printf_prog("Writing carrier back to the cover image... %.1f %%\r", percent);
             }
 
             // Iterate column by column from left to right
@@ -1387,7 +1387,7 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
 static void __png_write_callback(png_structp png_obj, png_uint_32 row, int pass)
 {
     const double percent = (((double)pass + ((double)row / png_num_rows)) / png_num_passes) * 100.0;
-    printf("Writing PNG image... %.1f %%\r", percent);
+    printf_prog("Writing PNG image... %.1f %%\r", percent);
 }
 
 // Write the carrier bytes back to the PNG image, and save it as a new file
