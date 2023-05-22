@@ -14,6 +14,7 @@ some conflicts with the symbols defined by `windows.h` or the standard libraries
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdarg.h>
 #include <string.h>
 #include <math.h>
 #include <locale.h>

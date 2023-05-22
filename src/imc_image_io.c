@@ -1713,6 +1713,28 @@ void imc_steg_finish(CarrierImage *carrier_img)
     imc_free(carrier_img);
 }
 
+// Print text at most once each 1/6 second
+// Note: function intended for the progress monitor, it uses the same format as 'printf()'.
+void printf_prog(const char *format, ...)
+{
+    static const clock_t wait_millis = 166;   // Amount of milliseconds to wait before printing again
+    static clock_t last_time = -wait_millis;  // Timestamp (in milliseconds) when printed for the last time
+    
+    // Get the current timestamp (in milliseconds)
+    clock_t now = (clock() * 1000) / CLOCKS_PER_SEC;
+    
+    // Print the formatted text if at least 166 milliseconds have passed
+    if (now - last_time >= wait_millis)
+    {
+        va_list arguments;
+        va_start(arguments, format);
+        vprintf(format, arguments);
+        fflush(stdout);
+        va_end(arguments);
+        last_time = now;
+    }
+}
+
 /* Windows compatibility functions */
 #ifdef _WIN32
 

@@ -203,6 +203,10 @@ int imc_steg_save(CarrierImage *carrier_img, const char *save_path);
 // Free the memory of the data structures used for steganography
 void imc_steg_finish(CarrierImage *carrier_img);
 
+// Print text at most once each 1/6 second
+// Note: function intended for the progress monitor, it uses the same format as 'printf()'.
+void printf_prog(const char *format, ...);
+
 /* Windows compatibility functions */
 #ifdef _WIN32
 
