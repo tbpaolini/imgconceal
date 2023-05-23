@@ -1,10 +1,11 @@
 #include "imc_includes.h"
 
-const char *argp_program_version = "imageconceal version 1.0.2 (built on "__DATE__" at "__TIME__")\n"\
+const char *argp_program_version = "imageconceal version 1.0.3 (built on "__DATE__" at "__TIME__")\n"\
     "Copyright (c) 2023 Tiago Becerra Paolini.\n"\
     "Licensed under the MIT license.\n"\
-    "https://github.com/tbpaolini/imgconceal\n"\
-    "Contact: <tpaolini@gmail.com>";
+    "Website: https://tbpaolini.github.io/imgconceal/\n"\
+    "Repository: https://github.com/tbpaolini/imgconceal\n"\
+    "Author's email: tpaolini@gmail.com";
 const char *argp_program_bug_address = "<https://github.com/tbpaolini/imgconceal/issues> or <tpaolini@gmail.com>";
 
 int main(int argc, char *argv[])
