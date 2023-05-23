@@ -1,3 +1,10 @@
+Version 1.0.3 - May 23, 2023
+- Added the ability to choose the output folder for the extracted files, which can be done with the `--output` option.
+- When extracting hidden files on Windows, forbidden characters on the filename are now replaced by underscores. This is being done because Linux allows on filenames some characters that Windows doesn't, and we want to keep interoperable both the Windows and Linux versions of this program.
+- When checking an image, and the `--verbose` option is enabled, more line breaks where added to the terminal's output in order to improve readability.
+- The progress monitor (`--verbose` option) is now updated at most once 1/6 second, in order to prevent it from slowing down the whole program.
+- Added an icon to the executable on Windows.
+
 Version 1.0.2 - May 3, 2023
 - Now it is possible to pass multiple file paths to the `--hide` (or `-h`) argument.
 - Now when using the `--append` option while hiding files, the operation will fail if no existing hidden files can be found. This prevents the existing data from being overwritten in case of a wrong password.
