@@ -26,6 +26,7 @@ some conflicts with the symbols defined by `windows.h` or the standard libraries
 #ifdef _WIN32
 #include <windows.h>    // Microsoft Windows API
 #include <io.h>         // For the _get_osfhandle() function
+#include <direct.h>     // _getcwd(), _mkdir(), _chdir(), _rmdir()
 #else // Linux / Unix
 #include <unistd.h>
 #include <sys/stat.h>
