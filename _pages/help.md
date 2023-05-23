@@ -2,7 +2,7 @@
 layout: default
 title: Help
 permalink: /help/
-last_modified_at: 2023-05-06 16:55:04 -0300
+last_modified_at: 2023-05-23 20:33:58 -0300
 ---
 
 # Help
@@ -47,7 +47,13 @@ imgconceal --extract "path to the cover image" --password "the same password use
 
 If you didn't use a password for hiding, you can pass the argument `--no-password` instead of `--password "..."`. If the password is correct, the hidden files will be saved to the current folder.
 
-If a extracted file has the same name as one that already exists, it will be renamed automatically (so no previously existing file is overwritten). You get status messages informing the names of the extracted files.
+By default, the files are extracted to the current directory. If you prefer to extract the files to somewhere else, you can use the `--output` option:
+
+```shell
+imgconceal --extract "image" --output "folder" --password "your password"
+```
+
+Either way, if a extracted file has the same name as one that already exists, it will be renamed automatically (so no previously existing file is overwritten). You get status messages informing the names of the extracted files.
 
 ### Checking an image for hidden data
 
