@@ -8,6 +8,7 @@ ifeq ($(OS),Windows_NT)
 	SHELL := cmd.exe
     CFLAGS := -D_UCRT -I "lib" -L "lib" -I "\msys64\ucrt64\include" -L "\msys64\ucrt64\lib" $(CFLAGS) -largp
     DIR := bin/windows
+	OBJECTS := src/resources.o $(OBJECTS)
     EXECUTABLE := imgconceal.exe
 else
     DIR := bin/linux
@@ -44,6 +45,11 @@ lib/libargp.a: lib/libargp-20110921
 	copy /Y lib\libargp-20110921\gllib\.libs\libargp.a lib\libargp.a
 	copy /Y lib\libargp-20110921\gllib\.libs\libargp.la lib\libargp.la
 	copy /Y lib\libargp-20110921\gllib\argp.h lib\argp.h
+endif
+
+ifeq ($(OS),Windows_NT)
+src/resources.o: src/resources.rc
+	-windres -i $< -o $@
 endif
 
 # Build the executable

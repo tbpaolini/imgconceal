@@ -1,0 +1,33 @@
+#include <winver.h>   // Macros for specifying the version of Windows programs
+
+// Icon of the executable
+1 ICON resources-icon.ico
+
+// Metadata of the executable
+VS_VERSION_INFO VERSIONINFO 
+FILEVERSION     1,0,3,0
+PRODUCTVERSION  1,0,3,0
+FILETYPE        VFT_APP
+FILESUBTYPE     0
+{
+    BLOCK "StringFileInfo"
+    {
+        BLOCK "040904E4" // U.S. English - multilingual charset
+        {
+            VALUE "CompanyName",      "Tiago Becerra Paolini\0"
+            VALUE "FileDescription",  "Image steganography tool for JPEG and PNG\0"
+            VALUE "FileVersion",      "1.0.3.0\0"
+            VALUE "InternalName",     "image conceal\0"
+            VALUE "LegalCopyright",   "(c) 2023 by Tiago Becerra Paolini\0"
+            VALUE "OriginalFilename", "imgconceal.exe\0"
+            VALUE "ProductName",      "imgconceal\0"
+            VALUE "ProductVersion",   "1.0.3.0\0"
+            VALUE "Comments",         "Licensed under the MIT License. Repository: https://github.com/tbpaolini/imgconceal\0"
+        }    
+    }
+
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x409, 0x4E4   // English, multilingual
+    }
+}
