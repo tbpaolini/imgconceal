@@ -3,8 +3,8 @@
 *imgconceal* is a tool for image steganography, that can hide files inside JPEG and PNG images, with or without a password for extracting the data later. The image with hidden data looks the same to the human eye as the regular image.
 
 **Downloads:**
-* [imgconceal for Windows](https://github.com/tbpaolini/imgconceal/releases/download/v1.0.2/imgconceal.exe)
-* [imgconceal for Linux](https://github.com/tbpaolini/imgconceal/releases/download/v1.0.2/imgconceal)
+* [imgconceal for Windows](https://github.com/tbpaolini/imgconceal/releases/download/v1.0.3/imgconceal.exe) (1.80 MB)
+* [imgconceal for Linux](https://github.com/tbpaolini/imgconceal/releases/download/v1.0.3/imgconceal) (2.23 MB)
 
 This is a command line program that is available for both Windows and Linux operating systems.  *imgconceal* is a standalone executable, requiring no installation or shared libraries (DLL or SO).
 
@@ -48,9 +48,15 @@ To extract the files hidden in an image, run this command:
 
 If you didn't use a password for hiding, you can pass the argument `--no-password` instead of `--password "..."`. If the password is correct, the hidden files will be saved to the current folder.
 
-If a extracted file has the same name as one that already exists, it will be renamed automatically (so no previously existing file is overwritten). You get status messages informing the names of the extracted files.
+By default, the files are extracted to the current directory. If you prefer to extract the files to somewhere else, you can use the `--output` option:
 
-*Tip:* You can check our [example images](https://tbpaolini.github.io/imgconceal/examples/) to practice extracting data from them.
+```shell
+./imgconceal --extract "image" --output "folder" --password "your password"
+```
+
+Either way, if a extracted file has the same name as one that already exists, it will be renamed automatically (so no previously existing file is overwritten). You get status messages informing the names of the extracted files.
+
+*Tip:* You can check our [example images](https://tbpaolini.github.io/imgconceal/examples/) to test extracting data from them.
 
 ### Checking an image for hidden data
 
@@ -97,7 +103,8 @@ Hiding a file on an image:
 [--password=TEXT | --no-password]
 
 Extracting a hidden file from an image:
-  imgconceal --extract=IMAGE [--password=TEXT | --no-password]
+  imgconceal --extract=IMAGE [--output=FOLDER] [--password=TEXT |
+--no-password]
 
 Check if an image has data hidden by this program:
   imgconceal --check=IMAGE [--password=TEXT | --no-password]
@@ -127,10 +134,13 @@ All options:
                              where to hide another file). Please use the
                              '--output' option to specify where to save the
                              modified image.
-  -o, --output=IMAGE         Path to where to save the image with hidden data.
-                             If this option is not used, the output file will
-                             be named automatically (a number is added to the
-                             name of the original file).
+  -o, --output=PATH          When hiding files in an image, this is the
+                             filename where to save the image with hidden data
+                             (if this option is not used, the new image is
+                             named automatically). When extracting files from
+                             an image, this option is the directory where to
+                             save the extracted files (if not used, the files
+                             are extracted to the current working directory).
   -a, --append               When hiding a file with the '--hide' option,
                              append the new file instead of overwriting the
                              existing hidden files. For this option to work,
