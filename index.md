@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Home
-last_modified_at: 2023-05-09 18:17:39 -0300
+last_modified_at: 2023-05-23 20:26:26 -0300
 ---
 # imgconceal: image steganography on JPEG and PNG
 
@@ -21,7 +21,7 @@ Features:
     </a>
 </p>
 
-Free software licensed under the <a href="https://github.com/tbpaolini/imgconceal/blob/master/License.txt" rel="license" target="_blank">MIT License</a>.
+This free software is licensed under the <a href="https://github.com/tbpaolini/imgconceal/blob/master/License.txt" rel="license" target="_blank">MIT License</a>.
 
 ## Quickstart
 
