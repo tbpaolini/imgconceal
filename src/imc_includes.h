@@ -25,7 +25,7 @@ some conflicts with the symbols defined by `windows.h` or the standard libraries
 // System libraries
 #ifdef _WIN32
 #include <windows.h>    // Microsoft Windows API
-#include <io.h>         // For the _get_osfhandle() functions
+#include <io.h>         // For the _get_osfhandle() function
 #else // Linux / Unix
 #include <unistd.h>
 #include <sys/stat.h>
