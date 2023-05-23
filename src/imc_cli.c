@@ -13,9 +13,10 @@ static const struct argp_option argp_options[] = {
         "The extracted files will have the same names and timestamps as when they were hidden.", 1},
     {"input", 'i', "IMAGE", 0, "Path to the cover image (the JPEG or PNG file where to hide another file). "\
         "Please use the '--output' option to specify where to save the modified image.", 2},
-    {"output", 'o', "IMAGE", 0, "Path to where to save the image with hidden data. "\
-        "If this option is not used, the output file will be named automatically "\
-        "(a number is added to the name of the original file).", 2},
+    {"output", 'o', "PATH", 0, "When hiding files in an image, this is the filename where "
+        "to save the image with hidden data (if this option is not used, the new image is named automatically). "
+        "When extracting files from an image, this option is the directory where to save the extracted files "
+        "(if not used, the files are extracted to the current working directory).", 2},
     {"hide", 'h', "FILE", 0, "Path to the file being hidden in the cover image. "\
         "This option can be specified multiple times in order to hide more than one file. "\
         "You can also pass more than one path to this option in order to hide multiple files. "\
@@ -47,7 +48,7 @@ static const char help_text[] = "\nSteganography tool for hiding and extracting 
     "Hiding a file on an image:\n"\
     "  imgconceal --input=IMAGE --hide=FILE [--output=NEW_IMAGE] [--append] [--password=TEXT | --no-password]\n\n"\
     "Extracting a hidden file from an image:\n"\
-    "  imgconceal --extract=IMAGE [--password=TEXT | --no-password]\n\n"\
+    "  imgconceal --extract=IMAGE [--output=FOLDER] [--password=TEXT | --no-password]\n\n"\
     "Check if an image has data hidden by this program:\n"\
     "  imgconceal --check=IMAGE [--password=TEXT | --no-password]\n\n"\
     "All options:\n";
@@ -455,6 +456,11 @@ static inline void __execute_options(struct argp_state *state, void *options)
         argp_error(state, "the 'append' option can only be used when hiding a file.");
     }
 
+    if ( (mode != HIDE && mode != EXTRACT) && opt->output )
+    {
+        argp_error(state, "the 'output' option can only be used when hiding or extracting files.");
+    }
+
     // Display a password prompt, if a password wasn't provided
     // (and the user did not specify the '--no-password' option)
     if (!opt->password)
@@ -613,6 +619,62 @@ static inline void __execute_options(struct argp_state *state, void *options)
     {
         bool has_file = false;  // Whether the image contains a hidden file
         
+        // Variables used in case the hidden files are being extracted to another folder
+        char *cwd_start = NULL;         // The current working directory at the beginning of extraction
+        bool outdir_existed = false;    // If the output directory already exists
+
+        // Create the output folder, if one was specified for the extracted files
+        if (mode == EXTRACT && opt->output)
+        {
+            // Remember the current working directory
+            #ifdef _WIN32
+            cwd_start = _getcwd(NULL, 0);  // Note: this function is allocating memory
+            #else // Linux
+            cwd_start = getcwd(NULL, 0);   // Note: this function is allocating memory
+            #endif
+
+            // Create the output folder
+            #ifdef _WIN32
+            const int mk_status = _mkdir(opt->output);
+            #else // Linux
+            const int mk_status = mkdir(opt->output, 0600); // Create with read and write access for only the current user
+            #endif
+
+            if (mk_status != 0)
+            {
+                if (errno == EEXIST)
+                {
+                    outdir_existed = true;   // We are not deleting the directory in case of error if it already existed
+                }
+                else
+                {
+                    // Exit with an error if the directory could not be created and it did not exist
+                    argp_failure(
+                        state, EXIT_FAILURE, 0,
+                        "Could not create output directory '%s'. Reason: %s.\n"
+                        "Note: only the last directory of a path is created, its parent directories must exist already.",
+                        opt->output, strerror(errno)
+                    );
+                }
+            }
+
+            // Change the current working directory to the output folder
+            #ifdef _WIN32
+            const int ch_status = _chdir(opt->output);
+            #else // Linux
+            const int ch_status = chdir(opt->output);
+            #endif
+
+            if (ch_status != 0)
+            {
+                argp_failure(
+                    state, EXIT_FAILURE, 0,
+                    "Could not extract the hidden files to the directory '%s'. Reason: %s.",
+                    opt->output, strerror(errno)
+                );
+            }
+        }
+        
         // Save or just check the files hidden on the image
         int unhide_status = IMC_SUCCESS;
         while (unhide_status == IMC_SUCCESS)
@@ -712,6 +774,28 @@ static inline void __execute_options(struct argp_state *state, void *options)
                 default:
                     argp_failure(state, EXIT_FAILURE, 0, "unknown error when extracting hidden data. (%d)", unhide_status);
                     break;
+            }
+        }
+
+        if (mode == EXTRACT && opt->output)
+        {
+            // Change the current working directory back to the initial one
+            #ifdef _WIN32
+            const int ch_status = _chdir(cwd_start);
+            #else // Linux
+            const int ch_status = chdir(cwd_start);
+            #endif
+
+            free(cwd_start);
+
+            // Remove the output directory if no file could be extracted and it didn't exist already
+            if (!has_file && !outdir_existed)
+            {
+                #ifdef _WIN32
+                const int ch_status = _rmdir(opt->output);
+                #else // Linux
+                const int ch_status = rmdir(opt->output);
+                #endif
             }
         }
 
