@@ -2,14 +2,14 @@
 layout: default
 title: Algorithm
 permalink: /algorithm/
-last_modified_at: 2023-05-06 16:55:04 -0300
+last_modified_at: 2023-05-23 20:46:01 -0300
 ---
 
 # Algorithm of *imgconceal*
 
 The password is hashed using the [Argon2id](https://datatracker.ietf.org/doc/html/rfc9106) algorithm, generating a pseudo-random sequence of 64 bytes. The first 32 bytes are used as the secret key for encrypting the hidden data ([XChaCha20-Poly1305](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-xchacha) algorithm), while the last 32 bytes are used to seed the pseudo-random number generator ([SHISHUA](https://espadrine.github.io/blog/posts/shishua-the-fastest-prng-in-the-world.html) algorithm) used for shuffling the positions on the image where the hidden data is written.
 
-In the case of a JPEG cover image, the hidden data is written to the least significant bits of the quantized [AC coefficients](https://en.wikipedia.org/wiki/JPEG#Discrete_cosine_transform) that are not 0 or 1. For a PNG cover image, the hidden data is written to the least significant bits of the RGB color values of the pixels that are not fully transparent. Other image formats are not currently supported as cover image, however any file format can be hidden on the cover image (size permitting). Before encryption, the hidden data is compressed using the [Deflate](https://www.zlib.net/feldspar.html) algorithm.
+In the case of a JPEG cover image, the hidden data is written to the least significant bits of the quantized [AC coefficients](https://en.wikipedia.org/wiki/JPEG#Discrete_cosine_transform) that are not 0 or 1 (that happens after the lossy step of the JPEG algorithm, so the hidden data is not lost). For a PNG cover image, the hidden data is written to the least significant bits of the RGB color values of the pixels that are not fully transparent. Other image formats are not currently supported as cover image, however any file format can be hidden on the cover image (size permitting). Before encryption, the hidden data is compressed using the [Deflate](https://www.zlib.net/feldspar.html) algorithm.
 
 All in all, the data hiding process goes as:
 
