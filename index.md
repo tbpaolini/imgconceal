@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Home
-last_modified_at: 2023-05-23 20:26:26 -0300
+last_modified_at: 2023-05-23 21:19:14 -0300
 ---
 # imgconceal: image steganography on JPEG and PNG
 
@@ -10,10 +10,10 @@ last_modified_at: 2023-05-23 20:26:26 -0300
 Features:
 * Available for **Windows** and **Linux**.
 * Self-contained (requires no installation and has no dependencies).
+* Fast and small executable (~2 MB).
 * Compression and encryption of the hidden data.
 * Can hide multiple files in a single image.
-* Can hide other files after on the same image.
-* Preserves the metadata of the cover image and the hiddes files.
+* Preserves the metadata of the cover image and of the hiddes files.
 
 <p style="padding-top: 0.5em;">
     <a href="https://github.com/tbpaolini/imgconceal/releases/tag/v{{ site.data.imgconceal.version }}" id="download" title="Get the latest release of imgconceal" rel="external" target="_blank">
