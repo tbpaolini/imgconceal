@@ -637,7 +637,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
             #ifdef _WIN32
             const int mk_status = _mkdir(opt->output);
             #else // Linux
-            const int mk_status = mkdir(opt->output, 0600); // Create with read and write access for only the current user
+            const int mk_status = mkdir(opt->output, 0700); // Create with read and write access for only the current user
             #endif
 
             if (mk_status != 0)
