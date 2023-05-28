@@ -10,9 +10,10 @@ static const struct argp_option argp_options[] = {
     "and estimate how much data can still be hidden on the image. "\
     "If a password was used to hide the data, you should also use the '--password' option.", 1},
     {"extract", 'e', "IMAGE", 0, "Extracts from the cover image the files that were hidden on it by this program."\
-        "The extracted files will have the same names and timestamps as when they were hidden.", 1},
+        "The extracted files will have the same names and timestamps as when they were hidden."\
+        "You can also use the '--output' option to specify the folder where the files are extracted into.", 1},
     {"input", 'i', "IMAGE", 0, "Path to the cover image (the JPEG or PNG file where to hide another file). "\
-        "Please use the '--output' option to specify where to save the modified image.", 2},
+        "You can also use the '--output' option to specify the name in which to save the modified image.", 2},
     {"output", 'o', "PATH", 0, "When hiding files in an image, this is the filename where "
         "to save the image with hidden data (if this option is not used, the new image is named automatically). "
         "When extracting files from an image, this option is the directory where to save the extracted files "
