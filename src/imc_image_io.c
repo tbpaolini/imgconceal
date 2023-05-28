@@ -1718,7 +1718,7 @@ void imc_steg_finish(CarrierImage *carrier_img)
 void printf_prog(const char *format, ...)
 {
     static const clock_t wait_millis = 166;   // Amount of milliseconds to wait before printing again
-    static clock_t last_time = -wait_millis;  // Timestamp (in milliseconds) when printed for the last time
+    static _Thread_local clock_t last_time = -wait_millis;  // Timestamp (in milliseconds) when printed for the last time
     
     // Get the current timestamp (in milliseconds)
     clock_t now = (clock() * 1000) / CLOCKS_PER_SEC;
