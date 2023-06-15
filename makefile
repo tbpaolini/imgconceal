@@ -1,6 +1,6 @@
 SOURCES := $(wildcard src/*.c) $(wildcard lib/*.c)
 OBJECTS := $(SOURCES:.c=.o)
-CFLAGS := -static -lsodium -ljpeg -lpng -lz
+CFLAGS := -static -lsodium -ljpeg -lpng -lwebp -lwebpmux -lsharpyuv -lz
 
 # Output directory and executable's name (depending on the operating system)
 # The Windows version is being linked with Microsoft's Universal C Runtime (UCRT)

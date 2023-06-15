@@ -43,6 +43,9 @@ some conflicts with the symbols defined by `windows.h` or the standard libraries
 #include <sodium.h>     // libsodium (cryptography)
 #include <jpeglib.h>    // libjpeg-turbo (JPEG images)
 #include <png.h>        // libpng (PNG images)
+#include <webp/decode.h>    // libwebp (WebP images - decoding)
+#include <webp/encode.h>    // libwebp (WebP images - encoding)
+#include <webp/mux.h>       // libwebp (WebP images - container manipulation)
 #include <zlib.h>       // data compression
 #include "../lib/shishua-sse2.h"    // Psueudo-random number generator
 
