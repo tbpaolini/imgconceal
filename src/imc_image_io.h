@@ -156,13 +156,13 @@ void imc_steg_seek_to_end(CarrierImage *carrier_img);
 // Progress monitor when reading a JPEG image
 static void __jpeg_read_callback(j_common_ptr jpeg_obj);
 
-// Get bytes of a JPEG image that will carry the hidden data
+// Get the bytes from a JPEG image that will carry the hidden data
 void imc_jpeg_carrier_open(CarrierImage *carrier_img);
 
 // Progress monitor when reading a PNG image
 static void __png_read_callback(png_structp png_obj, png_uint_32 row, int pass);
 
-// Get bytes of a PNG image that will carry the hidden data
+// Get the bytes from a PNG image that will carry the hidden data
 void imc_png_carrier_open(CarrierImage *carrier_img);
 
 // Change a file path in order to make it unique

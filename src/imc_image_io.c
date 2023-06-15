@@ -728,7 +728,7 @@ static void __jpeg_read_callback(j_common_ptr jpeg_obj)
     printf_prog("Reading JPEG image... %.1f %%\r", percent);
 }
 
-// Get bytes of a JPEG image that will carry the hidden data
+// Get the bytes from a JPEG image that will carry the hidden data
 void imc_jpeg_carrier_open(CarrierImage *carrier_img)
 {
     // Open the image for reading
@@ -890,7 +890,7 @@ static void __png_read_callback(png_structp png_obj, png_uint_32 row, int pass)
     printf_prog("Reading PNG image... %.1f %%\r", percent);
 }
 
-// Get bytes of a PNG image that will carry the hidden data
+// Get the bytes from a PNG image that will carry the hidden data
 void imc_png_carrier_open(CarrierImage *carrier_img)
 {
     // Allocate memory for the PNG processing structs
