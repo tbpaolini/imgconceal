@@ -26,6 +26,8 @@ int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **out
     // The file should start with one of these sequences of bytes
     static const uint8_t JPEG_MAGIC[] = {0xFF, 0xD8, 0xFF};
     static const uint8_t PNG_MAGIC[]  = {0x89, 0x50, 0x4E, 0x47};
+    static const uint8_t RIFF_MAGIC[] = {'R', 'I', 'F', 'F'};   // First 4 bytes of an WebP image
+    static const uint8_t WEBP_MAGIC[] = {'W', 'E', 'B', 'P'};   // Bytes 8 to 11 of an WebP image (counting from 0)
 
     // Get the file signature
     const size_t sig_size = 4;
@@ -49,8 +51,28 @@ int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **out
     {
         img_type = IMC_PNG;
     }
+    else if (memcmp(img_marker, RIFF_MAGIC, sizeof(RIFF_MAGIC)) == 0)
+    {
+        // Get the WebP file signature
+        // The first 8 bytes should be something like: RIFF....WEBP
+        // (where '....' is the file size)
+        fseek(image, 8, SEEK_SET);
+        fread(img_marker, 1, sizeof(WEBP_MAGIC), image);
+        fseek(image, 0, SEEK_SET);
+
+        // Check if the WebP signature matches
+        if (memcmp(img_marker, WEBP_MAGIC, sizeof(WEBP_MAGIC)) == 0)
+        {
+            img_type = IMC_WEBP;
+        }
+        else
+        {
+            goto file_magic_error;
+        }
+    }
     else
     {
+        file_magic_error:
         fclose(image);
         return IMC_ERR_FILE_INVALID;
     }
@@ -94,6 +116,12 @@ int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **out
             carrier_img->open  = &imc_png_carrier_open;
             carrier_img->save  = &imc_png_carrier_save;
             carrier_img->close = &imc_png_carrier_close;
+            break;
+        
+        case IMC_WEBP:
+            carrier_img->open  = &imc_webp_carrier_open;
+            carrier_img->save  = &imc_webp_carrier_save;
+            carrier_img->close = &imc_webp_carrier_close;
             break;
     }
     

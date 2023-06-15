@@ -41,7 +41,7 @@
 // Carrier: Array with the bytes that carry the hidden data
 typedef uint8_t *carrier_bytes_t;
 
-enum ImageType {IMC_JPEG, IMC_PNG};
+enum ImageType {IMC_JPEG, IMC_PNG, IMC_WEBP};
 
 // Pointers to the steganographic functions
 struct CarrierImage;
