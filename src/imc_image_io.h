@@ -165,6 +165,9 @@ static void __png_read_callback(png_structp png_obj, png_uint_32 row, int pass);
 // Get the bytes from a PNG image that will carry the hidden data
 void imc_png_carrier_open(CarrierImage *carrier_img);
 
+// Get the bytes from an WebP image that will carry the hidden data
+void imc_webp_carrier_open(CarrierImage *carrier_img);
+
 // Change a file path in order to make it unique
 // IMPORTANT: Function assumes that the path buffer must be big enough to store the new name.
 // (at most 5 characters are added to the path)
@@ -188,6 +191,12 @@ static void __png_write_callback(png_structp png_obj, png_uint_32 row, int pass)
 // Write the carrier bytes back to the PNG image, and save it as a new file
 int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path);
 
+// Progress monitor when writing a PNG image
+static int __webp_write_callback(int percent, const WebPPicture* webp_obj);
+
+// Write the carrier bytes back to the WebP image, and save it as a new file
+int imc_webp_carrier_save(CarrierImage *carrier_img, const char *save_path);
+
 // Free the memory of the array of heap pointers in a CarrierImage struct
 static void __carrier_heap_free(CarrierImage *carrier_img);
 
@@ -196,6 +205,9 @@ void imc_jpeg_carrier_close(CarrierImage *carrier_img);
 
 // Close the PNG object and free the memory associated to it
 void imc_png_carrier_close(CarrierImage *carrier_img);
+
+// Close the WebP object and free the memory associated to it
+void imc_webp_carrier_close(CarrierImage *carrier_img);
 
 // Save the image with hidden data
 int imc_steg_save(CarrierImage *carrier_img, const char *save_path);
