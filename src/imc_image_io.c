@@ -1142,9 +1142,9 @@ void imc_webp_carrier_open(CarrierImage *carrier_img)
     }
 
     // Data of the decoded WebP image (original file)
-    WebPDecoderConfig *dec_config = imc_calloc(1, sizeof(WebPDecoderConfig));
-    WebPInitDecoderConfig(dec_config);
-    VP8StatusCode status_vp8 = WebPGetFeatures(in_buffer, file_size, &dec_config->input);
+    WebPDecoderConfig *webp_obj = imc_calloc(1, sizeof(WebPDecoderConfig));
+    WebPInitDecoderConfig(webp_obj);
+    VP8StatusCode status_vp8 = WebPGetFeatures(in_buffer, file_size, &webp_obj->input);
 
     if (status_vp8 != VP8_STATUS_OK)
     {
@@ -1152,22 +1152,22 @@ void imc_webp_carrier_open(CarrierImage *carrier_img)
         exit(EXIT_FAILURE);
     }
 
-    if (dec_config->input.has_animation)
+    if (webp_obj->input.has_animation)
     {
         fprintf(stderr, "Error: Animated WebP images are not supported.\n");
         exit(EXIT_FAILURE);
     }
     
     // Set the decoding options
-    dec_config->options.use_threads = 1;     // Use multithreading
+    webp_obj->options.use_threads = 1;     // Use multithreading
     #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-    dec_config->output.colorspace = MODE_ARGB;   // 32-bit color value on big endian byte order
+    webp_obj->output.colorspace = MODE_ARGB;    // 32-bit color value on big endian byte order
     #else
-    dec_config->output.colorspace = MODE_BGRA;   // 32-bit color value on little endian byte order
+    webp_obj->output.colorspace = MODE_BGRA;    // 32-bit color value on little endian byte order
     #endif
     
     // Decode the original image
-    status_vp8 = WebPDecode(in_buffer, file_size, dec_config);
+    status_vp8 = WebPDecode(in_buffer, file_size, webp_obj);
     if (status_vp8 != VP8_STATUS_OK)
     {
         fprintf(stderr, "Error: Could not decode the WebP image. Reason: ");
