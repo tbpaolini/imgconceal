@@ -1108,7 +1108,95 @@ void imc_png_carrier_open(CarrierImage *carrier_img)
 // Get the bytes from an WebP image that will carry the hidden data
 void imc_webp_carrier_open(CarrierImage *carrier_img)
 {
+    // Get the total file size of the WebP image
 
+    #ifdef _WIN32   // Windows systems
+    
+    HANDLE file_handle = __win_get_file_handle(carrier_img->file);
+    LARGE_INTEGER file_size_win = {0};
+    GetFileSizeEx(file_handle, &file_size_win);
+    const size_t file_size = file_size_win.QuadPart;
+
+    #else   // Linux systems
+    
+    int file_descriptor = fileno(carrier_img->file);
+    struct stat file_stats = {0};
+    fstat(file_descriptor, &file_stats);
+    const size_t file_size = file_stats.st_size;
+
+    #endif
+
+    if (file_size > UINT32_MAX)
+    {
+        fprintf(stderr, "Error: Maximum size of an WebP image is 4 GB.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Input buffer (original image)
+    uint8_t *in_buffer = imc_malloc(file_size);
+    const size_t read_count = fread(in_buffer, 1, file_size, carrier_img->file);
+    if (read_count != file_size)
+    {
+        fprintf(stderr, "Error: WebP file could not be read.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Data of the decoded WebP image (original file)
+    WebPDecoderConfig *dec_config = imc_calloc(1, sizeof(WebPDecoderConfig));
+    WebPInitDecoderConfig(dec_config);
+    VP8StatusCode status_vp8 = WebPGetFeatures(in_buffer, file_size, &dec_config->input);
+
+    if (status_vp8 != VP8_STATUS_OK)
+    {
+        fprintf(stderr, "Error: Could not retrieve the header of the WebP image.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (dec_config->input.has_animation)
+    {
+        fprintf(stderr, "Error: Animated WebP images are not supported.\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Set the decoding options
+    dec_config->options.use_threads = 1;     // Use multithreading
+    #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+    dec_config->output.colorspace = MODE_ARGB;   // 32-bit color value on big endian byte order
+    #else
+    dec_config->output.colorspace = MODE_BGRA;   // 32-bit color value on little endian byte order
+    #endif
+    
+    // Decode the original image
+    status_vp8 = WebPDecode(in_buffer, file_size, dec_config);
+    if (status_vp8 != VP8_STATUS_OK)
+    {
+        fprintf(stderr, "Error: Could not decode the WebP image. Reason: ");
+        switch (status_vp8)
+        {
+            case VP8_STATUS_OUT_OF_MEMORY:
+                fprintf(stderr, "no enough memory.\n");
+                break;
+            
+            case VP8_STATUS_NOT_ENOUGH_DATA:
+                fprintf(stderr, "no enough data, the file appears to be corrupted.\n");
+                break;
+            
+            case VP8_STATUS_UNSUPPORTED_FEATURE:
+                fprintf(stderr, "image uses an unsupported feature.\n");
+                break;
+            
+            case VP8_STATUS_BITSTREAM_ERROR:
+                fprintf(stderr, "not a valid WebP image.\n");
+                break;
+            
+            default:
+                fprintf(stderr, "unknown.\n");
+                break;
+        }
+        exit(EXIT_FAILURE);
+    }
+
+    /* TO DO: scan for carrier bytes */
 }
 
 // Change a file path in order to make it unique
