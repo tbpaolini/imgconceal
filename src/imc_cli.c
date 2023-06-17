@@ -6,13 +6,13 @@
 
 // Command line options for imgconceal
 static const struct argp_option argp_options[] = {
-    {"check", 'c', "IMAGE", 0, "Check if a given JPEG or PNG image contains data hidden by this program, "\
+    {"check", 'c', "IMAGE", 0, "Check if a given JPEG, PNG or WebP image contains data hidden by this program, "\
     "and estimate how much data can still be hidden on the image. "\
     "If a password was used to hide the data, you should also use the '--password' option.", 1},
     {"extract", 'e', "IMAGE", 0, "Extracts from the cover image the files that were hidden on it by this program."\
         "The extracted files will have the same names and timestamps as when they were hidden."\
         "You can also use the '--output' option to specify the folder where the files are extracted into.", 1},
-    {"input", 'i', "IMAGE", 0, "Path to the cover image (the JPEG or PNG file where to hide another file). "\
+    {"input", 'i', "IMAGE", 0, "Path to the cover image (the JPEG, PNG or WebP file where to hide another file). "\
         "You can also use the '--output' option to specify the name in which to save the modified image.", 2},
     {"output", 'o', "PATH", 0, "When hiding files in an image, this is the filename where "
         "to save the image with hidden data (if this option is not used, the new image is named automatically). "
@@ -43,7 +43,7 @@ static const struct argp_option argp_options[] = {
 };
 
 // Help text to be shown above the options (when running with '--help')
-static const char help_text[] = "\nSteganography tool for hiding and extracting files on JPEG and PNG images. "\
+static const char help_text[] = "\nSteganography tool for hiding and extracting files on JPEG, PNG and WebP images. "\
     "Multiple files can be hidden in a single cover image, "\
     "and the hidden data can be (optionally) protected with a password.\n\n"\
     "Hiding a file on an image:\n"\
@@ -61,7 +61,7 @@ static const char imgconceal_algorithm_text[] = "The password is hashed using th
 "shuffling the positions on the image where the hidden data is written.\n\n"\
 \
 "In the case of a JPEG cover image, the hidden data is written to the least significant bits of "\
-"the quantized AC coefficients that are not 0 or 1. For a PNG cover image, the hidden data is "\
+"the quantized AC coefficients that are not 0 or 1. For a PNG or WebP cover image, the hidden data is "\
 "written to the least significant bits of the RGB color values of the pixels that are not fully "\
 "transparent. Other image formats are not currently supported as cover image, however any file "\
 "format can be hidden on the cover image (size permitting). Before encryption, the hidden data is "\
@@ -518,7 +518,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
             break;
         
         case IMC_ERR_PATH_IS_DIR:
-            argp_failure(state, EXIT_FAILURE, 0, "'%s' is a directory, instead of a JPEG or PNG image.", steg_path);
+            argp_failure(state, EXIT_FAILURE, 0, "'%s' is a directory; instead of a JPEG, PNG or WebP image.", steg_path);
             break;
         
         case IMC_ERR_FILE_NOT_FOUND:
@@ -526,7 +526,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
             break;
         
         case IMC_ERR_FILE_INVALID:
-            argp_failure(state, EXIT_FAILURE, 0, "file '%s' is not a valid JPEG or PNG image.", steg_path);
+            argp_failure(state, EXIT_FAILURE, 0, "file '%s' is not a valid JPEG, PNG or WebP image.", steg_path);
             break;
         
         case IMC_ERR_NO_MEMORY:
