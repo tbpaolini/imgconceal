@@ -1132,6 +1132,12 @@ void imc_webp_carrier_open(CarrierImage *carrier_img)
         exit(EXIT_FAILURE);
     }
 
+    if (carrier_img->verbose)
+    {
+        printf("Reading WebP image... ");
+        fflush(stdin);
+    }
+
     // Input buffer (original image)
     uint8_t *in_buffer = imc_malloc(file_size);
     const size_t read_count = fread(in_buffer, 1, file_size, carrier_img->file);
@@ -1148,12 +1154,14 @@ void imc_webp_carrier_open(CarrierImage *carrier_img)
 
     if (status_vp8 != VP8_STATUS_OK)
     {
+        if (carrier_img->verbose) fprintf(stderr, "\n");
         fprintf(stderr, "Error: Could not retrieve the header of the WebP image.\n");
         exit(EXIT_FAILURE);
     }
 
     if (webp_obj->input.has_animation)
     {
+        if (carrier_img->verbose) fprintf(stderr, "\n");
         fprintf(stderr, "Error: Animated WebP images are not supported.\n");
         exit(EXIT_FAILURE);
     }
@@ -1170,6 +1178,7 @@ void imc_webp_carrier_open(CarrierImage *carrier_img)
     status_vp8 = WebPDecode(in_buffer, file_size, webp_obj);
     if (status_vp8 != VP8_STATUS_OK)
     {
+        if (carrier_img->verbose) fprintf(stderr, "\n");
         fprintf(stderr, "Error: Could not decode the WebP image. Reason: ");
         switch (status_vp8)
         {
@@ -1195,6 +1204,8 @@ void imc_webp_carrier_open(CarrierImage *carrier_img)
         }
         exit(EXIT_FAILURE);
     }
+
+    if (carrier_img->verbose) printf("Done!  \n");
 
     // Calculate the total amount of pixels in the image
     const size_t width = webp_obj->output.width;
@@ -1233,7 +1244,16 @@ void imc_webp_carrier_open(CarrierImage *carrier_img)
             carrier[pos++] = green;
             carrier[pos++] = blue;
         }
+
+        // Print the progress when on verbose mode
+        if ( carrier_img->verbose && (i % 4096 == 0) )
+        {
+            double percent = ((double)i / (double)pixel_count) * 100.0;
+            printf_prog("Scanning cover image for suitable carrier bits... %.1f %%\r", percent);
+        }
     }
+
+    printf("Scanning cover image for suitable carrier bits... Done!  \n");
 
     // Check for edge case
     if (pos == 0)
@@ -1849,7 +1869,10 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
 // Progress monitor when writing a PNG image
 static int __webp_write_callback(int percent, const WebPPicture* webp_obj)
 {
-
+    // Note: libwebp has its own timer for controling the progress update frequency,
+    //       so we are not using ours from 'printf_prog()'.
+    printf("Writing WebP image... %d %%\r", percent);
+    return true;    // Returning 'true' allows the encoding to continue, 'false' would cancel it
 }
 
 // Write the carrier bytes back to the WebP image, and save it as a new file
@@ -1917,6 +1940,7 @@ int imc_webp_carrier_save(CarrierImage *carrier_img, const char *save_path)
     webp_obj_new.use_argb = 1;
     webp_obj_new.argb = (uint32_t*)(webp_obj_in->output.u.RGBA.rgba);
     webp_obj_new.argb_stride = webp_obj_in->output.u.RGBA.stride / 4;
+    if (carrier_img->verbose) webp_obj_new.progress_hook = &__webp_write_callback;
 
     // Object for writing the new WebP image
     WebPMemoryWriter writer;
@@ -1993,6 +2017,8 @@ int imc_webp_carrier_save(CarrierImage *carrier_img, const char *save_path)
         // If failed to copy the metadata, just save the image without it
         fwrite(writer.mem, 1, writer.size, webp_file);
     }
+    
+    if (carrier_img->verbose) printf("Writing WebP image... Done!  \n");
     fclose(webp_file);
 
     // Copy the "last access" and "last mofified" times from the original image
