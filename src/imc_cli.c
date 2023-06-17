@@ -1007,6 +1007,7 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             }
 
             imc_free(state->hook);
+            state->hook = NULL;
             break;
         
         // When we receive an argument that does not begin with "--" or "-"
@@ -1036,7 +1037,7 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
     // Remember the command line argument that was just parsed (if it begins with "--" or "-")
     if (key != ARGP_KEY_ARG)
     {
-        ((UserOptions*)(state->hook))->prev_arg = key;
+        if (state->hook) ((UserOptions*)(state->hook))->prev_arg = key;
     }
 
     return 0;
