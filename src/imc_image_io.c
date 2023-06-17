@@ -1135,7 +1135,6 @@ void imc_webp_carrier_open(CarrierImage *carrier_img)
     // Input buffer (original image)
     uint8_t *in_buffer = imc_malloc(file_size);
     const size_t read_count = fread(in_buffer, 1, file_size, carrier_img->file);
-    fclose(carrier_img->file);  // The file on disk does not need to be read anymore
     if (read_count != file_size)
     {
         fprintf(stderr, "Error: WebP file could not be read.\n");
@@ -1850,7 +1849,64 @@ static int __webp_write_callback(int percent, const WebPPicture* webp_obj)
 // Write the carrier bytes back to the WebP image, and save it as a new file
 int imc_webp_carrier_save(CarrierImage *carrier_img, const char *save_path)
 {
+    // Decoded original image
+    const WebPDecoderConfig *restrict webp_obj_in = carrier_img->object;
 
+    // Encoded original image
+    const uint8_t *restrict in_buffer = carrier_img->bytes;
+
+    // Configurations of the encoder for the output image
+    WebPConfig enc_config;
+    int enc_status = 0;
+    enc_status = WebPConfigPreset(&enc_config, WEBP_PRESET_DEFAULT, 75.0);
+    
+    if (!enc_status)
+    {
+        const int version = WebPGetEncoderVersion();
+        fprintf(stderr,
+            "Error: Using a different version of libwebp than the one used to build this program (%d.%d.%d).\n",
+            (version >> 16) & 0xFF, (version >> 8) & 0xFF, (version >> 0) & 0xFF);
+        return IMC_ERR_SAVE_FAIL;
+    }
+    
+    enc_config.exact = 1;           // Do not make any changes to the color values
+    enc_config.thread_level = 1;    // Use multithreading
+    enc_config.lossless = 1;        // Use lossless compression
+    enc_config.method = 3;          // Size/speed tradeoff (0 = bigger but faster; 6 = smaller but slower)
+    /* Note: I haven't noticed a considerable file size change when using method > 3,
+    but the processing time increased considerably. The same goes for quality > 75. */
+
+    // Newly created WebP image with the hidden data
+    WebPPicture webp_obj_new;
+    enc_status = WebPPictureInit(&webp_obj_new);
+    webp_obj_new.width  = webp_obj_in->input.width;
+    webp_obj_new.height = webp_obj_in->input.height;
+    webp_obj_new.use_argb = 1;
+    webp_obj_new.argb = (uint32_t*)(webp_obj_in->output.u.RGBA.rgba);
+    webp_obj_new.argb_stride = webp_obj_in->output.u.RGBA.stride / 4;
+
+    // Object for writing the new WebP image
+    WebPMemoryWriter writer;
+    WebPMemoryWriterInit(&writer);
+    webp_obj_new.writer = WebPMemoryWrite;  // Function that writes the image data to memory
+    webp_obj_new.custom_ptr = &writer;      // Output for the written data
+
+    // Encode the image that contains the hidden data
+    enc_status = WebPEncode(&enc_config, &webp_obj_new);
+
+    if (!enc_status)
+    {
+        fprintf(stderr, "Error: Could not encode the new WebP image.\n");
+        return IMC_ERR_SAVE_FAIL;
+    }
+
+    /* TO DO: Copy the metadata from the original image */
+
+    /* TO DO: Save the new image */
+
+    /* TO DO: Garbage collection */
+
+    return IMC_SUCCESS;
 }
 
 // Free the memory of the array of heap pointers in a CarrierImage struct
