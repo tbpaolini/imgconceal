@@ -1,12 +1,12 @@
 SOURCES := $(wildcard src/*.c) $(wildcard lib/*.c)
 OBJECTS := $(SOURCES:.c=.o)
-CFLAGS := -static -lsodium -ljpeg -lpng -lwebp -lwebpmux -lsharpyuv -lz
+CFLAGS := -static -lsodium -ljpeg -lpng -lwebp -lwebpmux -lz
 
 # Output directory and executable's name (depending on the operating system)
 # The Windows version is being linked with Microsoft's Universal C Runtime (UCRT)
 ifeq ($(OS),Windows_NT)
 	SHELL := cmd.exe
-    CFLAGS := -D_UCRT -I "lib" -L "lib" -I "\msys64\ucrt64\include" -L "\msys64\ucrt64\lib" $(CFLAGS) -largp
+    CFLAGS := -D_UCRT -I "lib" -L "lib" -I "\msys64\ucrt64\include" -L "\msys64\ucrt64\lib" $(CFLAGS) -largp -lsharpyuv
     DIR := bin/windows
 	OBJECTS := src/resources.o $(OBJECTS)
     EXECUTABLE := imgconceal.exe
