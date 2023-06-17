@@ -1135,6 +1135,7 @@ void imc_webp_carrier_open(CarrierImage *carrier_img)
     // Input buffer (original image)
     uint8_t *in_buffer = imc_malloc(file_size);
     const size_t read_count = fread(in_buffer, 1, file_size, carrier_img->file);
+    fclose(carrier_img->file);  // The file on disk does not need to be read anymore
     if (read_count != file_size)
     {
         fprintf(stderr, "Error: WebP file could not be read.\n");
@@ -1196,7 +1197,63 @@ void imc_webp_carrier_open(CarrierImage *carrier_img)
         exit(EXIT_FAILURE);
     }
 
-    /* TO DO: scan for carrier bytes */
+    // Calculate the total amount of pixels in the image
+    const size_t width = webp_obj->output.width;
+    const size_t height = webp_obj->output.height;
+    const size_t pixel_count = width * height;
+    
+    // Pointers to the carrier bytes of the image
+    carrier_bytes_t *carrier = imc_malloc(sizeof(carrier_bytes_t) * pixel_count * 3);
+    size_t pos = 0; // Position on the carrier array
+    
+    // Loop through all pixels in the image to get the carrier bytes
+    // (we are going to use pixels with alpha > 0, but the alpha channel itself will not be used as carrier)
+    for (size_t i = 0; i < pixel_count; i++)
+    {
+        uint8_t *const pixel = &webp_obj->output.u.RGBA.rgba[i*4];  // Image always is 4 bytes per pixel
+        
+        // Get the 4 color components of the pixel (alpha, red, green, blue)
+        // Note: the alpha value is the most significant byte of a 32-bit unsigned integer,
+        //       followed by red > green > blue (in decreasing order of significance).
+        #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+        uint8_t *const alpha = &pixel[0];
+        uint8_t *const red   = &pixel[1];
+        uint8_t *const green = &pixel[2];
+        uint8_t *const blue  = &pixel[3];
+        #else // __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+        uint8_t *const alpha = &pixel[3];
+        uint8_t *const red   = &pixel[2];
+        uint8_t *const green = &pixel[1];
+        uint8_t *const blue  = &pixel[0];
+        #endif
+        
+        // Use the RGB bytes as carriers if the pixel is not fully transparent
+        if (*alpha > 0)
+        {
+            carrier[pos++] = red;
+            carrier[pos++] = green;
+            carrier[pos++] = blue;
+        }
+    }
+
+    // Check for edge case
+    if (pos == 0)
+    {
+        fprintf(stderr, "Error: the WebP image has no suitable bits for hiding the data. "
+            "This may happen if the image is fully transparent.\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Free the unused space of the carrier buffer
+    carrier = imc_realloc(carrier, pos * sizeof(carrier_bytes_t));
+    
+    // Store the structure necessary to handle the opened image
+    carrier_img->object = webp_obj;
+
+    // Store the information about the carrier bytes
+    carrier_img->carrier = carrier;
+    carrier_img->carrier_lenght = pos;
+    carrier_img->bytes = in_buffer;
 }
 
 // Change a file path in order to make it unique
