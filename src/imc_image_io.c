@@ -1855,6 +1855,31 @@ static int __webp_write_callback(int percent, const WebPPicture* webp_obj)
 // Write the carrier bytes back to the WebP image, and save it as a new file
 int imc_webp_carrier_save(CarrierImage *carrier_img, const char *save_path)
 {
+    // Append the '.webp' extension to the path, if it does not already has the extension
+    const size_t p_len = strlen(save_path);
+    if (p_len > UINT16_MAX) return IMC_ERR_SAVE_FAIL;
+    char webp_path[p_len+16];
+    strncpy(webp_path, save_path, sizeof(webp_path));
+    
+    if ( p_len < 5 || strncmp(&save_path[p_len-5], ".webp", 5) != 0 )
+    {
+        strcat(webp_path, ".webp");
+    }
+
+    // Append a number to the file's stem if the filename already exists
+    // Example: 'Image.webp' might become 'Image (1).webp'
+    // Note: The number goes up to 99, in order to avoid creating too many files accidentally
+    bool is_unique = __resolve_filename_collision(webp_path);
+    if (!is_unique) return IMC_ERR_FILE_EXISTS;
+
+    // Store a copy of the resulting path
+    free(carrier_img->out_path);
+    carrier_img->out_path = strdup(webp_path);
+    
+    // Open the output file for writing
+    FILE *webp_file = fopen(webp_path, "wb");
+    if (!webp_file) return IMC_ERR_FILE_NOT_FOUND;
+    
     // Decoded original image
     const WebPDecoderConfig *restrict webp_obj_in = carrier_img->object;
 
@@ -1869,11 +1894,12 @@ int imc_webp_carrier_save(CarrierImage *carrier_img, const char *save_path)
     
     if (!enc_status)
     {
+        fclose(webp_file);
         const int version = WebPGetEncoderVersion();
         fprintf(stderr,
             "Error: Using a different version of libwebp than the one used to build this program (%d.%d.%d).\n",
             (version >> 16) & 0xFF, (version >> 8) & 0xFF, (version >> 0) & 0xFF);
-        return IMC_ERR_SAVE_FAIL;
+        exit(EXIT_FAILURE);
     }
     
     enc_config.exact = 1;           // Do not make any changes to the color values
@@ -1903,8 +1929,9 @@ int imc_webp_carrier_save(CarrierImage *carrier_img, const char *save_path)
 
     if (!enc_status)
     {
+        fclose(webp_file);
         fprintf(stderr, "Error: Could not encode the new WebP image.\n");
-        return IMC_ERR_SAVE_FAIL;
+        exit(EXIT_FAILURE);
     }
 
     /* Copying the metadata from the original image */
@@ -1953,7 +1980,23 @@ int imc_webp_carrier_save(CarrierImage *carrier_img, const char *save_path)
     WebPMuxDelete(in_mux);
     WebPMuxDelete(out_mux);
 
-    /* TO DO: Save the new image */
+    /* End of the metadata copying */
+
+    // Save the new image
+    if (copy_success)
+    {
+        // Save the image with the copied metadata
+        fwrite(out_data.bytes, 1, out_data.size, webp_file);
+    }
+    else
+    {
+        // If failed to copy the metadata, just save the image without it
+        fwrite(writer.mem, 1, writer.size, webp_file);
+    }
+    fclose(webp_file);
+
+    // Copy the "last access" and "last mofified" times from the original image
+    __copy_file_times(carrier_img->file, webp_path);
 
     /* TO DO: Garbage collection */
 
