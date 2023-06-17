@@ -1253,6 +1253,12 @@ void imc_webp_carrier_open(CarrierImage *carrier_img)
     carrier_img->carrier = carrier;
     carrier_img->carrier_lenght = pos;
     carrier_img->bytes = in_buffer;
+
+    // Remember the size of the input buffer
+    carrier_img->heap = imc_malloc(sizeof(void *));
+    carrier_img->heap[0] = imc_malloc(sizeof(size_t));
+    *(size_t*)carrier_img->heap[0] = file_size;
+    carrier_img->heap_lenght = 1;
 }
 
 // Change a file path in order to make it unique
@@ -1854,6 +1860,7 @@ int imc_webp_carrier_save(CarrierImage *carrier_img, const char *save_path)
 
     // Encoded original image
     const uint8_t *restrict in_buffer = carrier_img->bytes;
+    const size_t in_buffer_size = *(size_t*)carrier_img->heap[0];
 
     // Configurations of the encoder for the output image
     WebPConfig enc_config;
@@ -1900,7 +1907,51 @@ int imc_webp_carrier_save(CarrierImage *carrier_img, const char *save_path)
         return IMC_ERR_SAVE_FAIL;
     }
 
-    /* TO DO: Copy the metadata from the original image */
+    /* Copying the metadata from the original image */
+
+    bool copy_success = false;  // If the metadata copying has been successful
+
+    // Container for the original image
+    const WebPData in_data = {in_buffer, in_buffer_size};
+    WebPMux *in_mux = WebPMuxCreate(&in_data, 0);
+
+    // Container for the new image
+    const WebPData enc_data = {writer.mem, writer.size};
+    WebPMux *out_mux = WebPMuxCreate(&enc_data, 0);
+
+    // The raw bytes of the new image with the copied chunks
+    WebPData out_data = {NULL};
+
+    if (in_mux && out_mux);
+    {
+        // Chunks to be copied from the original image
+        const char *chunk_list[] = {
+            "EXIF", // Exchangeable Image File Format
+            "ICCP", // Color profile
+            "XMP ", // Extensible Metadata Platform
+        };
+        const size_t chunk_list_len = sizeof(chunk_list) / sizeof(char *);
+
+        // Copy the chunks to the new image
+        for (size_t i = 0; i < chunk_list_len; i++)
+        {
+            WebPData chunk = {NULL};
+            const char *chunk_id = chunk_list[i];
+            const WebPMuxError mux_status = WebPMuxGetChunk(in_mux, chunk_id, &chunk);
+            if (mux_status == WEBP_MUX_OK)
+            {
+                WebPMuxSetChunk(out_mux, chunk_id, &chunk, 0);
+            }
+        }
+
+        // Assemble the raw bytes of the new image
+        const WebPMuxError mux_status = WebPMuxAssemble(out_mux, &out_data);
+        if (mux_status) copy_success = true;
+    }
+
+    // Free the memory used by the containers
+    WebPMuxDelete(in_mux);
+    WebPMuxDelete(out_mux);
 
     /* TO DO: Save the new image */
 
