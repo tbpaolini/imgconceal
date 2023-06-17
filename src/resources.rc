@@ -5,8 +5,8 @@
 
 // Metadata of the executable
 VS_VERSION_INFO VERSIONINFO 
-FILEVERSION     1,0,3,0
-PRODUCTVERSION  1,0,3,0
+FILEVERSION     1,0,4,0
+PRODUCTVERSION  1,0,4,0
 FILETYPE        VFT_APP
 FILESUBTYPE     0
 {
@@ -16,12 +16,12 @@ FILESUBTYPE     0
         {
             VALUE "CompanyName",      "Tiago Becerra Paolini\0"
             VALUE "FileDescription",  "Image steganography tool for JPEG and PNG\0"
-            VALUE "FileVersion",      "1.0.3.0\0"
+            VALUE "FileVersion",      "1.0.4.0\0"
             VALUE "InternalName",     "image conceal\0"
             VALUE "LegalCopyright",   "(c) 2023 by Tiago Becerra Paolini\0"
             VALUE "OriginalFilename", "imgconceal.exe\0"
             VALUE "ProductName",      "imgconceal\0"
-            VALUE "ProductVersion",   "1.0.3.0\0"
+            VALUE "ProductVersion",   "1.0.4.0\0"
             VALUE "Comments",         "Licensed under the MIT License. Repository: https://github.com/tbpaolini/imgconceal\0"
         }    
     }
