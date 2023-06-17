@@ -1998,7 +1998,10 @@ int imc_webp_carrier_save(CarrierImage *carrier_img, const char *save_path)
     // Copy the "last access" and "last mofified" times from the original image
     __copy_file_times(carrier_img->file, webp_path);
 
-    /* TO DO: Garbage collection */
+    // Garbage collection
+    WebPDataClear(&out_data);
+    WebPMemoryWriterClear(&writer);
+    WebPPictureFree(&webp_obj_new);
 
     return IMC_SUCCESS;
 }
@@ -2037,7 +2040,12 @@ void imc_png_carrier_close(CarrierImage *carrier_img)
 // Close the WebP object and free the memory associated to it
 void imc_webp_carrier_close(CarrierImage *carrier_img)
 {
-    
+    WebPDecoderConfig *restrict webp_obj = carrier_img->object;
+    WebPFreeDecBuffer(&webp_obj->output);
+    imc_free(carrier_img->bytes);
+    imc_free(carrier_img->carrier);
+    imc_free(carrier_img->object);
+    __carrier_heap_free(carrier_img);
 }
 
 // Save the image with hidden data
