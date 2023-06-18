@@ -282,7 +282,7 @@ finish_eval=""
 hardcode_into_libs=no
 
 # Compile-time system search path for libraries.
-sys_lib_search_path_spec="C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/12.2.0 C:/msys64/ucrt64/lib/gcc C:/msys64/ucrt64/x86_64-w64-mingw32/lib C:/msys64/ucrt64/lib "
+sys_lib_search_path_spec="C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/13.1.0 C:/msys64/ucrt64/lib/gcc C:/msys64/ucrt64/x86_64-w64-mingw32/lib C:/msys64/ucrt64/lib "
 
 # Run-time system search path for libraries.
 sys_lib_dlsearch_path_spec="/lib /usr/lib"
@@ -10283,17 +10283,17 @@ file_list_spec=""
 hardcode_action=immediate
 
 # The directories searched by this compiler when creating a shared library.
-compiler_lib_search_dirs="C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0 C:/msys64/ucrt64/bin/../lib/gcc C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/lib/../lib C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../lib C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/lib C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../.."
+compiler_lib_search_dirs="C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0 C:/msys64/ucrt64/bin/../lib/gcc C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../x86_64-w64-mingw32/lib/../lib C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../lib C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../x86_64-w64-mingw32/lib C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../.."
 
 # Dependencies to place before and after the objects being linked to
 # create a shared library.
-predep_objects="C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../lib/dllcrt2.o C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/crtbegin.o"
-postdep_objects="C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/crtend.o"
+predep_objects="C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../lib/dllcrt2.o C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/crtbegin.o"
+postdep_objects="C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/crtend.o"
 predeps=""
 postdeps="-lstdc++ -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt -lkernel32 -lpthread -ladvapi32 -lshell32 -luser32 -lkernel32 -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt -lkernel32"
 
 # The library search path used internally by the compiler when linking
 # a shared library.
-compiler_lib_search_path="-LC:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0 -LC:/msys64/ucrt64/bin/../lib/gcc -LC:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/lib/../lib -LC:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../lib -LC:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../../../x86_64-w64-mingw32/lib -LC:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/12.2.0/../../.."
+compiler_lib_search_path="-LC:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0 -LC:/msys64/ucrt64/bin/../lib/gcc -LC:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../x86_64-w64-mingw32/lib/../lib -LC:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../lib -LC:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../x86_64-w64-mingw32/lib -LC:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../.."
 
 # ### END LIBTOOL TAG CONFIG: CXX
