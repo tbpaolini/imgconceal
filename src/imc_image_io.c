@@ -91,7 +91,7 @@ int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **out
     {
         if (password->length > 0) printf("Generating secret key... ");
         else printf("Generating key... ");
-        fflush(stdin);
+        fflush(stdout);
     }
 
     // Generate a secret key, and seed the number generator
@@ -228,7 +228,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     
     // Read the file into a buffer
     if (carrier_img->verbose) printf("Loading '%s'... ", file_name);
-    if (carrier_img->verbose) fflush(stdin);
+    if (carrier_img->verbose) fflush(stdout);
     const size_t raw_size = info_size + file_size;
     uint8_t *const raw_buffer = imc_malloc(raw_size);
     const size_t read_count = fread(&raw_buffer[info_size], 1, file_size, file);
@@ -283,7 +283,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
 
     // Compress the data on the buffer (from the '.access_time' onwards)
     if (carrier_img->verbose) printf("Compressing '%s'... ", file_name);
-    if (carrier_img->verbose) fflush(stdin);
+    if (carrier_img->verbose) fflush(stdout);
     int zlib_status = compress2(
         &zlib_buffer[compressed_offset],    // Output buffer to store the compressed data (starting after the uncompressed section)
         #ifdef _WIN32
@@ -335,7 +335,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
     
     // Encrypt the data stream
     if (carrier_img->verbose) printf("Encrypting '%s'... ", file_name);
-    if (carrier_img->verbose) fflush(stdin);
+    if (carrier_img->verbose) fflush(stdout);
     int crypto_status = imc_crypto_encrypt(
         carrier_img->crypto,    // Has the secret key (generated from the password)
         zlib_buffer,            // Unencrypted data stream
@@ -460,7 +460,7 @@ int imc_steg_extract(CarrierImage *carrier_img)
     uint8_t *crypto_buffer = imc_malloc(crypto_size);
     if (carrier_img->verbose && carrier_img->just_check) printf("\n");
     if (carrier_img->verbose) printf("Reading hidden file... ");
-    if (carrier_img->verbose) fflush(stdin);
+    if (carrier_img->verbose) fflush(stdout);
     read_status = __read_payload(carrier_img, crypto_size, crypto_buffer);
     if (!read_status)
     {
@@ -480,7 +480,7 @@ int imc_steg_extract(CarrierImage *carrier_img)
 
     // Decrypt the data
     if (print_msg) printf("Decrypting hidden file... ");
-    if (print_msg) fflush(stdin);
+    if (print_msg) fflush(stdout);
     int decrypt_status = imc_crypto_decrypt(
         carrier_img->crypto,    // Has the secret key (generated from the password)
         header,                 // Header generated during encryption
@@ -542,7 +542,7 @@ int imc_steg_extract(CarrierImage *carrier_img)
 
     // Decompress the data using Zlib
     if (print_msg) printf("Decompressing hidden file... ");
-    if (print_msg) fflush(stdin);
+    if (print_msg) fflush(stdout);
     int decompress_status = uncompress(
         &decompress_buffer[d_pos],  // Output 
         #ifdef _WIN32
@@ -649,7 +649,7 @@ int imc_steg_extract(CarrierImage *carrier_img)
     FILE *out_file = fopen(file_name, "wb");
     if (!out_file) return IMC_ERR_SAVE_FAIL;
     if (carrier_img->verbose) printf("Saving extracted file to '%s'... ", file_name);
-    if (carrier_img->verbose) fflush(stdin);
+    if (carrier_img->verbose) fflush(stdout);
     fwrite(&decompress_buffer[file_start], file_size, 1, out_file);
     fclose(out_file);
     if (carrier_img->verbose) printf("Done!\n");
@@ -1143,7 +1143,7 @@ void imc_webp_carrier_open(CarrierImage *carrier_img)
     if (carrier_img->verbose)
     {
         printf("Reading WebP image... ");
-        fflush(stdin);
+        fflush(stdout);
     }
 
     // Input buffer (original image)
