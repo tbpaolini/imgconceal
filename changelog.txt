@@ -1,3 +1,10 @@
+Version 1.0.4 - June 17, 2023
+- BIG UPDATE: Added support for hiding data on still WebP images.
+- Tweaked help text to clarify about the `--output` option.
+- The timer that controls the progress monitor's refresh rate is now thread safe.
+- Now all verbose status messages are flushed to the terminal, so they do not
+- Fixed bug where the program tried to access freed memory on exit.
+
 Version 1.0.3 - May 23, 2023
 - Added the ability to choose the output folder for the extracted files, which can be done with the `--output` option.
 - When extracting hidden files on Windows, forbidden characters on the filename are now replaced by underscores. This is being done because Linux allows on filenames some characters that Windows doesn't, and we want to keep interoperable both the Windows and Linux versions of this program.
