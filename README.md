@@ -1,12 +1,12 @@
 # imgconceal: steganography on JPEG and PNG images
 
-*imgconceal* is a tool for image steganography, that can hide files inside JPEG and PNG images, with or without a password for extracting the data later. The image with hidden data looks the same to the human eye as the regular image.
+*imgconceal* is a tool for image steganography, that can hide files inside JPEG, PNG and WebP images. A password an be used for extracting the data later. The image with hidden data looks the same to the human eye as the regular image.
 
 **Downloads:**
-* [imgconceal for Windows](https://github.com/tbpaolini/imgconceal/releases/download/v1.0.3/imgconceal.exe) (1.80 MB)
-* [imgconceal for Linux](https://github.com/tbpaolini/imgconceal/releases/download/v1.0.3/imgconceal) (2.23 MB)
+* [imgconceal for Windows](https://github.com/tbpaolini/imgconceal/releases/download/v1.0.4/imgconceal.exe) (2.60 MB)
+* [imgconceal for Linux](https://github.com/tbpaolini/imgconceal/releases/download/v1.0.4/imgconceal) (2.76 MB)
 
-This is a command line program that is available for both Windows and Linux operating systems.  *imgconceal* is a standalone executable, requiring no installation or shared libraries (DLL or SO).
+This is a command line program that is available for both Windows and Linux operating systems. *imgconceal* is a standalone executable, requiring no installation or shared libraries (DLL or SO).
 
 ## Basic usage
 
@@ -94,9 +94,9 @@ You can run `./imgconceal --help` in order to see all available command line arg
 ```txt
 Usage: imgconceal [OPTION...]
 
-Steganography tool for hiding and extracting files on JPEG and PNG images.
-Multiple files can be hidden in a single cover image, and the hidden data can
-be (optionally) protected with a password.
+Steganography tool for hiding and extracting files on JPEG, PNG and WebP
+images. Multiple files can be hidden in a single cover image, and the hidden
+data can be (optionally) protected with a password.
 
 Hiding a file on an image:
   imgconceal --input=IMAGE --hide=FILE [--output=NEW_IMAGE] [--append]
@@ -111,15 +111,17 @@ Check if an image has data hidden by this program:
 
 All options:
 
-  -c, --check=IMAGE          Check if a given JPEG or PNG image contains data
-                             hidden by this program, and estimate how much data
-                             can still be hidden on the image. If a password
-                             was used to hide the data, you should also use the
-                             '--password' option.
+  -c, --check=IMAGE          Check if a given JPEG, PNG or WebP image contains
+                             data hidden by this program, and estimate how much
+                             data can still be hidden on the image. If a
+                             password was used to hide the data, you should
+                             also use the '--password' option. 
   -e, --extract=IMAGE        Extracts from the cover image the files that were
-                             hidden on it by this program.The extracted files
+                             hidden on it by this program. The extracted files
                              will have the same names and timestamps as when
-                             they were hidden.
+                             they were hidden. You can also use the '--output'
+                             option to specify the folder where the files are
+                             extracted into.
   -h, --hide=FILE            Path to the file being hidden in the cover image.
                              This option can be specified multiple times in
                              order to hide more than one file. You can also
@@ -130,10 +132,10 @@ All options:
                              trying to hide). The default behavior is to
                              overwrite the existing previously hidden files, to
                              avoid that add the '--append' option.
-  -i, --input=IMAGE          Path to the cover image (the JPEG or PNG file
-                             where to hide another file). Please use the
-                             '--output' option to specify where to save the
-                             modified image.
+  -i, --input=IMAGE          Path to the cover image (the JPEG, PNG or WebP
+                             file where to hide another file). You can also use
+                             the '--output' option to specify the name in which
+                             to save the modified image.
   -o, --output=PATH          When hiding files in an image, this is the
                              filename where to save the image with hidden data
                              (if this option is not used, the new image is
@@ -145,7 +147,7 @@ All options:
                              append the new file instead of overwriting the
                              existing hidden files. For this option to work,
                              the password must be the same as the one used for
-                             the previous files
+                             the previous files.
   -p, --password=TEXT        Password for encrypting and scrambling the hidden
                              data. This option should be used alongside
                              '--hide', '--extract', or '--check'. The password
@@ -164,9 +166,9 @@ All options:
   -v, --verbose              Print detailed progress information.
       --algorithm            Print a summary of the algorithm used by
                              imgconceal, then exit.
-  -?, --help                 give this help list
-      --usage                give a short usage message
-  -V, --version              print program version
+  -?, --help                 Give this help list
+      --usage                Give a short usage message
+  -V, --version              Print program version
 
 Mandatory or optional arguments to long options are also mandatory or optional
 for any corresponding short options.
@@ -179,7 +181,7 @@ Report bugs to <https://github.com/tbpaolini/imgconceal/issues> or
 
 The password is hashed using the [Argon2id](https://datatracker.ietf.org/doc/html/rfc9106) algorithm, generating a pseudo-random sequence of 64 bytes. The first 32 bytes are used as the secret key for encrypting the hidden data ([XChaCha20-Poly1305](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-xchacha) algorithm), while the last 32 bytes are used to seed the pseudo-random number generator ([SHISHUA](https://espadrine.github.io/blog/posts/shishua-the-fastest-prng-in-the-world.html) algorithm) used for shuffling the positions on the image where the hidden data is written.
 
-In the case of a JPEG cover image, the hidden data is written to the least significant bits of the quantized [AC coefficients](https://en.wikipedia.org/wiki/JPEG#Discrete_cosine_transform) that are not 0 or 1 (that happens after the lossy step of the JPEG algorithm, so the hidden data is not lost). For a PNG cover image, the hidden data is written to the least significant bits of the RGB color values of the pixels that are not fully transparent. Other image formats are not currently supported as cover image, however any file format can be hidden on the cover image (size permitting). Before encryption, the hidden data is compressed using the [Deflate](https://www.zlib.net/feldspar.html) algorithm.
+In the case of a JPEG cover image, the hidden data is written to the least significant bits of the quantized [AC coefficients](https://en.wikipedia.org/wiki/JPEG#Discrete_cosine_transform) that are not 0 or 1 (that happens after the lossy step of the JPEG algorithm, so the hidden data is not lost). For a PNG or WebP cover image, the hidden data is written to the least significant bits of the RGB color values of the pixels that are not fully transparent. Other image formats are not currently supported as cover image, however any file format can be hidden on the cover image (size permitting). Before encryption, the hidden data is compressed using the [Deflate](https://www.zlib.net/feldspar.html) algorithm.
 
 All in all, the data hiding process goes as:
 
@@ -213,6 +215,7 @@ The following third party libraries where used, and need to have their developme
 * `zlib` (data compression) - version 1.2.11
 * `libjpeg-turbo` (low level manipulation of JPEG images) - version 2.1.2
 * `libpng` (low level manipulation of PNG images) - version 1.6.37
+* `libwebp` (low level manipulation of WebP images) - version 1.2.2
 
 In order to compile the program on Linux, on the terminal navigate to the root directory of the project and then run `make`. On Windows, you can do the same but on the MSYS2 UCRT64 terminal.
 
@@ -225,7 +228,7 @@ In order to compile the program on Linux, on the terminal navigate to the root d
 You should install the GNU toolchain, Git, and the aforementioned development packages. You can install everything at once with this command:
 
 ```shell
-sudo apt install build-essential git libsodium-dev zlib1g-dev libjpeg-turbo8-dev libpng-dev
+sudo apt install build-essential git libsodium-dev zlib1g-dev libjpeg-turbo8-dev libpng-dev libwebp-dev
 ```
 
 Navigate to the directory where you want to save the project, and run this command to download *imgconceal*'s source code:
@@ -261,7 +264,7 @@ It might ask you to restart the terminal in order to install the updates. If tha
 You should install the UCRT version of the GNU toolchain, Git, and the aforementioned development packages. You can install everything at once with this command:
 
 ```shell
-pacman -S --needed base-devel git mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-libsodium mingw-w64-ucrt-x86_64-libjpeg-turbo mingw-w64-ucrt-x86_64-libpng mingw-w64-x86_64-zlib
+pacman -S --needed base-devel git mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-libsodium mingw-w64-ucrt-x86_64-libjpeg-turbo mingw-w64-ucrt-x86_64-libpng mingw-w64-ucrt-x86_64-libwebp mingw-w64-x86_64-zlib
 ```
 
 Navigate to the directory where you want to save the project, and run this command to download *imgconceal*'s source code:
