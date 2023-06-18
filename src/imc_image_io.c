@@ -57,11 +57,11 @@ int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **out
         // The first 12 bytes should be something like: RIFF....WEBP
         // (where '....' is the file size)
         fseek(image, 8, SEEK_SET);
-        fread(img_marker, 1, sizeof(WEBP_MAGIC), image);
+        size_t count = fread(img_marker, 1, sizeof(WEBP_MAGIC), image);
         fseek(image, 0, SEEK_SET);
 
         // Check if the WebP signature matches
-        if (memcmp(img_marker, WEBP_MAGIC, sizeof(WEBP_MAGIC)) == 0)
+        if (count != sizeof(WEBP_MAGIC) || memcmp(img_marker, WEBP_MAGIC, sizeof(WEBP_MAGIC)) == 0)
         {
             img_type = IMC_WEBP;
         }
