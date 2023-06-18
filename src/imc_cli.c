@@ -8,9 +8,9 @@
 static const struct argp_option argp_options[] = {
     {"check", 'c', "IMAGE", 0, "Check if a given JPEG, PNG or WebP image contains data hidden by this program, "\
     "and estimate how much data can still be hidden on the image. "\
-    "If a password was used to hide the data, you should also use the '--password' option.", 1},
-    {"extract", 'e', "IMAGE", 0, "Extracts from the cover image the files that were hidden on it by this program."\
-        "The extracted files will have the same names and timestamps as when they were hidden."\
+    "If a password was used to hide the data, you should also use the '--password' option. ", 1},
+    {"extract", 'e', "IMAGE", 0, "Extracts from the cover image the files that were hidden on it by this program. "\
+        "The extracted files will have the same names and timestamps as when they were hidden. "\
         "You can also use the '--output' option to specify the folder where the files are extracted into.", 1},
     {"input", 'i', "IMAGE", 0, "Path to the cover image (the JPEG, PNG or WebP file where to hide another file). "\
         "You can also use the '--output' option to specify the name in which to save the modified image.", 2},
@@ -27,7 +27,7 @@ static const struct argp_option argp_options[] = {
         "to avoid that add the '--append' option.", 2},
     {"append", 'a', NULL, 0, "When hiding a file with the '--hide' option, "\
         "append the new file instead of overwriting the existing hidden files. "\
-        "For this option to work, the password must be the same as the one used for the previous files", 3},
+        "For this option to work, the password must be the same as the one used for the previous files.", 3},
     {"password", 'p', "TEXT", 0, "Password for encrypting and scrambling the hidden data. "\
         "This option should be used alongside '--hide', '--extract', or '--check'. "\
         "The password may contain any character that your terminal allows you to input "\
@@ -61,7 +61,8 @@ static const char imgconceal_algorithm_text[] = "The password is hashed using th
 "shuffling the positions on the image where the hidden data is written.\n\n"\
 \
 "In the case of a JPEG cover image, the hidden data is written to the least significant bits of "\
-"the quantized AC coefficients that are not 0 or 1. For a PNG or WebP cover image, the hidden data is "\
+"the quantized AC coefficients that are not 0 or 1 (that happens after the lossy step of the JPEG "\
+"algorithm, so the hidden data is not lost). For a PNG or WebP cover image, the hidden data is "\
 "written to the least significant bits of the RGB color values of the pixels that are not fully "\
 "transparent. Other image formats are not currently supported as cover image, however any file "\
 "format can be hidden on the cover image (size permitting). Before encryption, the hidden data is "\
