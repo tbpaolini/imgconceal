@@ -1,4 +1,4 @@
 download: "https://github.com/tbpaolini/imgconceal/releases/download/"
-version: "1.0.3"
+version: "1.0.4"
 windows: "/imgconceal.exe"
 linux: "/imgconceal"

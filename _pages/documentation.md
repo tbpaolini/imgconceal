@@ -2,7 +2,7 @@
 layout: default
 title: Documentation
 permalink: /docs/
-last_modified_at: 2023-05-23 20:33:58 -0300
+last_modified_at: 2023-06-17 23:04:29 -0300
 ---
 
 <style type="text/css">
@@ -23,9 +23,9 @@ last_modified_at: 2023-05-23 20:33:58 -0300
 These are all the command-line arguments that `imgconceal` accepts:
 
 |`-c`, `--check=IMAGE` | Check if a given JPEG or PNG image contains data hidden by this program, and estimate how much data can still be hidden on the image. If a password was used to hide the data, you should also use the `--password` option. |
-|`-e`, `--extract=IMAGE` | Extracts from the cover image the files that were hidden on it by this program.The extracted files will have the same names and timestamps as when they were hidden. |
+|`-e`, `--extract=IMAGE` | Extracts from the cover image the files that were hidden on it by this program. The extracted files will have the same names and timestamps as when they were hidden. You can also use the `--output` option to specify the folder where the files are extracted into. |
 |`-h`, `--hide=FILE` | Path to the file being hidden in the cover image. This option can be specified multiple times in order to hide more than one file. You can also pass more than one path to this option in order to hide multiple files. If there is no enough space in the cover image, some files may fail being hidden (files specified first have priority when trying to hide). The default behavior is to overwrite the existing previously hidden files, to avoid that add the `--append` option. |
-|`-i`, `--input=IMAGE` | Path to the cover image (the JPEG or PNG file where to hide another file). Please use the `--output` option to specify where to save the modified image. |
+|`-i`, `--input=IMAGE` | Path to the cover image (the JPEG or PNG file where to hide another file). Please use the `--output` option to specify where to save the modified image. You can also use the `--output` option to specify the name in which to save the modified image. |
 |`-o`, `--output=PATH` | When hiding files in an image, this is the filename where to save the image with hidden data (if this option is not used, the new image is named automatically). When extracting files from an image, this option is the directory where to save the extracted files (if not used, the files are extracted to the current working directory). |
 |`-a`, `--append` |  When hiding a file with the `--hide` option, append the new file instead of overwriting the existing hidden files. For this option to work, the password must be the same as the one used for the previous files |
 |`-p`, `--password=TEXT` | Password for encrypting and scrambling the hidden data. This option should be used alongside `--hide`, `--extract`, or `--check`. The password may contain any character that your terminal allows you to input (if it has spaces, please enclose the password between quotation marks). If you do not want to have a password, please use `--no-password` instead of this option. |
@@ -33,6 +33,6 @@ These are all the command-line arguments that `imgconceal` accepts:
 |`-s`, `--silent` |  Do not print any progress information (errors are still shown). |
 |`-v`, `--verbose` | Print detailed progress information. |
 |`--algorithm` | Print a summary of the [algorithm used by imgconceal]({{ 'algorithm/' | relative_url }}), then exit. |
-|`-?`, `--help` |  give this help list |
-|`--usage` | give a short usage message |
-|`-V`, `--version` | print program version |
+|`-?`, `--help` |  Give this help list |
+|`--usage` | Give a short usage message |
+|`-V`, `--version` | Print program version |

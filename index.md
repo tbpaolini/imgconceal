@@ -1,16 +1,16 @@
 ---
 layout: default
 title: Home
-last_modified_at: 2023-05-23 21:19:14 -0300
+last_modified_at: 2023-06-17 23:04:29 -0300
 ---
 # imgconceal: image steganography on JPEG and PNG
 
-**imgconceal** is a free and open source steganography tool for hiding files inside JPEG and PNG images. The images with hidden data look the same to the human eye as a regular image. A password can be used so only those who you want can extract the data.
+**imgconceal** is a free and open source steganography tool for hiding files inside JPEG, PNG and WebP images. The images with hidden data look the same to the human eye as a regular image. A password can be used so only those who you want can extract the data.
 
 Features:
 * Available for **Windows** and **Linux**.
 * Self-contained (requires no installation and has no dependencies).
-* Fast and small executable (~2 MB).
+* Fast and small executable (2.7 MB).
 * Compression and encryption of the hidden data.
 * Can hide multiple files in a single image.
 * Preserves the metadata of the cover image and of the hiddes files.

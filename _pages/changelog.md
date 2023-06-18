@@ -2,10 +2,17 @@
 layout: default
 title: Changelog
 permalink: /changelog/
-last_modified_at: 2023-05-23 21:11:31 -0300
+last_modified_at: 2023-06-17 23:04:29 -0300
 ---
 
 # Changelog
+
+## [Version 1.0.4 ](https://github.com/tbpaolini/imgconceal/releases/tag/v1.0.4)- June 17, 2023
+- **BIG UPDATE:** Added support for hiding data on still WebP images.
+- Tweaked help text to clarify about the `--output` option.
+- The timer that controls the progress monitor's refresh rate is now thread safe.
+- Now all verbose status messages are flushed to the terminal, so they do not
+- Fixed bug where the program tried to access freed memory on exit.
 
 ## [Version 1.0.3](https://github.com/tbpaolini/imgconceal/releases/tag/v1.0.3) - May 23, 2023
 - Added the ability to choose the output folder for the extracted files, which can be done with the `--output` option.
