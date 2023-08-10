@@ -621,7 +621,7 @@ int imc_steg_extract(CarrierImage *carrier_img)
 
     // On Windows, replace by an underscore the forbidden filename characters
     #ifdef _WIN32
-    static const char forbidden_chars[] = "\\/|;:*?<>";
+    static const char forbidden_chars[] = "\\/|\":*?<>";
     for (size_t i = 0; i < (name_len - 1); i++)
     {
         char *const my_char = &file_name[i];
