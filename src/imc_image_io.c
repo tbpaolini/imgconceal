@@ -621,6 +621,7 @@ int imc_steg_extract(CarrierImage *carrier_img)
 
     // On Windows, replace by an underscore the forbidden filename characters
     #ifdef _WIN32
+    
     static const char forbidden_chars[] = "\\/|\":*?<>";
     for (size_t i = 0; i < (name_len - 1); i++)
     {
@@ -631,7 +632,15 @@ int imc_steg_extract(CarrierImage *carrier_img)
         }
         if (iscntrl(*my_char)) *my_char = '_';
     }
-    #endif
+    
+    char *const last_char = &file_name[name_len - 2];
+    if (*last_char == ' ' || *last_char == '.')
+    {
+        // Filenames on Windows cannot end with space or a dot
+        *last_char = '_';
+    }
+    
+    #endif  // _WIN32
     /* Note:
         I am doing this because Linux allows some characters that Windows doesn't,
         so the extraction works on Windows, even if the user had a filename on Linux
