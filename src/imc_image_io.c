@@ -164,7 +164,7 @@ static inline struct timespec __timespec_from_64le(struct timespec64 time)
 
 // Hide a file in an image
 // Note: function can be called multiple times in order to hide more files in the same image.
-int imc_steg_insert(CarrierImage *carrier_img, const char *file_path)
+int imc_steg_insert(CarrierImage *carrier_img, const char *file_path, bool do_not_compress)
 {
     if (__is_directory(file_path)) return IMC_ERR_PATH_IS_DIR;
     FILE *file = fopen(file_path, "rb");

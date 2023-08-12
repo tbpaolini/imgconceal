@@ -469,6 +469,11 @@ static inline void __execute_options(struct argp_state *state, void *options)
         argp_error(state, "the 'output' option can only be used when hiding or extracting files.");
     }
 
+    if (mode != HIDE && opt->uncompressed)
+    {
+        argp_error(state, "the 'uncompressed' option can only be used when hiding files.");
+    }
+
     // Display a password prompt, if a password wasn't provided
     // (and the user did not specify the '--no-password' option)
     if (!opt->password)
@@ -571,7 +576,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
         struct HideList *node = &opt->hide;
         while (node)
         {
-            int hide_status = imc_steg_insert(steg_image, node->data);
+            int hide_status = imc_steg_insert(steg_image, node->data, opt->uncompressed);
 
             // Error handling and status messages
             switch (hide_status)
