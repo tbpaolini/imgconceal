@@ -24,7 +24,11 @@ static const struct argp_option argp_options[] = {
         "If there is no enough space in the cover image, some files may fail being hidden "\
         "(files specified first have priority when trying to hide). "\
         "The default behavior is to overwrite the existing previously hidden files, "\
-        "to avoid that add the '--append' option.", 2},
+        "to avoid that add the '--append' option. "
+        "All files are compressed by default, use '--uncompressed' if you want to control that.", 2},
+    {"uncompressed", 'u', NULL, 0, "When hiding files, do not compress the files specified with '--hide' after this option. "
+    "The files specified before this option get compressed. "
+    "If this option is not used, everything gets compressed.", 2},
     {"append", 'a', NULL, 0, "When hiding a file with the '--hide' option, "\
         "append the new file instead of overwriting the existing hidden files. "\
         "For this option to work, the password must be the same as the one used for the previous files.", 3},
@@ -94,11 +98,13 @@ typedef struct UserOptions {
     char *check;        // Path to the image being checked for hidden data
     struct HideList {
         char *data;
+        bool uncompressed;
         struct HideList *next;
     } hide;             // Linked list with the paths to the files being hidden on the image
     struct HideList *hide_tail; // Last element of the 'hide' linked list
     PassBuff *password; // Plain text password provided by the user
     int prev_arg;       // The key of the previous parsed command line argument
+    bool uncompressed;  // Do not compress the hidden data passed after this flag is set
     bool append;        // Whether the added hidden data is being appended to the existing one
     bool no_password;   // 'true' if not using a password
     bool verbose;       // Prints detailed information during operation
@@ -917,6 +923,14 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
                 *tail = &((UserOptions*)(state->hook))->hide;
             }
             
+            // Set whether the current file is going to remain uncompressed
+            (*tail)->uncompressed = ((UserOptions*)(state->hook))->uncompressed;
+            
+            break;
+        
+        // --uncompressed: Do not compress the files added after this flag is set
+        case 'u':
+            ((UserOptions*)(state->hook))->uncompressed = true;
             break;
         
         // --append: If the file being hidden is going to be appended to existing ones
