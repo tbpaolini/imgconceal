@@ -261,12 +261,31 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path, bool do_no
     
     file_info->steg_time = __timespec_to_64le(current_time);
 
+    // Buffer for the compressed data
+    uint8_t *zlib_buffer;
+    size_t zlib_buffer_size;
+
+    if (do_not_compress)
+    {
+        // If the data is not being compressed, just use the raw data itself
+        file_info->compressed_size = -1;    // This value flags for the extractor that the data is uncompressed
+        zlib_buffer_size = raw_size;
+        zlib_buffer = raw_buffer;
+    }
+
+    else    /* Start of compression */
+    {
+    // For backwards compatibility the file_info's version is set back to 1
+    file_info->version = 1;
+    /* Note: Earlier versions of this program cannot handle uncompressed data,
+       but they can extract compressed data the same way as on this version. */
+    
     // Create a buffer for the compressed data
     // Note: For the overhead calculation, see https://zlib.net/zlib_tech.html
     const size_t zlib_overhead = 6 + (5 * (file_size / 16000)) + 1;
-    size_t zlib_buffer_size = raw_size + zlib_overhead;
+    zlib_buffer_size = raw_size + zlib_overhead;
     uint8_t *const input_buffer = (uint8_t *)(&file_info->access_time);
-    uint8_t *zlib_buffer = imc_malloc(zlib_buffer_size);
+    zlib_buffer = imc_malloc(zlib_buffer_size);
     
     // Copy the uncompressed metadata to the beginning of the buffer
     memcpy(zlib_buffer, file_info, compressed_offset);
@@ -318,6 +337,8 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path, bool do_no
 
     // Free the unused space in the output buffer
     zlib_buffer = imc_realloc(zlib_buffer, zlib_buffer_size);
+    
+    }   /* End of compression */
 
     // Total size of the encrypted stream
     const size_t crypto_size = IMC_CRYPTO_OVERHEAD + zlib_buffer_size;

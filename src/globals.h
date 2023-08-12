@@ -8,7 +8,17 @@
 // Versions of the data structures (for the purpose of backwards compatibility)
 // These values should be positive integers and increase whenever their respective structure changes.
 #define IMC_CRYPTO_VERSION      1   // Encrypted stream of the hidden file
-#define IMC_FILEINFO_VERSION    1   // Metadata stored inside the encrypted stream
+#define IMC_FILEINFO_VERSION    2   // Metadata stored inside the encrypted stream
+
+/* Changelog of the data structures:
+
+    IMC_CRYPTO_VERSION:
+        1 - Initial version
+
+    IMC_FILEINFO_VERSION:
+        1 - Initial version
+        2 - Added option for not compressing the hidden data
+*/
 
 // Function return codes
 #define IMC_SUCCESS             0   // Operation completed successfully
