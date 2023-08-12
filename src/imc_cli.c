@@ -872,6 +872,9 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         argp_failure(state, EXIT_FAILURE, 0, "memory error.");
     }
     
+    // Storage for the user options
+    UserOptions *const options = (UserOptions*)(state->hook);
+    
     // Handle the Argp's events
     switch (key)
     {
@@ -882,32 +885,32 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         
         // --check: Image to be checked for hidden data
         case 'c':
-            __check_unique_option(state, "check", ((UserOptions*)(state->hook))->check);
-            __store_path(arg, &((UserOptions*)(state->hook))->check);
+            __check_unique_option(state, "check", options->check);
+            __store_path(arg, &options->check);
             break;
         
         // --extract: Image to have its hidden data extracted
         case 'e':
-            __check_unique_option(state, "extract", ((UserOptions*)(state->hook))->extract);
-            __store_path(arg, &((UserOptions*)(state->hook))->extract);
+            __check_unique_option(state, "extract", options->extract);
+            __store_path(arg, &options->extract);
             break;
         
         // --input: Image to get data hidden into it
         case 'i':
-            __check_unique_option(state, "input", ((UserOptions*)(state->hook))->input);
-            __store_path(arg, &((UserOptions*)(state->hook))->input);
+            __check_unique_option(state, "input", options->input);
+            __store_path(arg, &options->input);
             break;
         
         // --output: Where to save the image with hidden data
         case 'o':
-            __check_unique_option(state, "output", ((UserOptions*)(state->hook))->output);
-            __store_path(arg, &((UserOptions*)(state->hook))->output);
+            __check_unique_option(state, "output", options->output);
+            __store_path(arg, &options->output);
             break;
         
         // --hide: File being hidden on the image
         case 'h':
             hide:
-            struct HideList **tail = &((UserOptions*)(state->hook))->hide_tail;
+            struct HideList **tail = &options->hide_tail;
             
             // Add the path to the end of the linked list
             if (*tail)
@@ -919,28 +922,28 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             }
             else
             {
-                __store_path(arg, &((UserOptions*)(state->hook))->hide.data);
-                *tail = &((UserOptions*)(state->hook))->hide;
+                __store_path(arg, &options->hide.data);
+                *tail = &options->hide;
             }
-            
+
             // Set whether the current file is going to remain uncompressed
-            (*tail)->uncompressed = ((UserOptions*)(state->hook))->uncompressed;
+            (*tail)->uncompressed = options->uncompressed;
             
             break;
         
         // --uncompressed: Do not compress the files added after this flag is set
         case 'u':
-            ((UserOptions*)(state->hook))->uncompressed = true;
+            options->uncompressed = true;
             break;
         
         // --append: If the file being hidden is going to be appended to existing ones
         case 'a':
-            ((UserOptions*)(state->hook))->append = true;
+            options->append = true;
             break;
         
         // --password: Password provided by the user
         case 'p':
-            if (((UserOptions*)(state->hook))->no_password)
+            if (options->no_password)
             {
                 argp_error(state, "you provided a password even though you specified the 'no password' option.");
             }
@@ -956,29 +959,29 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
                 __password_normalize(user_password, true);
                 
                 // Store the password
-                ((UserOptions*)(state->hook))->password = user_password;
+                options->password = user_password;
             }
             
             break;
         
         // --no-password: Do not show a password prompt if the user has not provided a password
         case 'n':
-            if (((UserOptions*)(state->hook))->password)
+            if (options->password)
             {
                 argp_error(state, "you provided a password even though you specified the 'no password' option.");
             }
-            ((UserOptions*)(state->hook))->no_password = true;
-            ((UserOptions*)(state->hook))->password = __alloc_passbuff();   // Store an empty password
+            options->no_password = true;
+            options->password = __alloc_passbuff();   // Store an empty password
             break;
         
         // --verbose: Prints detailed information during operation
         case 'v':
-            ((UserOptions*)(state->hook))->verbose = true;
+            options->verbose = true;
             break;
         
         // --silent: Do not print detailed information
         case 's':
-            ((UserOptions*)(state->hook))->silent = true;
+            options->silent = true;
             break;
         
         // --algorithm: Print the algorithm used by imgconceal, then exit
@@ -1003,15 +1006,15 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         
         // After the program finished the requested operation: free the options struct
         case ARGP_KEY_FINI:
-            free( ((UserOptions*)(state->hook))->check );
-            free( ((UserOptions*)(state->hook))->extract );
-            free( ((UserOptions*)(state->hook))->input );
-            free( ((UserOptions*)(state->hook))->output );
+            free( options->check );
+            free( options->extract );
+            free( options->input );
+            free( options->output );
 
             // Freeing the linked list
             {
-                free( ((UserOptions*)(state->hook))->hide.data );
-                struct HideList *node = ((UserOptions*)(state->hook))->hide.next;
+                free( options->hide.data );
+                struct HideList *node = options->hide.next;
                 while (node)
                 {
                     struct HideList *next_node = node->next;
@@ -1031,7 +1034,7 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             If so, them we are going to treat the current argument as an option of that "--" or "-" argument. */
 
             // We are jumping back to the clause that handles the previously parsed argument
-            if (((UserOptions*)(state->hook))->prev_arg == 'h')
+            if (options->prev_arg == 'h')
             {
                 // The '--hide' argument accepts more than one file to hide
                 goto hide;
