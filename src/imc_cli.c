@@ -576,7 +576,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
         struct HideList *node = &opt->hide;
         while (node)
         {
-            int hide_status = imc_steg_insert(steg_image, node->data, opt->uncompressed);
+            int hide_status = imc_steg_insert(steg_image, node->data, node->uncompressed);
 
             // Error handling and status messages
             switch (hide_status)
