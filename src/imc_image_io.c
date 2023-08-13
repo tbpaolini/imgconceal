@@ -547,9 +547,24 @@ int imc_steg_extract(CarrierImage *carrier_img)
     compress_size = le64toh(compress_size);
     d_pos += sizeof(compress_size);
 
+    // Buffer for the decompressed data
+    uint8_t *decompress_buffer;
+
+    if (compress_version >= 2 && compress_size == -1)
+    {
+        // Just use the decrypted data by itself, if it is not compressed
+        // Note: support for uncompressed data has been added at version 2,
+        //       and it is flagged with a compress_size of -1.
+        decompress_buffer = decrypt_buffer;
+        decompress_size = decrypt_size - d_pos; // Decompression would have started after the initial version and size info
+    }
+
+    else    /* Start of decompression */
+    {
+
     // Allocate buffer for decompressed data
     const size_t d_size = d_pos + decompress_size;
-    uint8_t *decompress_buffer = imc_malloc(d_size);
+    decompress_buffer = imc_malloc(d_size);
     memcpy(&decompress_buffer[0], decrypt_buffer, d_pos);   // Copy the header to the beginning of the buffer
 
     #ifdef _WIN32
@@ -591,6 +606,8 @@ int imc_steg_extract(CarrierImage *carrier_img)
 
     imc_free(decrypt_buffer);
     if (print_msg) printf("Done!\n");
+
+    }   /* End of decompression */
     
     // Get the data needed to reconstruct the hidden file
     FileInfo *file_info = (FileInfo*)decompress_buffer;
