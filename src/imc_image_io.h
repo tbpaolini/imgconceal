@@ -84,6 +84,7 @@ typedef struct FileMetadata {
     struct timespec mod_time;       // Last modified time of the file
     struct timespec steg_time;      // Time when the file was hidden by this program
     size_t file_size;               // Size in bytes of the hidden file
+    size_t compressed_size;         // Size in bytes of the hidden file after compression
     size_t name_size;               // Size in bytes of the file's name (counting the null terminator)
     char file_name[];               // Name of the file as a C-style string
 } FileMetadata;

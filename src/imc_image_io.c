@@ -634,6 +634,7 @@ int imc_steg_extract(CarrierImage *carrier_img)
         .mod_time = __timespec_from_64le(file_info->mod_time),
         .steg_time = __timespec_from_64le(file_info->steg_time),
         .file_size = file_size,
+        .compressed_size = compress_size,
         .name_size = name_len,
     };
 
