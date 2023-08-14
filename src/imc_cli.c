@@ -722,6 +722,20 @@ static inline void __execute_options(struct argp_state *state, void *options)
                         
                         __filesize_to_string(steg_image->steg_info->file_size, str_buffer, sizeof(str_buffer));
                         printf("  size: %s\n", str_buffer);
+
+                        const size_t comp_size = steg_image->steg_info->compressed_size;
+                        if (comp_size == -1)
+                        {
+                            // Hidden file is not compressed
+                            printf("  compressed: no\n");
+                        }
+                        else
+                        {
+                            // Display the compressed size of the hidden file
+                            __filesize_to_string(comp_size, str_buffer, sizeof(str_buffer));
+                            const size_t percent = (comp_size * 100) / steg_image->steg_info->file_size;
+                            printf("  compressed: yes (%s | %zu%%)\n", str_buffer, percent);
+                        }
                     }
                     else // (mode == EXTRACT)
                     {
