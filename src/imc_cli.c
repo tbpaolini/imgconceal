@@ -688,6 +688,9 @@ static inline void __execute_options(struct argp_state *state, void *options)
             }
         }
         
+        size_t file_count = 0;
+        size_t size_count = 0;
+
         // Save or just check the files hidden on the image
         int unhide_status = IMC_SUCCESS;
         while (unhide_status == IMC_SUCCESS)
@@ -702,12 +705,13 @@ static inline void __execute_options(struct argp_state *state, void *options)
             switch (unhide_status)
             {
                 case IMC_SUCCESS:
+                    file_count++;
                     if (mode == CHECK)
                     {
                         if (has_file) printf("\n");
                         else if (opt->verbose) printf("\n");
                         
-                        printf("Found file '%s':\n", steg_image->steg_info->file_name);
+                        printf("Found file #%zu '%s':\n", file_count, steg_image->steg_info->file_name);
                         
                         char str_buffer[256];   // Buffer for the formatted strings
 
@@ -728,6 +732,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
                         {
                             // Hidden file is not compressed
                             printf("  compressed: no\n");
+                            size_count += steg_image->steg_info->file_size;
                         }
                         else
                         {
@@ -735,6 +740,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
                             __filesize_to_string(comp_size, str_buffer, sizeof(str_buffer));
                             const size_t percent = (comp_size * 100) / steg_image->steg_info->file_size;
                             printf("  compressed: yes (%s | %zu%%)\n", str_buffer, percent);
+                            size_count += comp_size;
                         }
                     }
                     else // (mode == EXTRACT)
@@ -829,13 +835,21 @@ static inline void __execute_options(struct argp_state *state, void *options)
         // Prints how much space the image has left, in case of checking one that already has hidden data
         if (mode == CHECK && has_file)
         {
-            char str_buffer[256];
-            __filesize_to_string((steg_image->carrier_lenght - steg_image->carrier_pos) / 8, str_buffer, sizeof(str_buffer));
+            const char *s = (file_count > 1) ? "s" : "";    // Letter 's' of the plural form
+            
+            char used_size[128] = {0};
+            __filesize_to_string(size_count, used_size, sizeof(used_size));
+            
+            char free_size[128] = {0};
+            __filesize_to_string((steg_image->carrier_lenght - steg_image->carrier_pos) / 8, free_size, sizeof(free_size));
+            
             printf(
-                "\nThe cover image '%s' can hide approximately more %s "
+                "\nFound %zu hidden file%s in a total of %s.\n"
+                "The cover image '%s' can hide approximately more %s "
                 "(after compression of hidden data).\n",
+                file_count, s, used_size,
                 basename(opt->check),
-                str_buffer
+                free_size
             );
         }
     }
