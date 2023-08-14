@@ -690,6 +690,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
         
         size_t file_count = 0;
         size_t size_count = 0;
+        size_t extracted_size = 0;
 
         // Save or just check the files hidden on the image
         int unhide_status = IMC_SUCCESS;
@@ -754,6 +755,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
                             __timespec_to_string(&steg_image->steg_info->steg_time, date_str, sizeof(date_str));
                             printf("  hidden on: %s\n", date_str);
                         }
+                        extracted_size += steg_image->steg_info->file_size;
                     }
                     
                     has_file = true;
@@ -830,6 +832,15 @@ static inline void __execute_options(struct argp_state *state, void *options)
                 const int ch_status = rmdir(opt->output);
                 #endif
             }
+        }
+
+        // Prints how many files have been extracted and their total size
+        if (!opt->silent && mode == EXTRACT && has_file)
+        {
+            const char *s = (file_count > 1) ? "s" : "";    // Letter 's' of the plural form
+            char extracted_str[128] = {0};
+            __filesize_to_string(extracted_size, extracted_str, sizeof(extracted_str));
+            printf("Extracted %zu file%s in a total of %s.\n", file_count, s, extracted_str);
         }
 
         // Prints how much space the image has left, in case of checking one that already has hidden data
