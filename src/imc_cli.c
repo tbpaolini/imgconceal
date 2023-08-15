@@ -587,7 +587,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
                 argp_failure(state, EXIT_FAILURE, 0,
                     "FAIL: Image '%s' contains no hidden data or the password is incorrect.\n"\
                     "In order to append files to the image, you have to use the same password as the previously files hidden there.\n"\
-                    "If you want to overwite the existing hidden files (if any), please run the program without the '--append' option.",
+                    "If you want to overwrite the existing hidden files (if any), please run the program without the '--append' option.",
                     basename(steg_path));
             }
         }
