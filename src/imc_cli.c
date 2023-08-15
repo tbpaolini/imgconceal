@@ -550,8 +550,8 @@ static inline void __execute_options(struct argp_state *state, void *options)
             break;
     }
 
-    // Whether a file has been successfully been hidden on the input image
-    bool image_has_changed = false;
+    // How many have been successfully hidden on the input image
+    size_t hidden_files_count = false;
 
     // Operation on the image
     if (mode == HIDE)
@@ -583,7 +583,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
             {
                 case IMC_SUCCESS:
                     if (!opt->silent) printf("SUCCESS: hidden '%s' in the cover image.\n", basename(node->data));
-                    image_has_changed = true;
+                    hidden_files_count++;
                     break;
                 
                 case IMC_ERR_PATH_IS_DIR:
@@ -866,7 +866,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
     }
 
     // Save the modified image (when hiding a file)
-    if (mode == HIDE && image_has_changed)
+    if (mode == HIDE && hidden_files_count > 0)
     {
         const char *const save_path = opt->output ? opt->output : opt->input;
         const int save_status = imc_steg_save(steg_image, save_path);
@@ -879,6 +879,25 @@ static inline void __execute_options(struct argp_state *state, void *options)
                 if (!opt->silent)
                 {
                     printf("The modified image was saved to '%s'.\n", steg_image->out_path);
+
+                    const size_t unused_size = (steg_image->carrier_lenght - steg_image->carrier_pos) / 8;
+                    const size_t used_size = steg_image->carrier_pos / 8;
+
+                    char unused_str[128] = {0};
+                    char used_str[128] = {0};
+                    __filesize_to_string(unused_size, unused_str, sizeof(unused_str));
+                    __filesize_to_string(used_size, used_str, sizeof(used_str));
+
+                    if (hidden_files_count == 1)
+                    {
+                        printf("1 file (%s) was hidden in the cover image.", used_str);
+                    }
+                    else
+                    {
+                        printf("%zu files (%s) were hidden in the cover image.", hidden_files_count, used_str);
+                    }
+
+                    printf(" %s more can be hidden.\n", unused_str);
                 }
                 break;
             
