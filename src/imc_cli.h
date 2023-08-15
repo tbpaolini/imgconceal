@@ -55,6 +55,10 @@ static inline void __timespec_to_string(struct timespec *time, char *out_buff, s
 // Convert a file size (in bytes) to a string in the appropriate scale, and store it on 'out_buff'
 static inline void __filesize_to_string(size_t file_size, char *out_buff, size_t buff_size);
 
+// Given a path string, check if the corresponding file exists
+// This does not check for file's read or write permisions.
+static inline bool __file_exists(const char *path);
+
 // Validate the command line options, and perform the requested operation
 // This is a helper for the 'imc_cli_parse_options()' function.
 static inline void __execute_options(struct argp_state *state, void *options);

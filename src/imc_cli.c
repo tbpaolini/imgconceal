@@ -104,6 +104,7 @@ typedef struct UserOptions {
     struct HideList *hide_tail; // Last element of the 'hide' linked list
     PassBuff *password; // Plain text password provided by the user
     int prev_arg;       // The key of the previous parsed command line argument
+    bool hiding;        // If the '--hide' option being used
     bool uncompressed;  // Do not compress the hidden data passed after this flag is set
     bool append;        // Whether the added hidden data is being appended to the existing one
     bool no_password;   // 'true' if not using a password
@@ -409,11 +410,30 @@ static inline void __filesize_to_string(size_t file_size, char *out_buff, size_t
     }
 }
 
+// Given a path string, check if the corresponding file exists
+// This does not check for file's read or write permisions.
+static inline bool __file_exists(const char *path)
+{
+    #ifdef _WIN32   // Windows systems
+    const int status = _access(path, F_OK);
+    #else           // Linux systems
+    const int status = access(path, F_OK);
+    #endif // _WIN32
+
+    if (status == 0) {return true;} else {return false;}
+}
+
 // Validate the command line options, and perform the requested operation
 // This is a helper for the 'imc_cli_parse_options()' function.
 static inline void __execute_options(struct argp_state *state, void *options)
 {
     UserOptions *opt = (UserOptions*)options;
+
+    if (opt->hiding && !opt->hide.data)
+    {
+        // Note: Here we are avoiding the slow operation of opening the carrier bytes.
+        argp_failure(state, EXIT_FAILURE, 0, "none of the files to be hidden were found.");
+    }
 
     // Check if the user has specified exactly one operation
     int mode_count = (bool)opt->hide.data + (bool)opt->extract + (bool)opt->check;
@@ -973,6 +993,17 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
         // --hide: File being hidden on the image
         case 'h':
             hide:
+
+            options->hiding = true;
+            
+            // Check if the file being hidden actually exists
+            // (program will exit if none exists)
+            if (!__file_exists(arg))
+            {
+                fprintf(stderr, "Warning: file '%s' was not found.\n", arg);
+                break;
+            }
+            
             struct HideList **tail = &options->hide_tail;
             
             // Add the path to the end of the linked list
