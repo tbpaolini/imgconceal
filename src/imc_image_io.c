@@ -276,7 +276,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path, bool do_no
     else    /* Start of compression */
     {
     // For backwards compatibility the file_info's version is set back to 1
-    file_info->version = 1;
+    file_info->version = htole32((uint32_t)1);
     /* Note: Earlier versions of this program cannot handle uncompressed data,
        but they can extract compressed data the same way as on this version. */
     
