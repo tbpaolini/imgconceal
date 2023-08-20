@@ -21,6 +21,7 @@ some conflicts with the symbols defined by `windows.h` or the standard libraries
 #include <time.h>
 #include <ctype.h>
 #include <errno.h>
+#include <setjmp.h>
 
 // System libraries
 #ifdef _WIN32
