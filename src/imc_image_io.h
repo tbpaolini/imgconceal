@@ -76,6 +76,13 @@ typedef struct CarrierImage
     // Memory management
     void **heap;            // Array of pointers to other heap allocated memory for this image
     size_t heap_lenght;     // Amount of elements on the 'heap' array
+
+    // Error handling
+    struct {
+        jmp_buf jump_dest;      // Where to jump on error
+        const char *message;    // String with the error description
+        int code;               // Error number
+    } error;    // Error handling of the carrier image
 } CarrierImage;
 
 // Store the metadata of the hidden file
