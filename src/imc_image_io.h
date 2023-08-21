@@ -8,7 +8,7 @@
 #include "imc_includes.h"
 
 /*  Binary format of the hidden data stream
-    (Note: all numeric values are stored as positive integers in little-endian byte order)
+    (Note: all numeric values are stored as unsigned integers in little-endian byte order)
 
     Payload hidden in the carrier image:
     - 4 bytes: ASCII characters "imcl" (used to verify if there is hidden data on the image)
@@ -21,7 +21,7 @@
     - 4 Bytes: version of the compressed data
     - 8 bytes: size of the data after uncompressed
     - 8 bytes: size of the compressed data (everything after this point)
-    - (variable): compressed data stream
+    - (variable): compressed data stream (Note: if the compressed size is (uint64_t)-1, then the data is not compressed)
 
     After the data is decompressed, the resulting stream has this binary structure:
     (the first 8 bytes in a timestamp are the seconds since the Unix epoch,
