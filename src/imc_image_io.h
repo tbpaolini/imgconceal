@@ -45,7 +45,7 @@ enum ImageType {IMC_JPEG, IMC_PNG, IMC_WEBP};
 
 // Pointers to the steganographic functions
 struct CarrierImage;
-typedef void (*carrier_open_func)(struct CarrierImage *);
+typedef int (*carrier_open_func)(struct CarrierImage *);
 typedef int (*carrier_save_func)(struct CarrierImage *, const char *save_path);
 typedef void (*carrier_close_func)(struct CarrierImage *);
 
@@ -165,16 +165,16 @@ void imc_steg_seek_to_end(CarrierImage *carrier_img);
 static void __jpeg_read_callback(j_common_ptr jpeg_obj);
 
 // Get the bytes from a JPEG image that will carry the hidden data
-void imc_jpeg_carrier_open(CarrierImage *carrier_img);
+int imc_jpeg_carrier_open(CarrierImage *carrier_img);
 
 // Progress monitor when reading a PNG image
 static void __png_read_callback(png_structp png_obj, png_uint_32 row, int pass);
 
 // Get the bytes from a PNG image that will carry the hidden data
-void imc_png_carrier_open(CarrierImage *carrier_img);
+int imc_png_carrier_open(CarrierImage *carrier_img);
 
 // Get the bytes from an WebP image that will carry the hidden data
-void imc_webp_carrier_open(CarrierImage *carrier_img);
+int imc_webp_carrier_open(CarrierImage *carrier_img);
 
 // Change a file path in order to make it unique
 // IMPORTANT: Function assumes that the path buffer must be big enough to store the new name.

@@ -127,7 +127,8 @@ int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **out
     }
     
     // Get the carrier bytes from the image
-    carrier_img->open(carrier_img);
+    const int status_open = carrier_img->open(carrier_img);
+    if (status_open != IMC_SUCCESS) return status_open;
 
     // Shuffle the array of pointers
     // (so the order that the bytes are written depends on the password)
@@ -813,7 +814,7 @@ static void __jpeg_read_callback(j_common_ptr jpeg_obj)
 }
 
 // Get the bytes from a JPEG image that will carry the hidden data
-void imc_jpeg_carrier_open(CarrierImage *carrier_img)
+int imc_jpeg_carrier_open(CarrierImage *carrier_img)
 {
     // Open the image for reading
     FILE *jpeg_file = carrier_img->file;
@@ -965,6 +966,8 @@ void imc_jpeg_carrier_open(CarrierImage *carrier_img)
         the memory of '*jpeg_dct' is managed by libjpeg-turbo (instead of my code).
         The lenght of 1 prevents my code from attempting to free that memory.
     */
+
+   return IMC_SUCCESS;
 }
 
 // Progress monitor when reading a PNG image
@@ -975,7 +978,7 @@ static void __png_read_callback(png_structp png_obj, png_uint_32 row, int pass)
 }
 
 // Get the bytes from a PNG image that will carry the hidden data
-void imc_png_carrier_open(CarrierImage *carrier_img)
+int imc_png_carrier_open(CarrierImage *carrier_img)
 {
     // Allocate memory for the PNG processing structs
     png_structp png_obj = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -1159,10 +1162,12 @@ void imc_png_carrier_open(CarrierImage *carrier_img)
     carrier_img->carrier = carrier;
     carrier_img->carrier_lenght = pos;
     carrier_img->bytes = initial_offset;
+
+    return IMC_SUCCESS;
 }
 
 // Get the bytes from an WebP image that will carry the hidden data
-void imc_webp_carrier_open(CarrierImage *carrier_img)
+int imc_webp_carrier_open(CarrierImage *carrier_img)
 {
     // Get the total file size of the WebP image
 
@@ -1335,6 +1340,8 @@ void imc_webp_carrier_open(CarrierImage *carrier_img)
     carrier_img->heap[0] = imc_malloc(sizeof(size_t));
     *(size_t*)carrier_img->heap[0] = file_size;
     carrier_img->heap_lenght = 1;
+
+    return IMC_SUCCESS;
 }
 
 // Change a file path in order to make it unique
