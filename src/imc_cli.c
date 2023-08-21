@@ -565,6 +565,10 @@ static inline void __execute_options(struct argp_state *state, void *options)
             argp_failure(state, EXIT_FAILURE, 0, "no enough memory for hashing the password.");
             break;
         
+        case IMC_ERR_CODEC_FAIL:
+            argp_failure(state, EXIT_FAILURE, 0, "%s", steg_image->error.message);
+            break;
+        
         default:
             argp_failure(state, EXIT_FAILURE, 0, "unknown error when hashing the password. (%d)", steg_status);
             break;
@@ -931,6 +935,10 @@ static inline void __execute_options(struct argp_state *state, void *options)
             
             case IMC_ERR_FILE_NOT_FOUND:
                 argp_failure(state, EXIT_FAILURE, 0, "could not save '%s'. Reason: %s.", save_path, strerror(errno));
+                break;
+            
+            case IMC_ERR_CODEC_FAIL:
+                argp_failure(state, EXIT_FAILURE, 0, "%s", steg_image->error.message);
                 break;
             
             default:
