@@ -1255,7 +1255,7 @@ void imc_webp_carrier_open(CarrierImage *carrier_img)
                 break;
             
             default:
-                fprintf(stderr, "unknown.\n");
+                fprintf(stderr, "unknown (%ld).\n", (int64_t)status_vp8);
                 break;
         }
         exit(EXIT_FAILURE);
