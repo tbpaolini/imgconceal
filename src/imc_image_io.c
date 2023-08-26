@@ -828,6 +828,13 @@ static void __jpeg_read_callback(j_common_ptr jpeg_obj)
     printf_prog("Reading JPEG image... %.1f %%\r", percent);
 }
 
+// Return control to the caller in case of an error when handling JPEG images
+// Note: this program should store beforehand at 'cinfo->client_data' a pointer to a long jump buffer
+static _Noreturn void __jpeg_error_longjmp(j_common_ptr cinfo)
+{
+    longjmp(cinfo->client_data, 1);
+}
+
 // Get the bytes from a JPEG image that will carry the hidden data
 int imc_jpeg_carrier_open(CarrierImage *carrier_img)
 {
