@@ -1183,6 +1183,9 @@ int imc_png_carrier_open(CarrierImage *carrier_img)
     if (pos == 0)
     {
         imc_codec_error_msg = "Data cannot be hidden in a fully transparent PNG image.";
+        png_destroy_read_struct(&png_obj, &png_info, NULL);
+        free(row_pointers);
+        free(carrier);
         return IMC_ERR_CODEC_FAIL;
     }
     
