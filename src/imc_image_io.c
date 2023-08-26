@@ -222,10 +222,9 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path, bool do_no
     // Sanity check
     if (file_size > IMC_MAX_INPUT_SIZE)
     {
-        fprintf(stderr, "Error: Maximum size of the hidden file is 500 MB");
-        exit(EXIT_FAILURE);
+        return IMC_ERR_INPUT_TOO_BIG;
         /* Note:
-            The 500 MB limit is for preventing a huge file from being accidentally loaded.
+            This size limit is for preventing a huge file from being accidentally loaded.
             Since the amount of data that can realistically be hidden usually is quite small,
             I thought it would be an overkill to optimize the program for handling large files.
         */

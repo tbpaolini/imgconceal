@@ -639,6 +639,12 @@ static inline void __execute_options(struct argp_state *state, void *options)
                     );
                     break;
                 
+                case IMC_ERR_INPUT_TOO_BIG:
+                    char max_size[256];
+                    __filesize_to_string(IMC_MAX_INPUT_SIZE, max_size, sizeof(max_size));
+                    fprintf(stderr, "FAIL: the size of '%s' is greater than the maximum of %s.\n", basename(node->data), max_size);
+                    break;
+                
                 case IMC_ERR_CRYPTO_FAIL:
                     fprintf(stderr, "FAIL: could not encrypt '%s'.\n", basename(node->data));
                     break;
