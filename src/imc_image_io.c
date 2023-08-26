@@ -1579,11 +1579,27 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
     struct jpeg_compress_struct jpeg_obj_out;
     struct jpeg_error_mgr jpeg_err;
     jpeg_obj_out.err = jpeg_std_error(&jpeg_err);   // Use the default error handler
-    jpeg_create_compress(&jpeg_obj_out);
-    jpeg_stdio_dest(&jpeg_obj_out, jpeg_file);
+    jpeg_obj_out.err->error_exit = &__jpeg_error_longjmp;
 
     // Get the original image
     struct jpeg_decompress_struct *jpeg_obj_in = (struct jpeg_decompress_struct *)carrier_img->object;
+    
+    // Error handling
+    jmp_buf jpeg_jump_buffer;
+    if (setjmp(jpeg_jump_buffer))   // Set a long jump to here
+    {
+        // Clean-up in case we fail to decode or encode the images
+        jpeg_destroy_compress(&jpeg_obj_out);
+        jpeg_destroy_decompress(jpeg_obj_in);
+        free(jpeg_obj_out.progress);
+        imc_codec_error_msg = "Failed to write JPEG image";
+        return IMC_ERR_CODEC_FAIL;
+    }
+    jpeg_obj_out.client_data = jpeg_jump_buffer;
+    jpeg_obj_in->client_data = jpeg_jump_buffer;
+
+    jpeg_create_compress(&jpeg_obj_out);
+    jpeg_stdio_dest(&jpeg_obj_out, jpeg_file);
     
     // Get the DCT coefficients from the original image
     jvirt_barray_ptr *jpeg_dct = carrier_img->heap[1];
