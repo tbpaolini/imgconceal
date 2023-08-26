@@ -37,6 +37,7 @@
 #define IMC_ERR_FILE_CORRUPTED -13  // The file read has a different size than expected
 #define IMC_ERR_PATH_IS_DIR    -14  // The path is of a directory rather than a file
 #define IMC_ERR_CODEC_FAIL     -15  // Failed to decode or encode an image
+#define IMC_ERR_INPUT_TOO_BIG  -16  // The file to be hidden has a size greater than IMC_MAX_INPUT_SIZE
 
 // Maximum size in bytes of the file being hidden
 // Note: this value was set to [(65536 * 65536 * 3) / 8], which is the
