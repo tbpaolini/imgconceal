@@ -566,7 +566,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
             break;
         
         case IMC_ERR_CODEC_FAIL:
-            argp_failure(state, EXIT_FAILURE, 0, "%s", steg_image->error.message);
+            argp_failure(state, EXIT_FAILURE, 0, "%s.", imc_codec_error_msg);
             break;
         
         default:
@@ -938,7 +938,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
                 break;
             
             case IMC_ERR_CODEC_FAIL:
-                argp_failure(state, EXIT_FAILURE, 0, "%s", steg_image->error.message);
+                argp_failure(state, EXIT_FAILURE, 0, "%s.", imc_codec_error_msg);
                 break;
             
             default:

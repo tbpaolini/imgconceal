@@ -16,6 +16,11 @@ static _Thread_local double png_num_rows = -1.0;    // Image's height
 // Note: I am storing these thread local variables, because libpng provides no
 //       easy way to access those values from within the row callback function.
 
+// Error message for when the image processing libraries fail
+// Note: This is a global variable, which might need to be reworked
+//       if the program ever handles multiple cover images at once.
+const char* imc_codec_error_msg = "";
+
 // Initialize an image for hiding data in it
 int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **output, uint64_t flags)
 {

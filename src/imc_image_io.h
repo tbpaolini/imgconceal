@@ -77,13 +77,12 @@ typedef struct CarrierImage
     void **heap;            // Array of pointers to other heap allocated memory for this image
     size_t heap_lenght;     // Amount of elements on the 'heap' array
 
-    // Error handling
-    struct {
-        jmp_buf jump_dest;      // Where to jump on error
-        const char *message;    // String with the error description
-        int code;               // Error number
-    } error;    // Error handling of the carrier image
 } CarrierImage;
+
+// Error message for when the image processing libraries fail
+// Note: This is a global variable, which might need to be reworked
+//       if the program ever handles multiple cover images at once.
+extern const char* imc_codec_error_msg;
 
 // Store the metadata of the hidden file
 typedef struct FileMetadata {
