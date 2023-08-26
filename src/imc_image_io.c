@@ -1247,6 +1247,7 @@ int imc_webp_carrier_open(CarrierImage *carrier_img)
     const size_t read_count = fread(in_buffer, 1, file_size, carrier_img->file);
     if (read_count != file_size)
     {
+        free(in_buffer);
         imc_codec_error_msg = "WebP file could not be read";
         return IMC_ERR_CODEC_FAIL;
     }
@@ -1260,6 +1261,7 @@ int imc_webp_carrier_open(CarrierImage *carrier_img)
     {
         if (carrier_img->verbose) fprintf(stderr, "\n");
         free(webp_obj);
+        free(in_buffer);
         imc_codec_error_msg = "Could not retrieve the header of the WebP image";
         return IMC_ERR_CODEC_FAIL;
     }
@@ -1268,6 +1270,7 @@ int imc_webp_carrier_open(CarrierImage *carrier_img)
     {
         if (carrier_img->verbose) fprintf(stderr, "\n");
         free(webp_obj);
+        free(in_buffer);
         imc_codec_error_msg = "Animated WebP images are not supported";
         return IMC_ERR_CODEC_FAIL;
     }
@@ -1285,7 +1288,9 @@ int imc_webp_carrier_open(CarrierImage *carrier_img)
     if (status_vp8 != VP8_STATUS_OK)
     {
         if (carrier_img->verbose) fprintf(stderr, "\n");
+        WebPFreeDecBuffer(&webp_obj->output);
         free(webp_obj);
+        free(in_buffer);
         switch (status_vp8)
         {
             case VP8_STATUS_OUT_OF_MEMORY:
@@ -1366,8 +1371,10 @@ int imc_webp_carrier_open(CarrierImage *carrier_img)
     if (pos == 0)
     {
         free(carrier);
+        WebPFreeDecBuffer(&webp_obj->output);
         free(webp_obj);
-        imc_codec_error_msg = "Data cannot be hidden in a fully transparent WebP image.";
+        free(in_buffer);
+        imc_codec_error_msg = "Data cannot be hidden in a fully transparent WebP image";
         return IMC_ERR_CODEC_FAIL;
     }
     
