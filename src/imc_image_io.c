@@ -832,6 +832,7 @@ static void __jpeg_read_callback(j_common_ptr jpeg_obj)
 // Note: this program should store beforehand at 'cinfo->client_data' a pointer to a long jump buffer
 static _Noreturn void __jpeg_error_longjmp(j_common_ptr cinfo)
 {
+    cinfo->err->output_message(cinfo);  // Output the error message to stderr
     longjmp(cinfo->client_data, 1);
 }
 
@@ -843,6 +844,21 @@ int imc_jpeg_carrier_open(CarrierImage *carrier_img)
     struct jpeg_decompress_struct *jpeg_obj = imc_malloc(sizeof(struct jpeg_decompress_struct));
     struct jpeg_error_mgr *jpeg_err = imc_malloc(sizeof(struct jpeg_error_mgr));
     jpeg_obj->err = jpeg_std_error(jpeg_err);   // Use the default error handler
+    jpeg_obj->err->error_exit = &__jpeg_error_longjmp;
+    
+    jmp_buf jpeg_jump_buffer;
+    if (setjmp(jpeg_jump_buffer))   // Set a long jump to here
+    {
+        // Clean-up in case we fail to decode the image
+        jpeg_destroy_decompress(jpeg_obj);
+        free(jpeg_obj->progress);
+        free(jpeg_obj);
+        free(jpeg_err);
+        imc_codec_error_msg = "Failed to open JPEG image";
+        return IMC_ERR_CODEC_FAIL;
+    }
+    jpeg_obj->client_data = jpeg_jump_buffer;
+    
     jpeg_create_decompress(jpeg_obj);
     jpeg_stdio_src(jpeg_obj, jpeg_file);
 
@@ -956,9 +972,12 @@ int imc_jpeg_carrier_open(CarrierImage *carrier_img)
     // Check for edge case
     if (carrier_count == 0)
     {
-        fprintf(stderr, "Error: the JPEG image has no suitable bits for hiding the data. "
-            "This may happen if the image is just a flat color.\n");
-        exit(EXIT_FAILURE);
+        imc_codec_error_msg = "Data cannot be hidden in a JPEG image that is entirely a plain color.";
+        jpeg_destroy_decompress(jpeg_obj);
+        free(jpeg_obj);
+        free(jpeg_err);
+        free(carrier_bytes);
+        return IMC_ERR_CODEC_FAIL;
     }
     
     // Free the unusued space of the array
