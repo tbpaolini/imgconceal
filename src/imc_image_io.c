@@ -972,7 +972,7 @@ int imc_jpeg_carrier_open(CarrierImage *carrier_img)
     // Check for edge case
     if (carrier_count == 0)
     {
-        imc_codec_error_msg = "Data cannot be hidden in a JPEG image that is entirely a plain color.";
+        imc_codec_error_msg = "Data cannot be hidden in a JPEG image that is entirely a plain color";
         jpeg_destroy_decompress(jpeg_obj);
         free(jpeg_obj);
         free(jpeg_err);
@@ -1182,7 +1182,7 @@ int imc_png_carrier_open(CarrierImage *carrier_img)
     // Check for edge case
     if (pos == 0)
     {
-        imc_codec_error_msg = "Data cannot be hidden in a fully transparent PNG image.";
+        imc_codec_error_msg = "Data cannot be hidden in a fully transparent PNG image";
         png_destroy_read_struct(&png_obj, &png_info, NULL);
         free(row_pointers);
         free(carrier);
@@ -1311,7 +1311,7 @@ int imc_webp_carrier_open(CarrierImage *carrier_img)
             
             default:
                 fprintf(stderr, "Error: unknown issue when decoding the WebP image (%ld).\n", (int64_t)status_vp8);
-                imc_codec_error_msg = "This should never happen, please report it as a bug.";
+                imc_codec_error_msg = "This should never happen, please report it as a bug";
                 break;
         }
         return IMC_ERR_CODEC_FAIL;
@@ -2040,7 +2040,7 @@ int imc_webp_carrier_save(CarrierImage *carrier_img, const char *save_path)
         fprintf(stderr,
             "Error: Using a different version of libwebp than the one used to build this program (%d.%d.%d).\n",
             (version >> 16) & 0xFF, (version >> 8) & 0xFF, (version >> 0) & 0xFF);
-        imc_codec_error_msg = "This should never happen, please report it as a bug.";
+        imc_codec_error_msg = "This should never happen, please report it as a bug";
         return IMC_ERR_CODEC_FAIL;
     }
     
