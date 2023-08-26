@@ -1763,6 +1763,7 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
         imc_codec_error_msg = "Failed to encode the new PNG image";
         return IMC_ERR_CODEC_FAIL;
     }
+    memcpy(png_jmpbuf(png_obj_in), png_jmpbuf(png_obj_out), sizeof(jmp_buf));   // Copy the jump buffer to the input PNG object
     
     png_init_io(png_obj_out, png_file);
 
