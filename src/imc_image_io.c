@@ -1990,6 +1990,7 @@ static int __webp_write_callback(int percent, const WebPPicture* webp_obj)
     // Note: libwebp has its own timer for controling the progress update frequency,
     //       so we are not using ours from 'printf_prog()'.
     printf("Writing WebP image... %d %%\r", percent);
+    fflush(stdout);
     return true;    // Returning 'true' allows the encoding to continue, 'false' would cancel it
 }
 
