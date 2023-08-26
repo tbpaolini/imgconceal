@@ -106,7 +106,11 @@ int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **out
         if (crypto_status == IMC_SUCCESS) printf("Done!\n");
         else printf("\n");
     }
-    if (crypto_status != IMC_SUCCESS) return crypto_status;
+    if (crypto_status != IMC_SUCCESS)
+    {
+        free(carrier_img);
+        return crypto_status;
+    }
 
     // Set the struct's methods
     // ("open", "save", and "close" functions for the different supported image formats)
@@ -133,7 +137,11 @@ int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **out
     
     // Get the carrier bytes from the image
     const int status_open = carrier_img->open(carrier_img);
-    if (status_open != IMC_SUCCESS) return status_open;
+    if (status_open != IMC_SUCCESS)
+    {
+        free(carrier_img);
+        return status_open;
+    }
 
     // Shuffle the array of pointers
     // (so the order that the bytes are written depends on the password)
