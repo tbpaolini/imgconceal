@@ -991,16 +991,16 @@ int imc_png_carrier_open(CarrierImage *carrier_img)
     if (!png_obj || !png_info)
     {
         png_destroy_read_struct(&png_obj, &png_info, NULL);
-        fprintf(stderr, "Error: No enough memory for reading the PNG file.\n");
-        exit(EXIT_FAILURE);
+        imc_codec_error_msg = "Not enough memory for reading the PNG file";
+        return IMC_ERR_CODEC_FAIL;
     }
 
     // Error handling
     if (setjmp(png_jmpbuf(png_obj)))
     {
         png_destroy_read_struct(&png_obj, &png_info, NULL);
-        fprintf(stderr, "Error: Failed to read PNG file.\n");
-        exit(EXIT_FAILURE);
+        imc_codec_error_msg = "Failed to read PNG file";
+        return IMC_ERR_CODEC_FAIL;
     }
 
     // Metadata of the PNG image
@@ -1054,8 +1054,8 @@ int imc_png_carrier_open(CarrierImage *carrier_img)
     if (bit_depth != 8 && bit_depth != 16)
     {
         png_destroy_read_struct(&png_obj, &png_info, NULL);
-        fprintf(stderr, "Error: Failed to read PNG file.\n");
-        exit(EXIT_FAILURE);
+        imc_codec_error_msg = "The PNG image should have a bit depth of at least 8";
+        return IMC_ERR_CODEC_FAIL;
     }
     /* from this point onwards, this function assumes that the bit depth to be either 8 or 16 */
 
@@ -1146,9 +1146,8 @@ int imc_png_carrier_open(CarrierImage *carrier_img)
     // Check for edge case
     if (pos == 0)
     {
-        fprintf(stderr, "Error: the PNG image has no suitable bits for hiding the data. "
-            "This may happen if the image is fully transparent.\n");
-        exit(EXIT_FAILURE);
+        imc_codec_error_msg = "Data cannot be hidden in a fully transparent PNG image.";
+        return IMC_ERR_CODEC_FAIL;
     }
     
     // Free the unused space of the carrier buffer
