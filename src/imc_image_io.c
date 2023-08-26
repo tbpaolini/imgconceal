@@ -109,6 +109,7 @@ int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **out
     if (crypto_status != IMC_SUCCESS)
     {
         free(carrier_img);
+        fclose(image);
         return crypto_status;
     }
 
@@ -140,6 +141,7 @@ int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **out
     if (status_open != IMC_SUCCESS)
     {
         free(carrier_img);
+        fclose(image);
         return status_open;
     }
 
