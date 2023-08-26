@@ -1714,16 +1714,16 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
     if (!png_obj_out || !png_info_out)
     {
         png_destroy_read_struct(&png_obj_out, &png_info_out, NULL);
-        fprintf(stderr, "Error: No enough memory for writing the PNG file.\n");
-        exit(EXIT_FAILURE);
+        imc_codec_error_msg = "Not enough memory for writing the PNG file";
+        return IMC_ERR_CODEC_FAIL;
     }
 
     // Error handling
     if (setjmp(png_jmpbuf(png_obj_out)))
     {
         png_destroy_read_struct(&png_obj_out, &png_info_out, NULL);
-        fprintf(stderr, "Error: Failed to write PNG file.\n");
-        exit(EXIT_FAILURE);
+        imc_codec_error_msg = "Failed to encode the new PNG image";
+        return IMC_ERR_CODEC_FAIL;
     }
     
     png_init_io(png_obj_out, png_file);
