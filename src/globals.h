@@ -39,7 +39,9 @@
 #define IMC_ERR_CODEC_FAIL     -15  // Failed to decode or encode an image
 
 // Maximum size in bytes of the file being hidden
-#define IMC_MAX_INPUT_SIZE  500000000
+// Note: this value was set to [(65536 * 65536 * 3) / 8], which is the
+//       theoretical maximum of a PNG image with dimensions 65536 x 65536.
+#define IMC_MAX_INPUT_SIZE  1610612736
 
 // Maximum number that can be appended to a filename in order to resolve name collisions
 #define IMC_MAX_FILENAME_DUPLICATES 99
