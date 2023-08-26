@@ -1201,8 +1201,8 @@ int imc_webp_carrier_open(CarrierImage *carrier_img)
 
     if (file_size > UINT32_MAX)
     {
-        fprintf(stderr, "Error: Maximum size of an WebP image is 4 GB.\n");
-        exit(EXIT_FAILURE);
+        imc_codec_error_msg = "Maximum size of an WebP image is 4 GB";
+        return IMC_ERR_CODEC_FAIL;
     }
 
     if (carrier_img->verbose)
@@ -1216,8 +1216,8 @@ int imc_webp_carrier_open(CarrierImage *carrier_img)
     const size_t read_count = fread(in_buffer, 1, file_size, carrier_img->file);
     if (read_count != file_size)
     {
-        fprintf(stderr, "Error: WebP file could not be read.\n");
-        exit(EXIT_FAILURE);
+        imc_codec_error_msg = "WebP file could not be read";
+        return IMC_ERR_CODEC_FAIL;
     }
 
     // Data of the decoded WebP image (original file)
@@ -1228,15 +1228,17 @@ int imc_webp_carrier_open(CarrierImage *carrier_img)
     if (status_vp8 != VP8_STATUS_OK)
     {
         if (carrier_img->verbose) fprintf(stderr, "\n");
-        fprintf(stderr, "Error: Could not retrieve the header of the WebP image.\n");
-        exit(EXIT_FAILURE);
+        free(webp_obj);
+        imc_codec_error_msg = "Could not retrieve the header of the WebP image";
+        return IMC_ERR_CODEC_FAIL;
     }
 
     if (webp_obj->input.has_animation)
     {
         if (carrier_img->verbose) fprintf(stderr, "\n");
-        fprintf(stderr, "Error: Animated WebP images are not supported.\n");
-        exit(EXIT_FAILURE);
+        free(webp_obj);
+        imc_codec_error_msg = "Animated WebP images are not supported";
+        return IMC_ERR_CODEC_FAIL;
     }
     
     // Set the decoding options
@@ -1252,30 +1254,31 @@ int imc_webp_carrier_open(CarrierImage *carrier_img)
     if (status_vp8 != VP8_STATUS_OK)
     {
         if (carrier_img->verbose) fprintf(stderr, "\n");
-        fprintf(stderr, "Error: Could not decode the WebP image. Reason: ");
+        free(webp_obj);
         switch (status_vp8)
         {
             case VP8_STATUS_OUT_OF_MEMORY:
-                fprintf(stderr, "no enough memory.\n");
+                imc_codec_error_msg = "Not enough memory for decoding the WebP image";
                 break;
             
             case VP8_STATUS_NOT_ENOUGH_DATA:
-                fprintf(stderr, "no enough data, the file appears to be corrupted.\n");
+                imc_codec_error_msg = "WebP image is corrupted";
                 break;
             
             case VP8_STATUS_UNSUPPORTED_FEATURE:
-                fprintf(stderr, "image uses an unsupported feature.\n");
+                imc_codec_error_msg = "WebP image uses an unsupported feature";
                 break;
             
             case VP8_STATUS_BITSTREAM_ERROR:
-                fprintf(stderr, "not a valid WebP image.\n");
+                imc_codec_error_msg = "The file is not a valid WebP image";
                 break;
             
             default:
-                fprintf(stderr, "unknown (%ld).\n", (int64_t)status_vp8);
+                fprintf(stderr, "Error: unknown issue when decoding the WebP image (%ld).\n", (int64_t)status_vp8);
+                imc_codec_error_msg = "This should never happen, please report it as a bug.";
                 break;
         }
-        exit(EXIT_FAILURE);
+        return IMC_ERR_CODEC_FAIL;
     }
 
     if (carrier_img->verbose) printf("Done!  \n");
@@ -1331,9 +1334,10 @@ int imc_webp_carrier_open(CarrierImage *carrier_img)
     // Check for edge case
     if (pos == 0)
     {
-        fprintf(stderr, "Error: the WebP image has no suitable bits for hiding the data. "
-            "This may happen if the image is fully transparent.\n");
-        exit(EXIT_FAILURE);
+        free(carrier);
+        free(webp_obj);
+        imc_codec_error_msg = "Data cannot be hidden in a fully transparent WebP image.";
+        return IMC_ERR_CODEC_FAIL;
     }
     
     // Free the unused space of the carrier buffer
@@ -1997,7 +2001,8 @@ int imc_webp_carrier_save(CarrierImage *carrier_img, const char *save_path)
         fprintf(stderr,
             "Error: Using a different version of libwebp than the one used to build this program (%d.%d.%d).\n",
             (version >> 16) & 0xFF, (version >> 8) & 0xFF, (version >> 0) & 0xFF);
-        exit(EXIT_FAILURE);
+        imc_codec_error_msg = "This should never happen, please report it as a bug.";
+        return IMC_ERR_CODEC_FAIL;
     }
     
     enc_config.exact = 1;           // Do not make any changes to the color values
@@ -2029,8 +2034,8 @@ int imc_webp_carrier_save(CarrierImage *carrier_img, const char *save_path)
     if (!enc_status)
     {
         fclose(webp_file);
-        fprintf(stderr, "Error: Could not encode the new WebP image.\n");
-        exit(EXIT_FAILURE);
+        imc_codec_error_msg = "Could not encode the new WebP image";
+        return IMC_ERR_CODEC_FAIL;
     }
 
     /* Copying the metadata from the original image */
