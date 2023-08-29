@@ -33,6 +33,7 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
 }
 
 // Allocate the memory for the color buffer inside a RawImage struct
+// The memory should be freed with '__free_color_buffer()'.
 // Note: the struct members 'height' and 'stride' must have been set previously.
 static void __alloc_color_buffer(struct RawImage *raw_image)
 {
@@ -52,4 +53,11 @@ static void __alloc_color_buffer(struct RawImage *raw_image)
     {
         raw_image->row_pointers[i] = raw_image->rgba.data + (i * stride);
     }
+}
+
+// Free the memory for the color buffer inside a RawImage struct
+static void __free_color_buffer(struct RawImage *raw_image)
+{
+    imc_free(raw_image->rgba.data);
+    imc_free(raw_image->row_pointers);
 }
