@@ -31,3 +31,25 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
 {
     
 }
+
+// Allocate the memory for the color buffer inside a RawImage struct
+// Note: the struct members 'height' and 'stride' must have been set previously.
+static void __alloc_color_buffer(struct RawImage *raw_image)
+{
+    const size_t height = raw_image->height;    // Amount of rows
+    const size_t stride = raw_image->stride;    // Bytes per row
+    const size_t total_size = stride * height;  // Total amount of bytes
+
+    // Allocate the RGBA color buffer
+    raw_image->rgba = (RawBuffer){
+        .size = total_size,
+        .data = imc_malloc(total_size),
+    };
+
+    // Pointers to each row on the RGBA color buffer
+    raw_image->row_pointers = imc_malloc(height * sizeof(uint8_t*));
+    for (size_t i = 0; i < height; i++)
+    {
+        raw_image->row_pointers[i] = raw_image->rgba.data + (i * stride);
+    }
+}
