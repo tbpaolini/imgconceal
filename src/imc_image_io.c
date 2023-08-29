@@ -1,5 +1,5 @@
 /* Functions for reading or writing hidden data into a cover image.
- * Supported cover image's formats: JPEG and PNG.
+ * Supported cover image's formats: JPEG, PNG, and WebP.
  */
 
 #include "imc_includes.h"
