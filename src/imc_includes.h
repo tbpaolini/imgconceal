@@ -55,6 +55,7 @@ some conflicts with the symbols defined by `windows.h` or the standard libraries
 #include "imc_cli.h"
 #include "imc_crypto.h"
 #include "imc_image_io.h"
+#include "imc_image_conv.h"
 #include "imc_memory.h"
 
 #endif  // _IMC_INCLUDES_H
