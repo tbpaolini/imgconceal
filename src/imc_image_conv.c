@@ -22,3 +22,12 @@ typedef struct RawImage {
     struct RawBuffer rgba;  // Color values of the pixels: {R1, G1, B1, A1, R2, G2, B2, A2, ...}
     uint8_t **row_pointers; // Pointers to each row on the buffer ofcolor values
 } RawImage;
+
+// Convert an image file to another format
+// The converted image is returned as a temporary file, which is automatically
+// deleted when it is closed or the program exits.
+// In case of failure, NULL is returned and 'imc_codec_error_msg' is set.
+FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_format, enum ImageType out_format)
+{
+    
+}
