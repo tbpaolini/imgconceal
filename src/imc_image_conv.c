@@ -9,6 +9,7 @@ typedef struct RawBuffer {
 } RawBuffer;
 
 // Store the color values and metadata of an image
+// This struct should be allocated on the stack and must be initialized to zero.
 // Note: The color values are stored a sequence of four 8-bit channels in the RGBA order (red, green, blue, alpha).
 //       If the image does not have transparency, alpha will always be 255.
 typedef struct RawImage {
@@ -45,6 +46,9 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
     status = fseek(in_file, 0, SEEK_SET);
     if (status != 0) goto file_fail;
 
+    // Color values and metadata of the image
+    RawImage raw_image = {0};
+
     // Read color values and metadata from the input image
     switch (in_format)
     {
@@ -61,6 +65,7 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
             break;
         
         default:
+            __close_raw_image(&raw_image);
             imc_codec_error_msg = "Invalid input image's format";
             return NULL;
             break;
@@ -70,7 +75,7 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
     FILE *restrict out_file = tmpfile();
     if (!out_file)
     {
-        // TO DO: free dynamic memory of raw image
+        __close_raw_image(&raw_image);
         perror(module_name);
         imc_codec_error_msg = "Unable to create temporary file for converting the input image";
     }
@@ -91,23 +96,23 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
             break;
         
         default:
-            // TO DO: free dynamic memory of raw image
-            perror(module_name);
+            __close_raw_image(&raw_image);
             fclose(out_file);
+            perror(module_name);
             imc_codec_error_msg = "Invalid output image's format";
             return NULL;
             break;
     }
 
-    // TO DO: free dynamic memory of raw image
+    // Free the dynamic memory used by the raw image
+    __close_raw_image(&raw_image);
 
     // Reset the original position of the input image
     status = fsetpos(in_file, &in_pos);
     if (status != 0)
     {
-        // TO DO: close temp file
-        perror(module_name);
         fclose(out_file);
+        perror(module_name);
         imc_codec_error_msg = "Failed to access input image";
         return NULL;
     }
@@ -144,4 +149,15 @@ static void __free_color_buffer(struct RawImage *raw_image)
 {
     imc_free(raw_image->rgba.data);
     imc_free(raw_image->row_pointers);
+}
+
+// Free all the dynamic memory used by the members of a RawImage struct
+static void __close_raw_image(struct RawImage *raw_image)
+{
+    /* Note: This function is assuming that the pointers are set to NULL if they are unused,
+       which is why the RawImage struct must have been initialized to 0 beforehand. */
+    __free_color_buffer(raw_image);
+    free(raw_image->icc.data);
+    free(raw_image->xmp.data);
+    free(raw_image->exif.data);
 }

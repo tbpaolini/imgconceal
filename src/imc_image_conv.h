@@ -26,4 +26,7 @@ static void __alloc_color_buffer(struct RawImage *raw_image);
 // Free the memory for the color buffer inside a RawImage struct
 static void __free_color_buffer(struct RawImage *raw_image);
 
+// Free all the dynamic memory used by the members of a RawImage struct
+static void __close_raw_image(struct RawImage *raw_image);
+
 #endif  // _IMC_IMAGE_CONV_H
