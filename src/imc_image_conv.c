@@ -23,13 +23,97 @@ typedef struct RawImage {
     uint8_t **row_pointers; // Pointers to each row on the buffer ofcolor values
 } RawImage;
 
+// String to precede error messages related to image conversion
+static const char module_name[] = "Image convert";
+
 // Convert an image file to another format
 // The converted image is returned as a temporary file, which is automatically
 // deleted when it is closed or the program exits.
 // In case of failure, NULL is returned and 'imc_codec_error_msg' is set.
 FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_format, enum ImageType out_format)
 {
+    // Original position on the input file
+    fpos_t in_pos;
+    int status = fgetpos(in_file, &in_pos);
+    if (status != 0)
+    {
+        file_fail:
+        perror(module_name);
+        imc_codec_error_msg = "Failed to access input image";
+        return NULL;
+    }
+    status = fseek(in_file, 0, SEEK_SET);
+    if (status != 0) goto file_fail;
+
+    // Read color values and metadata from the input image
+    switch (in_format)
+    {
+        case IMC_JPEG:
+            /* code */
+            break;
+        
+        case IMC_PNG:
+            /* code */
+            break;
+        
+        case IMC_WEBP:
+            /* code */
+            break;
+        
+        default:
+            imc_codec_error_msg = "Invalid input image's format";
+            return NULL;
+            break;
+    }
+
+    // Temporary file for storing the converted image
+    FILE *restrict out_file = tmpfile();
+    if (!out_file)
+    {
+        // TO DO: free dynamic memory of raw image
+        perror(module_name);
+        imc_codec_error_msg = "Unable to create temporary file for converting the input image";
+    }
     
+    // Write color values and metadata to the output image
+    switch (out_format)
+    {
+        case IMC_JPEG:
+            /* code */
+            break;
+        
+        case IMC_PNG:
+            /* code */
+            break;
+        
+        case IMC_WEBP:
+            /* code */
+            break;
+        
+        default:
+            // TO DO: free dynamic memory of raw image
+            perror(module_name);
+            fclose(out_file);
+            imc_codec_error_msg = "Invalid output image's format";
+            return NULL;
+            break;
+    }
+
+    // TO DO: free dynamic memory of raw image
+
+    // Reset the original position of the input image
+    status = fsetpos(in_file, &in_pos);
+    if (status != 0)
+    {
+        // TO DO: close temp file
+        perror(module_name);
+        fclose(out_file);
+        imc_codec_error_msg = "Failed to access input image";
+        return NULL;
+    }
+
+    // Return the temporary file of the converted image
+    return out_file;
 }
 
 // Allocate the memory for the color buffer inside a RawImage struct
