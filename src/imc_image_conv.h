@@ -23,6 +23,16 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
 // Note: the struct members 'height' and 'stride' must have been set previously.
 static void __alloc_color_buffer(struct RawImage *raw_image);
 
+// Read the color values and metadata of an image into a RawImage struct
+static bool __read_jpeg(FILE *image_file, struct RawImage *raw_image);
+static bool __read_png(FILE *image_file, struct RawImage *raw_image);
+static bool __read_webp(FILE *image_file, struct RawImage *raw_image);
+
+// Write the color values and metadata of an image into a file
+bool __write_jpeg(FILE *image_file, struct RawImage *raw_image);
+bool __write_png(FILE *image_file, struct RawImage *raw_image);
+bool __write_webp(FILE *image_file, struct RawImage *raw_image);
+
 // Free the memory for the color buffer inside a RawImage struct
 static void __free_color_buffer(struct RawImage *raw_image);
 

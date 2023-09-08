@@ -48,20 +48,21 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
 
     // Color values and metadata of the image
     RawImage raw_image = {0};
+    bool read_status = false;
 
     // Read color values and metadata from the input image
     switch (in_format)
     {
         case IMC_JPEG:
-            /* code */
+            read_status = __read_jpeg(in_file, &raw_image);
             break;
         
         case IMC_PNG:
-            /* code */
+            read_status = __read_png(in_file, &raw_image);
             break;
         
         case IMC_WEBP:
-            /* code */
+            read_status = __read_webp(in_file, &raw_image);
             break;
         
         default:
@@ -71,6 +72,13 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
             break;
     }
 
+    if (!read_status)
+    {
+        __close_raw_image(&raw_image);
+        imc_codec_error_msg = "Failed to read input image";
+        return NULL;
+    }
+
     // Temporary file for storing the converted image
     FILE *restrict out_file = tmpfile();
     if (!out_file)
@@ -78,21 +86,23 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
         __close_raw_image(&raw_image);
         perror(module_name);
         imc_codec_error_msg = "Unable to create temporary file for converting the input image";
+        return NULL;
     }
+    bool write_status = false;
     
     // Write color values and metadata to the output image
     switch (out_format)
     {
         case IMC_JPEG:
-            /* code */
+            write_status = __write_jpeg(out_file, &raw_image);
             break;
         
         case IMC_PNG:
-            /* code */
+            write_status = __write_png(out_file, &raw_image);
             break;
         
         case IMC_WEBP:
-            /* code */
+            write_status = __write_webp(out_file, &raw_image);
             break;
         
         default:
@@ -102,6 +112,14 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
             imc_codec_error_msg = "Invalid output image's format";
             return NULL;
             break;
+    }
+
+    if (!write_status)
+    {
+        __close_raw_image(&raw_image);
+        imc_codec_error_msg = "Failed to convert input image";
+        fclose(out_file);
+        return NULL;
     }
 
     // Free the dynamic memory used by the raw image
@@ -142,6 +160,42 @@ static void __alloc_color_buffer(struct RawImage *raw_image)
     {
         raw_image->row_pointers[i] = raw_image->rgba.data + (i * stride);
     }
+}
+
+// Read the color values and metadata of a JPEG image into a RawImage struct
+static bool __read_jpeg(FILE *image_file, struct RawImage *raw_image)
+{
+
+}
+
+// Read the color values and metadata of a PNG image into a RawImage struct
+static bool __read_png(FILE *image_file, struct RawImage *raw_image)
+{
+    
+}
+
+// Read the color values and metadata of an WebP image into a RawImage struct
+static bool __read_webp(FILE *image_file, struct RawImage *raw_image)
+{
+    
+}
+
+// Write the color values and metadata of an image into a JPEG file
+bool __write_jpeg(FILE *image_file, struct RawImage *raw_image)
+{
+    
+}
+
+// Write the color values and metadata of an image into a PNG file
+bool __write_png(FILE *image_file, struct RawImage *raw_image)
+{
+    
+}
+
+// Write the color values and metadata of an image into a WebP file
+bool __write_webp(FILE *image_file, struct RawImage *raw_image)
+{
+    
 }
 
 // Free the memory for the color buffer inside a RawImage struct
