@@ -68,6 +68,7 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
         default:
             __close_raw_image(&raw_image);
             imc_codec_error_msg = "Invalid input image's format";
+            status = fsetpos(in_file, &in_pos);
             return NULL;
             break;
     }
@@ -76,6 +77,7 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
     {
         __close_raw_image(&raw_image);
         imc_codec_error_msg = "Failed to read input image";
+        status = fsetpos(in_file, &in_pos);
         return NULL;
     }
 
@@ -86,6 +88,7 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
         __close_raw_image(&raw_image);
         perror(module_name);
         imc_codec_error_msg = "Unable to create temporary file for converting the input image";
+        status = fsetpos(in_file, &in_pos);
         return NULL;
     }
     bool write_status = false;
@@ -110,6 +113,7 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
             fclose(out_file);
             perror(module_name);
             imc_codec_error_msg = "Invalid output image's format";
+            status = fsetpos(in_file, &in_pos);
             return NULL;
             break;
     }
@@ -119,6 +123,7 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
         __close_raw_image(&raw_image);
         imc_codec_error_msg = "Failed to convert input image";
         fclose(out_file);
+        status = fsetpos(in_file, &in_pos);
         return NULL;
     }
 
