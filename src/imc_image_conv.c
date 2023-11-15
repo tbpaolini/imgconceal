@@ -249,9 +249,59 @@ static bool __read_webp(FILE *image_file, struct RawImage *raw_image)
     raw_image->height = webp_obj->input.height;
     raw_image->stride = webp_obj->input.width * 4;
     raw_image->has_transparency = webp_obj->input.has_alpha;
+
+    // Allocate enough memory for the uncompressed image
+    __alloc_color_buffer(raw_image);
+
+    // Set the decoding parameters
+    webp_obj->options.use_threads = 1;          // Multithreaded decoding
+    webp_obj->output.colorspace = MODE_RGBA;    // Color channels' order: red, green, blue, alpha
+    webp_obj->output.is_external_memory = 1;    // Decode into our buffer rather than one allocated by libweb
+    webp_obj->output.u.RGBA.rgba = raw_image->rgba.data;    // Output for the color values
+    webp_obj->output.u.RGBA.size = raw_image->rgba.size;    // Size in bytes of the output buffer
+    webp_obj->output.u.RGBA.stride = raw_image->stride;     // Size in bytes of a scanline
+
+    // Decode the WebP image
+    // Note: the decoded color values are stored at 'raw_image->rgba.data'
+    status_vp8 = WebPDecode(file_buffer, file_size, webp_obj);
     
-    // Clean-up and exit return with success
+    // Clean-up
     free(file_buffer);
+    free(webp_obj);
+    
+    // Error handling for the decoding
+    if (status_vp8 != VP8_STATUS_OK)
+    {
+        switch (status_vp8)
+        {
+            case VP8_STATUS_OUT_OF_MEMORY:
+                imc_codec_error_msg = "Not enough memory for decoding the WebP image";
+                break;
+            
+            case VP8_STATUS_NOT_ENOUGH_DATA:
+                imc_codec_error_msg = "WebP image is corrupted";
+                break;
+            
+            case VP8_STATUS_UNSUPPORTED_FEATURE:
+                imc_codec_error_msg = "WebP image uses an unsupported feature";
+                break;
+            
+            case VP8_STATUS_BITSTREAM_ERROR:
+                imc_codec_error_msg = "The file is not a valid WebP image";
+                break;
+            
+            default:
+                fprintf(stderr, "Error: unknown issue when decoding the WebP image (%ld).\n", (int64_t)status_vp8);
+                imc_codec_error_msg = "This should never happen, please report it as a bug";
+                break;
+        }
+        
+        return false;
+    }
+
+    /* TO DO: Read the image's metadata */
+    
+    // Image has been decoded with success
     return true;
 }
 
