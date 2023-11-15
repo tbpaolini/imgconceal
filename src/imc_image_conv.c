@@ -33,6 +33,9 @@ static const char module_name[] = "Image convert";
 // In case of failure, NULL is returned and 'imc_codec_error_msg' is set.
 FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_format, enum ImageType out_format)
 {
+    // Error message in case the conversion fails
+    imc_codec_error_msg = NULL;
+    
     // Original position on the input file
     fpos_t in_pos;
     int status = fgetpos(in_file, &in_pos);
@@ -67,7 +70,7 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
         
         default:
             __close_raw_image(&raw_image);
-            imc_codec_error_msg = "Invalid input image's format";
+            if (!imc_codec_error_msg) imc_codec_error_msg = "Invalid input image's format";
             status = fsetpos(in_file, &in_pos);
             return NULL;
             break;
@@ -76,7 +79,7 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
     if (!read_status)
     {
         __close_raw_image(&raw_image);
-        imc_codec_error_msg = "Failed to read input image";
+        if (!imc_codec_error_msg) imc_codec_error_msg = "Failed to read input image";
         status = fsetpos(in_file, &in_pos);
         return NULL;
     }
@@ -87,7 +90,7 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
     {
         __close_raw_image(&raw_image);
         perror(module_name);
-        imc_codec_error_msg = "Unable to create temporary file for converting the input image";
+        if (!imc_codec_error_msg) imc_codec_error_msg = "Unable to create temporary file for converting the input image";
         status = fsetpos(in_file, &in_pos);
         return NULL;
     }
@@ -112,7 +115,7 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
             __close_raw_image(&raw_image);
             fclose(out_file);
             perror(module_name);
-            imc_codec_error_msg = "Invalid output image's format";
+            if (!imc_codec_error_msg) imc_codec_error_msg = "Invalid output image's format";
             status = fsetpos(in_file, &in_pos);
             return NULL;
             break;
@@ -121,7 +124,7 @@ FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_forma
     if (!write_status)
     {
         __close_raw_image(&raw_image);
-        imc_codec_error_msg = "Failed to convert input image";
+        if (!imc_codec_error_msg) imc_codec_error_msg = "Failed to convert input image";
         fclose(out_file);
         status = fsetpos(in_file, &in_pos);
         return NULL;
