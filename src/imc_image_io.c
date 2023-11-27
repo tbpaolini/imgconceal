@@ -1208,69 +1208,92 @@ int imc_png_carrier_open(CarrierImage *carrier_img)
     return IMC_SUCCESS;
 }
 
-// Get the bytes from an WebP image that will carry the hidden data
-int imc_webp_carrier_open(CarrierImage *carrier_img)
+// Parse the properties of an open WebP file into an object and buffer used by libwebp for decoding
+// It returns 'true' on success, or 'false' on failure (it also sets 'imc_codec_error_msg').
+// Note: memory is allocated only on success, and the output's values are undefined on failure.
+bool imc_webp_get_obj(
+    FILE *file,                     // INPUT: file open in "rb" mode
+    WebPDecoderConfig **webp_obj,   // OUTPUT: object to be passed to the WebP decoder (on success memory is allocated by this function, but it should be freed by the caller)
+    uint8_t **file_buffer,          // OUTPUT: buffer with the raw file contents (on success memory is allocated by this function, but it should be freed by the caller)
+    size_t *file_size               // OUTPUT: size in bytes of the file buffer
+)
 {
     // Get the total file size of the WebP image
 
     #ifdef _WIN32   // Windows systems
     
-    HANDLE file_handle = __win_get_file_handle(carrier_img->file);
+    HANDLE file_handle = __win_get_file_handle(file);
     LARGE_INTEGER file_size_win = {0};
     GetFileSizeEx(file_handle, &file_size_win);
-    const size_t file_size = file_size_win.QuadPart;
+    *file_size = file_size_win.QuadPart;
 
     #else   // Linux systems
     
-    int file_descriptor = fileno(carrier_img->file);
+    int file_descriptor = fileno(file);
     struct stat file_stats = {0};
     fstat(file_descriptor, &file_stats);
-    const size_t file_size = file_stats.st_size;
+    *file_size = file_stats.st_size;
 
     #endif
 
-    if (file_size > UINT32_MAX)
+    if (*file_size > UINT32_MAX)
     {
         imc_codec_error_msg = "Maximum size of an WebP image is 4 GB";
-        return IMC_ERR_CODEC_FAIL;
+        return false;
     }
 
+    // Input buffer (original image)
+    *file_buffer = imc_malloc(*file_size);
+    const size_t read_count = fread(*file_buffer, 1, *file_size, file);
+    if (read_count != *file_size)
+    {
+        free(*file_buffer);
+        imc_codec_error_msg = "WebP file could not be read";
+        return false;
+    }
+
+    // Data of the decoded WebP image (original file)
+    *webp_obj = imc_calloc(1, sizeof(WebPDecoderConfig));
+    WebPInitDecoderConfig(*webp_obj);
+    VP8StatusCode status_vp8 = WebPGetFeatures( *file_buffer, *file_size, &((*webp_obj)->input) );
+
+    if (status_vp8 != VP8_STATUS_OK)
+    {
+        free(*webp_obj);
+        free(*file_buffer);
+        imc_codec_error_msg = "Could not retrieve the header of the WebP image";
+        return false;
+    }
+
+    if ((*webp_obj)->input.has_animation)
+    {
+        free(*webp_obj);
+        free(*file_buffer);
+        imc_codec_error_msg = "Animated WebP images are not supported";
+        return false;
+    }
+    
+    return true;
+}
+
+// Get the bytes from an WebP image that will carry the hidden data
+int imc_webp_carrier_open(CarrierImage *carrier_img)
+{
     if (carrier_img->verbose)
     {
         printf("Reading WebP image... ");
         fflush(stdout);
     }
 
-    // Input buffer (original image)
-    uint8_t *in_buffer = imc_malloc(file_size);
-    const size_t read_count = fread(in_buffer, 1, file_size, carrier_img->file);
-    if (read_count != file_size)
-    {
-        free(in_buffer);
-        imc_codec_error_msg = "WebP file could not be read";
-        return IMC_ERR_CODEC_FAIL;
-    }
+    WebPDecoderConfig *webp_obj = NULL; // Object used by the WebP image decoder
+    uint8_t *in_buffer = NULL;          // Buffer for the raw contents of the WebP file
+    size_t file_size = 0;               // Size in bytes of the WebP file
 
-    // Data of the decoded WebP image (original file)
-    WebPDecoderConfig *webp_obj = imc_calloc(1, sizeof(WebPDecoderConfig));
-    WebPInitDecoderConfig(webp_obj);
-    VP8StatusCode status_vp8 = WebPGetFeatures(in_buffer, file_size, &webp_obj->input);
-
-    if (status_vp8 != VP8_STATUS_OK)
+    // Parse the WebP file
+    bool status_parse = imc_webp_get_obj(carrier_img->file, &webp_obj, &in_buffer, &file_size);
+    if (!status_parse)
     {
         if (carrier_img->verbose) fprintf(stderr, "\n");
-        free(webp_obj);
-        free(in_buffer);
-        imc_codec_error_msg = "Could not retrieve the header of the WebP image";
-        return IMC_ERR_CODEC_FAIL;
-    }
-
-    if (webp_obj->input.has_animation)
-    {
-        if (carrier_img->verbose) fprintf(stderr, "\n");
-        free(webp_obj);
-        free(in_buffer);
-        imc_codec_error_msg = "Animated WebP images are not supported";
         return IMC_ERR_CODEC_FAIL;
     }
     
@@ -1283,7 +1306,7 @@ int imc_webp_carrier_open(CarrierImage *carrier_img)
     #endif
     
     // Decode the original image
-    status_vp8 = WebPDecode(in_buffer, file_size, webp_obj);
+    VP8StatusCode status_vp8 = WebPDecode(in_buffer, file_size, webp_obj);
     if (status_vp8 != VP8_STATUS_OK)
     {
         if (carrier_img->verbose) fprintf(stderr, "\n");

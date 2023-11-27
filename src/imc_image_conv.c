@@ -185,62 +185,14 @@ static bool __read_png(FILE *image_file, struct RawImage *raw_image)
 // Read the color values and metadata of an WebP image into a RawImage struct
 static bool __read_webp(FILE *image_file, struct RawImage *raw_image)
 {
-    // Get the total file size of the WebP image
+    WebPDecoderConfig *webp_obj = NULL; // Object used by the WebP image decoder
+    uint8_t *file_buffer = NULL;          // Buffer for the raw contents of the WebP file
+    size_t file_size = 0;               // Size in bytes of the WebP file
 
-    #ifdef _WIN32   // Windows systems
-    
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
-    HANDLE file_handle = (HANDLE)_get_osfhandle(fileno(image_file));
-    #pragma GCC diagnostic pop
-    LARGE_INTEGER file_size_win = {0};
-    GetFileSizeEx(file_handle, &file_size_win);
-    const size_t file_size = file_size_win.QuadPart;
-
-    #else   // Linux systems
-    
-    int file_descriptor = fileno(carrier_img->file);
-    struct stat file_stats = {0};
-    fstat(file_descriptor, &file_stats);
-    const size_t file_size = file_stats.st_size;
-
-    #endif
-
-    // Fail if the file is bigger than the maximum supported size for WebP
-    if (file_size > UINT32_MAX)
+    // Parse the WebP file
+    bool status_parse = imc_webp_get_obj(image_file, &webp_obj, &file_buffer, &file_size);
+    if (!status_parse)
     {
-        imc_codec_error_msg = "Maximum size of an WebP image is 4 GB";
-        return false;
-    }
-
-    // Buffer for the WebP file
-    uint8_t *file_buffer = imc_malloc(file_size);
-    const size_t read_count = fread(file_buffer, 1, file_size, image_file);
-    if (read_count != file_size)
-    {
-        free(file_buffer);
-        imc_codec_error_msg = "WebP file could not be read";
-        return false;
-    }
-
-    // Metadata and color values from the decoded WebP image
-    WebPDecoderConfig *webp_obj = imc_calloc(1, sizeof(WebPDecoderConfig));
-    WebPInitDecoderConfig(webp_obj);
-    VP8StatusCode status_vp8 = WebPGetFeatures(file_buffer, file_size, &webp_obj->input);
-
-    if (status_vp8 != VP8_STATUS_OK)
-    {
-        free(webp_obj);
-        free(file_buffer);
-        imc_codec_error_msg = "Could not retrieve the header of the WebP image";
-        return false;
-    }
-
-    if (webp_obj->input.has_animation)
-    {
-        free(webp_obj);
-        free(file_buffer);
-        imc_codec_error_msg = "Animated WebP images are not supported";
         return false;
     }
 
@@ -263,7 +215,7 @@ static bool __read_webp(FILE *image_file, struct RawImage *raw_image)
 
     // Decode the WebP image
     // Note: the decoded color values are stored at 'raw_image->rgba.data'
-    status_vp8 = WebPDecode(file_buffer, file_size, webp_obj);
+    VP8StatusCode status_vp8 = WebPDecode(file_buffer, file_size, webp_obj);
     
     // Clean-up
     free(webp_obj);

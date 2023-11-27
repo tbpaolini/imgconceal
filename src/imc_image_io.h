@@ -176,6 +176,16 @@ static void __png_read_callback(png_structp png_obj, png_uint_32 row, int pass);
 // Get the bytes from a PNG image that will carry the hidden data
 int imc_png_carrier_open(CarrierImage *carrier_img);
 
+// Parse the properties of an open WebP file into an object and buffer used by libwebp for decoding
+// It returns 'true' on success, or 'false' on failure (it also sets 'imc_codec_error_msg').
+// Note: memory is allocated only on success, and the output's values are undefined on failure.
+bool imc_webp_get_obj(
+    FILE *file,                     // INPUT: file open in "rb" mode
+    WebPDecoderConfig **webp_obj,   // OUTPUT: object to be passed to the WebP decoder (on success memory is allocated by this function, but it should be freed by the caller)
+    uint8_t **file_buffer,          // OUTPUT: buffer with the raw file contents (on success memory is allocated by this function, but it should be freed by the caller)
+    size_t *file_size               // OUTPUT: size in bytes of the file buffer
+);
+
 // Get the bytes from an WebP image that will carry the hidden data
 int imc_webp_carrier_open(CarrierImage *carrier_img);
 
