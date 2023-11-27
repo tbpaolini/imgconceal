@@ -266,7 +266,6 @@ static bool __read_webp(FILE *image_file, struct RawImage *raw_image)
     status_vp8 = WebPDecode(file_buffer, file_size, webp_obj);
     
     // Clean-up
-    free(file_buffer);
     free(webp_obj);
     
     // Error handling for the decoding
@@ -300,6 +299,9 @@ static bool __read_webp(FILE *image_file, struct RawImage *raw_image)
     }
 
     /* TO DO: Read the image's metadata */
+
+    // Clean-up
+    free(file_buffer);
     
     // Image has been decoded with success
     return true;
