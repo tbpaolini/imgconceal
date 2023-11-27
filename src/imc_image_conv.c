@@ -215,38 +215,14 @@ static bool __read_webp(FILE *image_file, struct RawImage *raw_image)
 
     // Decode the WebP image
     // Note: the decoded color values are stored at 'raw_image->rgba.data'
-    VP8StatusCode status_vp8 = WebPDecode(file_buffer, file_size, webp_obj);
+    bool status_decode = imc_webp_decode(webp_obj, file_buffer, file_size);
     
     // Clean-up
     free(webp_obj);
     
-    // Error handling for the decoding
-    if (status_vp8 != VP8_STATUS_OK)
+    if (!status_decode)
     {
-        switch (status_vp8)
-        {
-            case VP8_STATUS_OUT_OF_MEMORY:
-                imc_codec_error_msg = "Not enough memory for decoding the WebP image";
-                break;
-            
-            case VP8_STATUS_NOT_ENOUGH_DATA:
-                imc_codec_error_msg = "WebP image is corrupted";
-                break;
-            
-            case VP8_STATUS_UNSUPPORTED_FEATURE:
-                imc_codec_error_msg = "WebP image uses an unsupported feature";
-                break;
-            
-            case VP8_STATUS_BITSTREAM_ERROR:
-                imc_codec_error_msg = "The file is not a valid WebP image";
-                break;
-            
-            default:
-                fprintf(stderr, "Error: unknown issue when decoding the WebP image (%ld).\n", (int64_t)status_vp8);
-                imc_codec_error_msg = "This should never happen, please report it as a bug";
-                break;
-        }
-        
+        free(file_buffer);
         return false;
     }
 

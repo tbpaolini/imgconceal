@@ -1276,6 +1276,50 @@ bool imc_webp_get_obj(
     return true;
 }
 
+// Decode an WebP file from a buffer into an WebP object
+// It returns 'true' on success, or 'false' on failure (it also sets 'imc_codec_error_msg').
+// Note: the input of this function should be obtained by calling 'imc_webp_get_obj()'.
+bool imc_webp_decode(
+    WebPDecoderConfig *webp_obj,    // Object that stores the properties, settings, and color values of an WebP image
+    const uint8_t *file_buffer,     // Buffer with the raw contents of an WebP file
+    size_t file_size                // Size in bytes of the file buffer
+)
+{
+    VP8StatusCode status_vp8 = WebPDecode(file_buffer, file_size, webp_obj);
+    if (status_vp8 != VP8_STATUS_OK)
+    {
+        WebPFreeDecBuffer(&webp_obj->output);
+        
+        switch (status_vp8)
+        {
+            case VP8_STATUS_OUT_OF_MEMORY:
+                imc_codec_error_msg = "Not enough memory for decoding the WebP image";
+                break;
+            
+            case VP8_STATUS_NOT_ENOUGH_DATA:
+                imc_codec_error_msg = "WebP image is corrupted";
+                break;
+            
+            case VP8_STATUS_UNSUPPORTED_FEATURE:
+                imc_codec_error_msg = "WebP image uses an unsupported feature";
+                break;
+            
+            case VP8_STATUS_BITSTREAM_ERROR:
+                imc_codec_error_msg = "The file is not a valid WebP image";
+                break;
+            
+            default:
+                fprintf(stderr, "Error: unknown issue when decoding the WebP image (%ld).\n", (int64_t)status_vp8);
+                imc_codec_error_msg = "This should never happen, please report it as a bug";
+                break;
+        }
+        
+        return false;
+    }
+
+    return true;
+}
+
 // Get the bytes from an WebP image that will carry the hidden data
 int imc_webp_carrier_open(CarrierImage *carrier_img)
 {
@@ -1306,36 +1350,12 @@ int imc_webp_carrier_open(CarrierImage *carrier_img)
     #endif
     
     // Decode the original image
-    VP8StatusCode status_vp8 = WebPDecode(in_buffer, file_size, webp_obj);
-    if (status_vp8 != VP8_STATUS_OK)
+    bool status_decode = imc_webp_decode(webp_obj, in_buffer, file_size);
+    if (!status_decode)
     {
         if (carrier_img->verbose) fprintf(stderr, "\n");
-        WebPFreeDecBuffer(&webp_obj->output);
         free(webp_obj);
         free(in_buffer);
-        switch (status_vp8)
-        {
-            case VP8_STATUS_OUT_OF_MEMORY:
-                imc_codec_error_msg = "Not enough memory for decoding the WebP image";
-                break;
-            
-            case VP8_STATUS_NOT_ENOUGH_DATA:
-                imc_codec_error_msg = "WebP image is corrupted";
-                break;
-            
-            case VP8_STATUS_UNSUPPORTED_FEATURE:
-                imc_codec_error_msg = "WebP image uses an unsupported feature";
-                break;
-            
-            case VP8_STATUS_BITSTREAM_ERROR:
-                imc_codec_error_msg = "The file is not a valid WebP image";
-                break;
-            
-            default:
-                fprintf(stderr, "Error: unknown issue when decoding the WebP image (%ld).\n", (int64_t)status_vp8);
-                imc_codec_error_msg = "This should never happen, please report it as a bug";
-                break;
-        }
         return IMC_ERR_CODEC_FAIL;
     }
 

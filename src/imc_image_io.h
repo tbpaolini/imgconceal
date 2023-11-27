@@ -186,6 +186,15 @@ bool imc_webp_get_obj(
     size_t *file_size               // OUTPUT: size in bytes of the file buffer
 );
 
+// Decode an WebP file from a buffer into an WebP object
+// It returns 'true' on success, or 'false' on failure (it also sets 'imc_codec_error_msg').
+// Note: the input of this function should be obtained by calling 'imc_webp_get_obj()'.
+bool imc_webp_decode(
+    WebPDecoderConfig *webp_obj,    // Object that stores the properties, settings, and color values of an WebP image
+    const uint8_t *file_buffer,     // Buffer with the raw contents of an WebP file
+    size_t file_size                // Size in bytes of the file buffer
+);
+
 // Get the bytes from an WebP image that will carry the hidden data
 int imc_webp_carrier_open(CarrierImage *carrier_img);
 
