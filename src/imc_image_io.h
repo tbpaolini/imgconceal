@@ -129,6 +129,17 @@ typedef struct PngState {
     png_bytep *row_pointers;
 } PngState;
 
+// Properties of a PNG image (as defined by libpng)
+typedef struct PngProperties {
+    png_uint_32 width;
+    png_uint_32 height;
+    int bit_depth;
+    int color_type;
+    int interlace_method;
+    int compression_method;
+    int filter_method;
+} PngProperties;
+
 // Initialize an image for hiding data in it
 int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **output, uint64_t flags);
 
