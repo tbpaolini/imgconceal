@@ -1061,6 +1061,31 @@ bool imc_png_get_obj(
     return true;
 }
 
+// Decode a PNG image into a 2D array of color values
+// On failure this function jumps to 'png_jmpbuf(png_obj)', which should already have been set by the caller.
+// Note: the array should be allocated by the caller.
+void imc_png_decode(
+    png_structp png_obj,        // INPUT: PNG read struct used by libpng
+    png_infop png_info,         // INPUT: PNG info struct used by libpng
+    PngProperties params,       // INPUT: the parameters from the IHDR chunk of the PNG image
+    png_bytep *row_pointers,    // OUTPUT: array of pointers to the rows of the image (each row is an an array of color values)
+    bool verbose                // Print the progress to stdout
+)
+{
+    // Setup the progress monitor (when on verbose)
+    if (verbose)
+    {
+        png_num_passes = (params.interlace_method == PNG_INTERLACE_ADAM7) ? PNG_INTERLACE_ADAM7_PASSES : 1.0;
+        png_num_rows = params.height;
+        png_set_read_status_fn(png_obj, &__png_read_callback);
+    }
+
+    // Read the image into the buffer
+    png_read_image(png_obj, row_pointers);
+    png_read_end(png_obj, png_info);
+    if (verbose) printf("Reading PNG image... Done!  \n");
+}
+
 // Get the bytes from a PNG image that will carry the hidden data
 int imc_png_carrier_open(CarrierImage *carrier_img)
 {
@@ -1106,19 +1131,8 @@ int imc_png_carrier_open(CarrierImage *carrier_img)
     // Properties of the PNG image
     const png_uint_32 width = params.width;
     const png_uint_32 height = params.height;
-    const int interlace_method = params.interlace_method;
     const int bit_depth = params.bit_depth;
     const int color_type = params.color_type;
-
-    // TO DO: Make PNG decoding into its own function...
-
-    // Setup the progress monitor (when on verbose)
-    if (carrier_img->verbose)
-    {
-        png_num_passes = (interlace_method == PNG_INTERLACE_ADAM7) ? PNG_INTERLACE_ADAM7_PASSES : 1.0;
-        png_num_rows = height;
-        png_set_read_status_fn(png_obj, &__png_read_callback);
-    }
 
     // Check if the bit depth has a valid value
     if (bit_depth != 8 && bit_depth != 16)
@@ -1133,6 +1147,7 @@ int imc_png_carrier_open(CarrierImage *carrier_img)
     const size_t stride = png_get_rowbytes(png_obj, png_info);
     
     // Buffer for storing the image's color values
+    // It stores the pointers to each row and the color values of the entire image
     const size_t buffer_size = (height * sizeof(png_bytep)) + (height * stride);
     png_bytep *row_pointers = imc_malloc(buffer_size);
 
@@ -1146,11 +1161,9 @@ int imc_png_carrier_open(CarrierImage *carrier_img)
         row_pointers[i] = (png_bytep)offset;
         offset += stride;
     }
-    
-    // Read the image into the buffer
-    png_read_image(png_obj, row_pointers);
-    png_read_end(png_obj, png_info);
-    if (carrier_img->verbose) printf("Reading PNG image... Done!  \n");
+
+    // Decode the PNG image into the 'row_pointers' buffer
+    imc_png_decode(png_obj, png_info, params, row_pointers, carrier_img->verbose);
 
     const bool has_alpha = color_type & PNG_COLOR_MASK_ALPHA;                   // If the image has transparency
     const png_byte num_channels = png_get_channels(png_obj, png_info);          // Total amount of channels in image

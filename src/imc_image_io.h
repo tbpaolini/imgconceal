@@ -195,6 +195,17 @@ bool imc_png_get_obj(
     PngProperties *params   // OUTPUT: the parameters from the IHDR chunk of the PNG image
 );
 
+// Decode a PNG image into a 2D array of color values
+// On failure this function jumps to 'png_jmpbuf(png_obj)', which should already have been set by the caller.
+// Note: the array should be allocated by the caller.
+void imc_png_decode(
+    png_structp png_obj,        // INPUT: PNG read struct used by libpng
+    png_infop png_info,         // INPUT: PNG info struct used by libpng
+    PngProperties params,       // INPUT: the parameters from the IHDR chunk of the PNG image
+    png_bytep *row_pointers,    // OUTPUT: array of pointers to the rows of the image (each row is an an array of color values)
+    bool verbose                // Print the progress to stdout
+);
+
 // Get the bytes from a PNG image that will carry the hidden data
 int imc_png_carrier_open(CarrierImage *carrier_img);
 
