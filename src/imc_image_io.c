@@ -1017,16 +1017,62 @@ static void __png_read_callback(png_structp png_obj, png_uint_32 row, int pass)
     printf_prog("Reading PNG image... %.1f %%\r", percent);
 }
 
+// Parse the properties of an open PNG file into the objects used by libwebp for decoding
+// It returns 'true' on success, or 'false' on failure (it also sets 'imc_codec_error_msg').
+// Note: The structs 'png_infop' and 'png_info' are only created on success, and they should be closed by the caller in such case.
+//       The struct PngProperties should be allocated by the caller, preferably on the stack.
+bool imc_png_get_obj(
+    FILE *file,             // INPUT: File open in "rb" mode
+    png_structp *png_obj,   // OUTPUT: PNG read struct used by libpng (it should be closed by the caller)
+    png_infop *png_info,    // OUTPUT: PNG info struct used by libpng (it should be closed by the caller)
+    PngProperties *params   // OUTPUT: the parameters from the IHDR chunk of the PNG image
+)
+{
+    // Allocate memory for the PNG processing structs
+    *png_obj = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    *png_info = png_create_info_struct(*png_obj);
+    if (!(*png_obj) || !(*png_info))
+    {
+        png_destroy_read_struct(png_obj, png_info, NULL);
+        imc_codec_error_msg = "Not enough memory for reading the PNG file";
+        return false;
+    }
+
+    // Error handling
+    if (setjmp(png_jmpbuf(*png_obj)))
+    {
+        png_destroy_read_struct(png_obj, png_info, NULL);
+        imc_codec_error_msg = "Failed to open PNG file";
+        return false;
+    }
+
+    // Open the file as a PNG image
+    png_init_io(*png_obj, file);
+    png_read_info(*png_obj, *png_info);
+    
+    // Parse the metadata from PNG file
+    png_get_IHDR(
+        *png_obj, *png_info,
+        &params->width, &params->height,
+        &params->bit_depth, &params->color_type,
+        &params->interlace_method, &params->compression_method, &params->filter_method
+    );
+
+    return true;
+}
+
 // Get the bytes from a PNG image that will carry the hidden data
 int imc_png_carrier_open(CarrierImage *carrier_img)
 {
-    // Allocate memory for the PNG processing structs
-    png_structp png_obj = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    png_infop png_info = png_create_info_struct(png_obj);
-    if (!png_obj || !png_info)
+    FILE *png_file = carrier_img->file;
+    png_structp png_obj = NULL;         // libpng's PNG struct
+    png_infop png_info = NULL;          // libpng's info struct
+    PngProperties params = {0};         // Data from the IHDR chunk of the PNG image
+
+    // Open a PNG file and parse its metadata
+    if ( !imc_png_get_obj(png_file, &png_obj, &png_info, &params) )
     {
-        png_destroy_read_struct(&png_obj, &png_info, NULL);
-        imc_codec_error_msg = "Not enough memory for reading the PNG file";
+        // Failed to open and parse the PNG file
         return IMC_ERR_CODEC_FAIL;
     }
 
@@ -1034,29 +1080,9 @@ int imc_png_carrier_open(CarrierImage *carrier_img)
     if (setjmp(png_jmpbuf(png_obj)))
     {
         png_destroy_read_struct(&png_obj, &png_info, NULL);
-        imc_codec_error_msg = "Failed to read PNG file";
-        return IMC_ERR_CODEC_FAIL;
+        imc_codec_error_msg = "Failed to decode PNG file";
+        return false;
     }
-
-    // Metadata of the PNG image
-    png_uint_32 width;
-    png_uint_32 height;
-    int bit_depth;
-    int color_type;
-    int interlace_method;
-    int compression_method;
-    int filter_method;
-
-    // Parse the metadata from PNG file
-    FILE *png_file = carrier_img->file;
-    png_init_io(png_obj, png_file);
-    png_read_info(png_obj, png_info);
-    png_get_IHDR(
-        png_obj, png_info,
-        &width, &height,
-        &bit_depth, &color_type,
-        &interlace_method, &compression_method, &filter_method
-    );
     
     // If this is a palettized image or the bit depth is smaller than 8,
     // it will be converted so it is non-palettized with bit depth of at least 8.
@@ -1065,17 +1091,26 @@ int imc_png_carrier_open(CarrierImage *carrier_img)
     // represent an index on the color palette.
     // And if the bit depth is 1, 2, or 4; changing the last bit would have a
     // noticeable visual impact.
-    if ( (color_type & PNG_COLOR_MASK_PALETTE) || (bit_depth < 8) )
+    if ( (params.color_type & PNG_COLOR_MASK_PALETTE) || (params.bit_depth < 8) )
     {
         png_set_expand(png_obj);
         png_read_update_info(png_obj, png_info);
         png_get_IHDR(
             png_obj, png_info,
-            &width, &height,
-            &bit_depth, &color_type,
-            &interlace_method, &compression_method, &filter_method
+            &params.width, &params.height,
+            &params.bit_depth, &params.color_type,
+            &params.interlace_method, &params.compression_method, &params.filter_method
         );
     }
+
+    // Properties of the PNG image
+    const png_uint_32 width = params.width;
+    const png_uint_32 height = params.height;
+    const int interlace_method = params.interlace_method;
+    const int bit_depth = params.bit_depth;
+    const int color_type = params.color_type;
+
+    // TO DO: Make PNG decoding into its own function...
 
     // Setup the progress monitor (when on verbose)
     if (carrier_img->verbose)

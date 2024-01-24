@@ -184,6 +184,17 @@ int imc_jpeg_carrier_open(CarrierImage *carrier_img);
 // Progress monitor when reading a PNG image
 static void __png_read_callback(png_structp png_obj, png_uint_32 row, int pass);
 
+// Parse the properties of an open PNG file into the objects used by libwebp for decoding
+// It returns 'true' on success, or 'false' on failure (it also sets 'imc_codec_error_msg').
+// Note: The structs 'png_infop' and 'png_info' are only created on success, and they should be closed by the caller in such case.
+//       The struct PngProperties should be allocated by the caller, preferably on the stack.
+bool imc_png_get_obj(
+    FILE *file,             // INPUT: File open in "rb" mode
+    png_structp *png_obj,   // OUTPUT: PNG read struct used by libpng (it should be closed by the caller)
+    png_infop *png_info,    // OUTPUT: PNG info struct used by libpng (it should be closed by the caller)
+    PngProperties *params   // OUTPUT: the parameters from the IHDR chunk of the PNG image
+);
+
 // Get the bytes from a PNG image that will carry the hidden data
 int imc_png_carrier_open(CarrierImage *carrier_img);
 
