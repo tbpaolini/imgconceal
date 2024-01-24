@@ -630,20 +630,22 @@ static inline void __execute_options(struct argp_state *state, void *options)
                     fprintf(stderr, "FAIL: not enough memory for handling file '%s'.\n", basename(node->data));
                     break;
                 
-                case IMC_ERR_FILE_TOO_BIG:
+                case IMC_ERR_FILE_TOO_BIG: {
                     char size_left[256];
                     __filesize_to_string((steg_image->carrier_lenght - steg_image->carrier_pos) / 8, size_left, sizeof(size_left));
                     fprintf(
                         stderr, "FAIL: not enough space in '%s' to hide '%s' (free space: %s).\n",
                         basename(opt->input), basename(node->data), size_left
                     );
+                }
                     break;
                 
-                case IMC_ERR_INPUT_TOO_BIG:
+                case IMC_ERR_INPUT_TOO_BIG: {
                     char max_size[256];
                     __filesize_to_string(IMC_MAX_INPUT_SIZE, max_size, sizeof(max_size));
                     fprintf(stderr, "FAIL: the size of '%s' is greater than the maximum of %s.\n", basename(node->data), max_size);
                     break;
+                }
                 
                 case IMC_ERR_CRYPTO_FAIL:
                     fprintf(stderr, "FAIL: could not encrypt '%s'.\n", basename(node->data));
