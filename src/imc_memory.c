@@ -5,7 +5,7 @@
 // Exit with an error if memory could not be allocated
 static void __exit_no_mem()
 {
-    fprintf(stderr, "Error: No enough memory\n");
+    fprintf(stderr, "Error: Not enough memory\n");
     abort();
 }
 

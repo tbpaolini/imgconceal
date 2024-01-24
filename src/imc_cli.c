@@ -176,7 +176,7 @@ static PassBuff *__alloc_passbuff()
     PassBuff *pass = sodium_malloc(sizeof(PassBuff));
     if (!pass)
     {
-        fprintf(stderr, "Error: No enough memory\n");
+        fprintf(stderr, "Error: Not enough memory\n");
         abort();
     }
     sodium_memzero(pass, sizeof(PassBuff));
@@ -627,14 +627,14 @@ static inline void __execute_options(struct argp_state *state, void *options)
                     break;
                 
                 case IMC_ERR_NO_MEMORY:
-                    fprintf(stderr, "FAIL: no enough memory for handling file '%s'.\n", basename(node->data));
+                    fprintf(stderr, "FAIL: not enough memory for handling file '%s'.\n", basename(node->data));
                     break;
                 
                 case IMC_ERR_FILE_TOO_BIG:
                     char size_left[256];
                     __filesize_to_string((steg_image->carrier_lenght - steg_image->carrier_pos) / 8, size_left, sizeof(size_left));
                     fprintf(
-                        stderr, "FAIL: no enough space in '%s' to hide '%s' (free space: %s).\n",
+                        stderr, "FAIL: not enough space in '%s' to hide '%s' (free space: %s).\n",
                         basename(opt->input), basename(node->data), size_left
                     );
                     break;
