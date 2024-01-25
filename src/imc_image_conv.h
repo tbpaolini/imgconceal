@@ -14,7 +14,8 @@ struct RawImage;
 // The converted image is returned as a temporary file, which is automatically
 // deleted when it is closed or the program exits.
 // In case of failure, NULL is returned and 'imc_codec_error_msg' is set.
-FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_format, enum ImageType out_format);
+// Optionally, progress can be printed to stdout by setting the 'verbose' argument to 'true'.
+FILE *restrict imc_image_convert(FILE *restrict in_file, enum ImageType in_format, enum ImageType out_format, bool verbose);
 
 /*  "Private" functions  */
 
