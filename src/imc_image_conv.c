@@ -17,6 +17,7 @@ typedef struct RawImage {
     size_t height;  // Amount of rows
     size_t stride;  // Amount of bytes per row
     bool has_transparency;  // If the image has transparency
+    bool verbose;           // Whether the progress is going to be printed to stdout
     struct RawBuffer icc;   // Color profile
     struct RawBuffer xmp;   // XMP metadata
     struct RawBuffer exif;  // EXIF metadata
@@ -181,7 +182,69 @@ static bool __read_jpeg(FILE *image_file, struct RawImage *raw_image)
 // Read the color values and metadata of a PNG image into a RawImage struct
 static bool __read_png(FILE *image_file, struct RawImage *raw_image)
 {
-    
+    png_structp png_obj = NULL;         // libpng's PNG struct
+    png_infop png_info = NULL;          // libpng's info struct
+    PngProperties params = {0};         // Data from the IHDR chunk of the PNG image
+
+    // Open a PNG file and parse its metadata
+    if ( !imc_png_get_obj(image_file, &png_obj, &png_info, &params) )
+    {
+        // Failed to open and parse the PNG file
+        return false;
+    }
+
+    // Error handling of libpng
+    if (setjmp(png_jmpbuf(png_obj)))
+    {
+        png_destroy_read_struct(&png_obj, &png_info, NULL);
+        imc_codec_error_msg = "Failed to decode PNG file";
+        return false;
+    }
+
+    // Whether the color type or the bit depth have changed
+    bool png_info_changed = false;
+
+    // Convert to 24-bit RBG images that are either: grayscale, paletted, or with bit depth that is not 8
+    if (params.color_type == PNG_COLOR_TYPE_GRAY)
+    {
+        png_set_gray_to_rgb(png_obj);
+        png_info_changed = true;
+    }
+    else if ( (params.color_type & PNG_COLOR_MASK_PALETTE) || (params.bit_depth != 8) )
+    {
+        png_set_expand(png_obj);
+        png_info_changed = true;
+    }
+
+    // Update the structs if the image was converted to 24-bit RGB
+    if (png_info_changed)
+    {
+        png_read_update_info(png_obj, png_info);
+        png_get_IHDR(
+            png_obj, png_info,
+            &params.width, &params.height,
+            &params.bit_depth, &params.color_type,
+            &params.interlace_method, &params.compression_method, &params.filter_method
+        );
+    }
+
+    // Store the image's properties
+    raw_image->width = params.width;
+    raw_image->height = params.height;
+    raw_image->stride = png_get_rowbytes(png_obj, png_info);
+    raw_image->has_transparency = params.color_type & PNG_COLOR_MASK_ALPHA;
+
+    // Allocate enough memory for the uncompressed image
+    __alloc_color_buffer(raw_image);
+
+    // Decode the PNG image into the 'row_pointers' buffer
+    imc_png_decode(png_obj, png_info, params, raw_image->row_pointers, raw_image->verbose);
+
+    // Clean-up
+    png_destroy_read_struct(&png_obj, &png_info, NULL);
+
+    // Image was successfully decoded
+    return true;
 }
 
 // Read the color values and metadata of an WebP image into a RawImage struct
