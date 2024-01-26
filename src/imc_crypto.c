@@ -137,12 +137,13 @@ int imc_crypto_encrypt(
 )
 {
     // Header used for decryption
-    // (will be generated automatically, and needs to be stored with the encrypted stream)
-    uint8_t crypto_header[crypto_secretstream_xchacha20poly1305_HEADERBYTES];
-    memset(crypto_header, 0, sizeof(crypto_header));
+    // (it will be generated automatically, and it needs to be stored alongside the encrypted stream)
+    uint8_t crypto_header[crypto_secretstream_xchacha20poly1305_HEADERBYTES] = {0};
+    sodium_mlock(crypto_header, sizeof(crypto_header));
     
     // Initialize the encryption
-    crypto_secretstream_xchacha20poly1305_state encryption_state;
+    crypto_secretstream_xchacha20poly1305_state encryption_state = {0};
+    sodium_mlock(&encryption_state, sizeof(encryption_state));
     int status = crypto_secretstream_xchacha20poly1305_init_push(
         &encryption_state,
         crypto_header,
@@ -163,7 +164,12 @@ int imc_crypto_encrypt(
         crypto_secretstream_xchacha20poly1305_TAG_FINAL // Tag that this is the last data of the stream
     );
 
-    if (status < 0) return status;
+    sodium_munlock(&encryption_state, sizeof(encryption_state));
+    if (status < 0)
+    {
+        sodium_munlock(crypto_header, sizeof(crypto_header));
+        return status;
+    }
 
     // Add the bytes needed by libsodium's header
     *output_len += crypto_secretstream_xchacha20poly1305_HEADERBYTES;
@@ -180,6 +186,7 @@ int imc_crypto_encrypt(
     // Write the libsodium's header to before the encrypted stream
     uint8_t *header_dest = (uint8_t *)&output[12];
     memcpy(header_dest, crypto_header, crypto_secretstream_xchacha20poly1305_HEADERBYTES);
+    sodium_munlock(crypto_header, sizeof(crypto_header));
 
     // Add the bytes used by imgconceal
     *output_len += IMC_HEADER_OVERHEAD;

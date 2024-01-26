@@ -488,6 +488,7 @@ int imc_steg_extract(CarrierImage *carrier_img)
 
     // Get the header from the stream
     uint8_t header[crypto_secretstream_xchacha20poly1305_HEADERBYTES];
+    sodium_mlock(header, sizeof(header));   // Prevent the header to be swapped to disk
     read_status = __read_payload(carrier_img, sizeof(header), header);
     if (!read_status) return IMC_ERR_PAYLOAD_OOB;
     crypto_size -= sizeof(header);
@@ -525,6 +526,8 @@ int imc_steg_extract(CarrierImage *carrier_img)
         decrypt_buffer,         // Output buffer for the decrypted data
         &decrypt_size           // Size in bytes of the output buffer
     );
+
+    sodium_munlock(header, sizeof(header)); // Clear the header's memory, then allow this memory to be swapped to disk
 
     if (decrypt_status < 0 || decrypt_size != decrypt_size_start)
     {
