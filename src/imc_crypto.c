@@ -56,6 +56,10 @@ int imc_crypto_context_create(const PassBuff *password, CryptoContext **out)
     // Initialize the PRNG
     prng_init(&context->shishua_state, prng_seed);
     prng_gen(&context->shishua_state, context->prng_buffer.buf, IMC_PRNG_BUFFER);
+
+    // Prevent access to the memory of secret key and PRNG state
+    // (reading and writing will only be enabled when needed)
+    sodium_mprotect_noaccess(context);
     
     // Release the unecessary memory and store the output
     sodium_munlock(prng_seed, sizeof(prng_seed));
@@ -97,6 +101,7 @@ uint64_t imc_crypto_prng_uint64(CryptoContext *state)
 void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_elements, bool print_status)
 {
     if (num_elements <= 1) return;
+    sodium_mprotect_readwrite(state);
     
     // Fisher-Yates shuffle algorithm:
     // Each element 'E[i]' is swapped with a random element of index smaller or equal than 'i'.
@@ -125,6 +130,8 @@ void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_e
     {
         printf("Shuffling carrier's read/write order... Done!  \n");
     }
+
+    sodium_mprotect_noaccess(state);
 }
 
 // Encrypt a data stream
@@ -144,11 +151,13 @@ int imc_crypto_encrypt(
     // Initialize the encryption
     crypto_secretstream_xchacha20poly1305_state encryption_state = {0};
     sodium_mlock(&encryption_state, sizeof(encryption_state));
+    sodium_mprotect_readonly(state);
     int status = crypto_secretstream_xchacha20poly1305_init_push(
         &encryption_state,
         crypto_header,
         state->xcc20_key
     );
+    sodium_mprotect_noaccess(state);
 
     if (status < 0) return status;
 
@@ -206,11 +215,13 @@ int imc_crypto_decrypt(
 {
     // Initialize the decryption
     crypto_secretstream_xchacha20poly1305_state decryption_state;
+    sodium_mprotect_readonly(state);
     int status = crypto_secretstream_xchacha20poly1305_init_pull(
         &decryption_state,
         header,
         state->xcc20_key
     );
+    sodium_mprotect_noaccess(state);
 
     if (status < 0) return status;
 
