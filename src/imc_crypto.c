@@ -32,7 +32,7 @@ int imc_crypto_context_create(const PassBuff *password, CryptoContext **out)
     int status = crypto_pwhash(
         (uint8_t * const)&output,   // Output buffer for the hash
         sizeof(output),             // Size in bytes of the output buffer
-        password->buffer,           // Input buffer with the password
+        (const char * const)password->buffer,    // Input buffer with the password
         password->length,           // Size in bytes of the input buffer
         salt,                       // Salt to be appended to the password
         IMC_OPSLIMIT,               // Amount of times that the hashing is repeated
