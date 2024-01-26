@@ -75,7 +75,7 @@ void imc_crypto_prng(CryptoContext *state, size_t num_bytes, uint8_t *output)
         output[i] = state->prng_buffer.buf[state->prng_buffer.pos++];
         
         // Refill the PRNG buffer when we get to the end of it
-        if (state->prng_buffer.pos == IMC_PRNG_BUFFER)
+        if (state->prng_buffer.pos >= IMC_PRNG_BUFFER)
         {
             prng_gen(&state->shishua_state, state->prng_buffer.buf, IMC_PRNG_BUFFER);
             state->prng_buffer.pos = 0;
