@@ -64,11 +64,6 @@ typedef struct prng_state {
 // buf's size must be a multiple of 128 bytes.
 void prng_gen(prng_state *SHISHUA_RESTRICT s, uint8_t *SHISHUA_RESTRICT buf, size_t size);
 
-// Nothing up my sleeve: those are the hex digits of Φ,
-// the least approximable irrational number.
-// $ echo 'scale=310;obase=16;(sqrt(5)-1)/2' | bc
-static uint64_t phi[16];
-
 void prng_init(prng_state *s, uint64_t seed[4]);
 
 #undef SHISHUA_CVTSI64_SI128
