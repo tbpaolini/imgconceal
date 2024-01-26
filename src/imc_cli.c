@@ -226,6 +226,9 @@ static PassBuff *imc_cli_password_input(bool confirm)
     // Convert the password to the UTF-8 encoding
     __password_normalize(pass_1, false);
 
+    // Make the password's memory to be read only
+    sodium_mprotect_readonly(pass_1);
+
     return pass_1;
 }
 
