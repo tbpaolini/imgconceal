@@ -105,12 +105,11 @@ void imc_crypto_shuffle_ptr(CryptoContext *state, uintptr_t *array, size_t num_e
     {
         // A pseudorandom index smaller or equal than the current index
         size_t new_i = imc_crypto_prng_uint64(state) % i;
-        if (new_i == i) continue;
 
         // Swap the current element with the element on the element on the random index
-        array[i] ^= array[new_i];
-        array[new_i] ^= array[i];
-        array[i] ^= array[new_i];
+        uintptr_t temp = array[i];
+        array[i] = array[new_i];
+        array[new_i] = temp;
 
         if (print_status && (i % 4096 == 0))
         {
