@@ -1360,7 +1360,7 @@ bool imc_webp_decode(
                 break;
             
             default:
-                fprintf(stderr, "Error: unknown issue when decoding the WebP image (%ld).\n", (int64_t)status_vp8);
+                fprintf(stderr, "Error: unknown issue when decoding the WebP image (%lld).\n", (int64_t)status_vp8);
                 imc_codec_error_msg = "This should never happen, please report it as a bug";
                 break;
         }
