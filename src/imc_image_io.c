@@ -2202,7 +2202,7 @@ int imc_webp_carrier_save(CarrierImage *carrier_img, const char *save_path)
     // The raw bytes of the new image with the copied chunks
     WebPData out_data = {NULL};
 
-    if (in_mux && out_mux);
+    if (in_mux && out_mux)
     {
         // Chunks to be copied from the original image
         const char *chunk_list[] = {
