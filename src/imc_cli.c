@@ -732,8 +732,8 @@ static inline void __execute_options(struct argp_state *state, void *options)
         while (unhide_status == IMC_SUCCESS)
         {
             unhide_status = imc_steg_extract(steg_image);
-            const char const* image_name = basename(steg_path); // Name of the image with hidden data
-            const char const* unhid_name = steg_image->steg_info ? steg_image->steg_info->file_name : ""; // Name of the unhidden file
+            const char *const image_name = basename(steg_path); // Name of the image with hidden data
+            const char *const unhid_name = steg_image->steg_info ? steg_image->steg_info->file_name : ""; // Name of the unhidden file
 
             // Error handling and status messages
             // Note: after all hidden files have been extracted, the function
