@@ -249,10 +249,10 @@ static inline void __password_normalize(PassBuff *password, bool from_argv)
         I believe that this happens because locale is set once the program reaches 'main()' */
 
     // Convert the terminal input to wide char string
-    const int w_pass_len = MultiByteToWideChar(term_cp, 0, password->buffer, password->length, NULL, 0);
+    const int w_pass_len = MultiByteToWideChar(term_cp, 0, (LPCCH)password->buffer, password->length, NULL, 0);
     wchar_t w_pass[w_pass_len];
     sodium_mlock(w_pass, sizeof(w_pass));
-    MultiByteToWideChar(term_cp, 0, password->buffer, -1, w_pass, w_pass_len);
+    MultiByteToWideChar(term_cp, 0, (LPCCH)password->buffer, -1, w_pass, w_pass_len);
 
     // Convert wide char to UTF-8 string
     int u8_pass_len = WideCharToMultiByte(CP_UTF8, 0, w_pass, password->length, NULL, 0, NULL, NULL);;
@@ -1065,7 +1065,7 @@ static int imc_cli_parse_options(int key, char *arg, struct argp_state *state)
             {
                 PassBuff *user_password = __alloc_passbuff();
                 user_password->length = strlen(arg);
-                strncpy(user_password->buffer, arg, IMC_PASSWORD_MAX_BYTES);
+                strncpy((char*)user_password->buffer, arg, IMC_PASSWORD_MAX_BYTES);
                 if (user_password->length > IMC_PASSWORD_MAX_BYTES) user_password->length = IMC_PASSWORD_MAX_BYTES;
                 
                 // Encode the password string to UTF-8
