@@ -39,7 +39,7 @@ static inline void __password_normalize(PassBuff *password, bool from_argv);
 static void imc_cli_password_free(PassBuff *password);
 
 // Get the pointer of the struct needed by the 'argp_parse()' function
-const struct argp *restrict imc_cli_get_argp_struct();
+const struct argp *imc_cli_get_argp_struct();
 
 // Store on a pointer the full path of a file
 static inline void __store_path(const char *path, char **destination);

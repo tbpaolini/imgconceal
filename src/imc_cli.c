@@ -316,7 +316,7 @@ static void imc_cli_password_free(PassBuff *password)
 }
 
 // Get the pointer of the struct needed by the 'argp_parse()' function
-const struct argp *restrict imc_cli_get_argp_struct()
+const struct argp *imc_cli_get_argp_struct()
 {
     return &argp_struct;
 }
