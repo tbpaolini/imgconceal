@@ -856,6 +856,14 @@ static inline void __execute_options(struct argp_state *state, void *options)
             const int ch_status = chdir(cwd_start);
             #endif
 
+            if (ch_status != 0)
+            {
+                fprintf(
+                    stderr, "Warning: could not change the working directory back to '%s' (%s).",
+                    cwd_start, strerror(errno)
+                );
+            }
+
             free(cwd_start);
 
             // Remove the output directory if no file could be extracted and it didn't exist already
@@ -866,6 +874,14 @@ static inline void __execute_options(struct argp_state *state, void *options)
                 #else // Linux
                 const int ch_status = rmdir(opt->output);
                 #endif
+
+                if (ch_status != 0)
+                {
+                    fprintf(
+                        stderr, "Warning: could not remove the output directory '%s' (%s).",
+                        opt->output, strerror(errno)
+                    );
+                }
             }
         }
 
