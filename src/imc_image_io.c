@@ -249,7 +249,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path, bool do_no
     const size_t read_count = fread(&raw_buffer[info_size], 1, file_size, file);
     fclose(file);
     if (carrier_img->verbose) printf("Done!\n");
-    if (read_count != file_size) return IMC_ERR_FILE_CORRUPTED;
+    if (read_count != (size_t)file_size) return IMC_ERR_FILE_CORRUPTED;
 
     // The offset from which the data will be compressed
     const size_t compressed_offset = offsetof(FileInfo, access_time);
@@ -568,7 +568,7 @@ int imc_steg_extract(CarrierImage *carrier_img)
     // Buffer for the decompressed data
     uint8_t *decompress_buffer;
 
-    if (compress_version >= 2 && compress_size == -1)
+    if (compress_version >= 2 && compress_size == (uint64_t)-1)
     {
         // Just use the decrypted data by itself, if it is not compressed
         // Note: support for uncompressed data has been added at version 2,

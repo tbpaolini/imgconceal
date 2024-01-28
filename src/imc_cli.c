@@ -263,7 +263,7 @@ static inline void __password_normalize(PassBuff *password, bool from_argv)
 
     // Clear the old password buffer and copy the new UTF-8 string to it
     sodium_memzero(password->buffer, password->capacity);
-    if (u8_pass_len > password->capacity) u8_pass_len = password->capacity;
+    if ((size_t)u8_pass_len > password->capacity) u8_pass_len = password->capacity;
     memcpy(password->buffer, u8_pass, u8_pass_len);
     sodium_munlock(u8_pass, sizeof(u8_pass));
     password->length = u8_pass_len;
@@ -764,7 +764,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
                         printf("  size: %s\n", str_buffer);
 
                         const size_t comp_size = steg_image->steg_info->compressed_size;
-                        if (comp_size == -1)
+                        if (comp_size == (size_t)-1)
                         {
                             // Hidden file is not compressed
                             printf("  compressed: no\n");
