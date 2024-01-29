@@ -509,7 +509,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
     }
 
     // Mode of operation
-    enum {HIDE, EXTRACT, CHECK} mode;
+    enum {NONE, HIDE, EXTRACT, CHECK} mode = NONE;
 
     if (opt->hide.data)
     {
@@ -592,6 +592,9 @@ static inline void __execute_options(struct argp_state *state, void *options)
             break;
         case CHECK:
             steg_path = opt->check;
+            break;
+        default:
+            argp_error(state, "unknown operation.");
             break;
     }
     
