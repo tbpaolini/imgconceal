@@ -281,6 +281,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path, bool do_no
     // Sanity check
     if (file_size > IMC_MAX_INPUT_SIZE)
     {
+        fclose(file);
         return IMC_ERR_INPUT_TOO_BIG;
         /* Note:
             This size limit is for preventing a huge file from being accidentally loaded.
@@ -297,7 +298,7 @@ int imc_steg_insert(CarrierImage *carrier_img, const char *file_path, bool do_no
     
     // Calculate the size for the file's metadata that will be stored
     const size_t name_size = strlen(file_name) + 1;
-    if (name_size > UINT16_MAX) return IMC_ERR_NAME_TOO_LONG;
+    if (name_size > UINT16_MAX) {fclose(file); return IMC_ERR_NAME_TOO_LONG;}
     const size_t info_size = sizeof(FileInfo) + name_size;
     
     // Read the file into a buffer
@@ -1743,6 +1744,7 @@ int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path)
         // Clean-up in case we fail to decode or encode the images
         jpeg_destroy_compress(&jpeg_obj_out);
         jpeg_destroy_decompress(jpeg_obj_in);
+        fclose(jpeg_file);
         free(jpeg_obj_out.progress);
         imc_codec_error_msg = "Failed to write JPEG image";
         return IMC_ERR_CODEC_FAIL;
@@ -1920,6 +1922,7 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
     if (!png_obj_out || !png_info_out)
     {
         png_destroy_read_struct(&png_obj_out, &png_info_out, NULL);
+        fclose(png_file);
         imc_codec_error_msg = "Not enough memory for writing the PNG file";
         return IMC_ERR_CODEC_FAIL;
     }
@@ -1928,6 +1931,7 @@ int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path)
     if (setjmp(png_jmpbuf(png_obj_out)))
     {
         png_destroy_read_struct(&png_obj_out, &png_info_out, NULL);
+        fclose(png_file);
         imc_codec_error_msg = "Failed to encode the new PNG image";
         return IMC_ERR_CODEC_FAIL;
     }
