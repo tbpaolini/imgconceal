@@ -117,7 +117,6 @@ FILE *imc_image_convert(FILE *restrict in_file, enum ImageType in_format, enum I
         default:
             __close_raw_image(&raw_image);
             fclose(out_file);
-            perror(module_name);
             if (!imc_codec_error_msg) imc_codec_error_msg = "Invalid output image's format";
             status = fsetpos(in_file, &in_pos);
             return NULL;
