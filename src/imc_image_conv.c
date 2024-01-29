@@ -200,7 +200,11 @@ static void __alloc_color_buffer(struct RawImage *raw_image)
 // Read the color values and metadata of a JPEG image into a RawImage struct
 static bool __read_jpeg(FILE *image_file, struct RawImage *raw_image)
 {
+    /* TO DO: Read JPEG file */
 
+    /* TO DO: Read the image's metadata */
+
+    return true;
 }
 
 // Read the color values and metadata of a PNG image into a RawImage struct
@@ -267,6 +271,8 @@ static bool __read_png(FILE *image_file, struct RawImage *raw_image)
     // Clean-up
     png_destroy_read_struct(&png_obj, &png_info, NULL);
 
+    /* TO DO: Read the image's metadata */
+
     // Image was successfully decoded
     return true;
 }
@@ -327,19 +333,25 @@ static bool __read_webp(FILE *image_file, struct RawImage *raw_image)
 // Write the color values and metadata of an image into a JPEG file
 bool __write_jpeg(FILE *image_file, struct RawImage *raw_image)
 {
+    /* TO DO: writing JPEG data */
     
+    return true;
 }
 
 // Write the color values and metadata of an image into a PNG file
 bool __write_png(FILE *image_file, struct RawImage *raw_image)
 {
+    /* TO DO: writing PNG data */
     
+    return true;
 }
 
 // Write the color values and metadata of an image into a WebP file
 bool __write_webp(FILE *image_file, struct RawImage *raw_image)
 {
+    /* TO DO: writing WEBP data */
     
+    return true;
 }
 
 // Free the memory for the color buffer inside a RawImage struct
