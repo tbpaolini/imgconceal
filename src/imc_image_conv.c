@@ -28,6 +28,31 @@ typedef struct RawImage {
 // String to precede error messages related to image conversion
 static const char module_name[] = "Image converter";
 
+/*  Prototypes of the internal functions  */
+
+// Allocate the memory for the color buffer inside a RawImage struct
+// The memory should be freed with '__free_color_buffer()'.
+// Note: the struct members 'height' and 'stride' must have been set previously.
+static void __alloc_color_buffer(struct RawImage *raw_image);
+
+// Read the color values and metadata of an image into a RawImage struct
+static bool __read_jpeg(FILE *image_file, struct RawImage *raw_image);
+static bool __read_png(FILE *image_file, struct RawImage *raw_image);
+static bool __read_webp(FILE *image_file, struct RawImage *raw_image);
+
+// Write the color values and metadata of an image into a file
+static bool __write_jpeg(FILE *image_file, struct RawImage *raw_image);
+static bool __write_png(FILE *image_file, struct RawImage *raw_image);
+static bool __write_webp(FILE *image_file, struct RawImage *raw_image);
+
+// Free the memory for the color buffer inside a RawImage struct
+static void __free_color_buffer(struct RawImage *raw_image);
+
+// Free all the dynamic memory used by the members of a RawImage struct
+static void __close_raw_image(struct RawImage *raw_image);
+
+/* Declarations of the external and the internal functions */
+
 // Convert an image file to another format
 // The converted image is returned as a temporary file, which is automatically
 // deleted when it is closed or the program exits.

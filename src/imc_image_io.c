@@ -21,6 +21,65 @@ static _Thread_local double png_num_rows = -1.0;    // Image's height
 //       if the program ever handles multiple cover images at once.
 const char* imc_codec_error_msg = "";
 
+/* Prototypes of the internal functions */
+
+// Convenience function for converting the bytes from a timespec struct into
+// the byte layout used by this program: 64-bit little endian (each value)
+static inline struct timespec64 __timespec_to_64le(struct timespec time);
+
+// Convenience function for converting the bytes from the byte layout used
+// by this program (64-bit little endian) to the standard timespec struct
+static inline struct timespec __timespec_from_64le(struct timespec64 time);
+
+// Helper function for reading a given amount of bytes (the payload) from the carrier of an image
+// Returns 'false' if the read would go out of bounds (no read is done in this case).
+// Returns 'true' if the read could be made (the bytes are stored of the provided buffer).
+static bool __read_payload(CarrierImage *carrier_img, size_t num_bytes, uint8_t *out_buffer);
+
+// Progress monitor when reading a JPEG image
+static void __jpeg_read_callback(j_common_ptr jpeg_obj);
+
+// Return control to the caller in case of an error when handling JPEG images
+// Note: this program should store beforehand at 'cinfo->client_data' a pointer to a long jump buffer
+static _Noreturn void __jpeg_error_longjmp(j_common_ptr cinfo);
+
+// Progress monitor when reading a PNG image
+static void __png_read_callback(png_structp png_obj, png_uint_32 row, int pass);
+
+// Change a file path in order to make it unique
+// IMPORTANT: Function assumes that the path buffer must be big enough to store the new name.
+// (at most 5 characters are added to the path)
+static bool __resolve_filename_collision(char *path);
+
+// Check if a given path is a directory
+static bool __is_directory(const char *path);
+
+// Copy the "last access" and "last mofified" times from the one file (source) to the other (dest)
+static void __copy_file_times(FILE *source_file, const char *dest_path);
+
+// Progress monitor when writing a JPEG image
+static void __jpeg_write_callback(j_common_ptr jpeg_obj);
+
+// Progress monitor when writing a PNG image
+static void __png_write_callback(png_structp png_obj, png_uint_32 row, int pass);
+
+// Progress monitor when writing a PNG image
+static int __webp_write_callback(int percent, const WebPPicture* webp_obj);
+
+// Free the memory of the array of heap pointers in a CarrierImage struct
+static void __carrier_heap_free(CarrierImage *carrier_img);
+
+// Convert a Windows FILETIME struct to a Unix timespec struct
+static inline struct timespec __win_filetime_to_timespec(FILETIME win_time);
+
+// Convert a Unix timespec struct to a Windows FILETIME struct
+static inline FILETIME __win_timespec_to_filetime(struct timespec unix_time);
+
+// From a standard FILE* pointer, get the file handle used by the Windows API
+static inline HANDLE __win_get_file_handle(FILE* file_object);
+
+/* Declarations of the external and the internal functions */
+
 // Initialize an image for hiding data in it
 int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **output, uint64_t flags)
 {

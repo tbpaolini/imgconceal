@@ -143,22 +143,9 @@ typedef struct PngProperties {
 // Initialize an image for hiding data in it
 int imc_steg_init(const char *path, const PassBuff *password, CarrierImage **output, uint64_t flags);
 
-// Convenience function for converting the bytes from a timespec struct into
-// the byte layout used by this program: 64-bit little endian (each value)
-static inline struct timespec64 __timespec_to_64le(struct timespec time);
-
-// Convenience function for converting the bytes from the byte layout used
-// by this program (64-bit little endian) to the standard timespec struct
-static inline struct timespec __timespec_from_64le(struct timespec64 time);
-
 // Hide a file in an image
 // Note: function can be called multiple times in order to hide more files in the same image.
 int imc_steg_insert(CarrierImage *carrier_img, const char *file_path, bool do_not_compress);
-
-// Helper function for reading a given amount of bytes (the payload) from the carrier of an image
-// Returns 'false' if the read would go out of bounds (no read is done in this case).
-// Returns 'true' if the read could be made (the bytes are stored of the provided buffer).
-static bool __read_payload(CarrierImage *carrier_img, size_t num_bytes, uint8_t *out_buffer);
 
 // Read the hidden data from the carrier bytes, and save it
 // The function extracts and save one file each time it is called.
@@ -171,18 +158,8 @@ int imc_steg_extract(CarrierImage *carrier_img);
 // Note: this function is intended to be used when in "append mode" while hiding a file.
 void imc_steg_seek_to_end(CarrierImage *carrier_img);
 
-// Progress monitor when reading a JPEG image
-static void __jpeg_read_callback(j_common_ptr jpeg_obj);
-
-// Return control to the caller in case of an error when handling JPEG images
-// Note: this program should store beforehand at 'cinfo->client_data' a pointer to a long jump buffer
-static _Noreturn void __jpeg_error_longjmp(j_common_ptr cinfo);
-
 // Get the bytes from a JPEG image that will carry the hidden data
 int imc_jpeg_carrier_open(CarrierImage *carrier_img);
-
-// Progress monitor when reading a PNG image
-static void __png_read_callback(png_structp png_obj, png_uint_32 row, int pass);
 
 // Parse the properties of an open PNG file into the objects used by libwebp for decoding
 // It returns 'true' on success, or 'false' on failure (it also sets 'imc_codec_error_msg').
@@ -231,37 +208,14 @@ bool imc_webp_decode(
 // Get the bytes from an WebP image that will carry the hidden data
 int imc_webp_carrier_open(CarrierImage *carrier_img);
 
-// Change a file path in order to make it unique
-// IMPORTANT: Function assumes that the path buffer must be big enough to store the new name.
-// (at most 5 characters are added to the path)
-static bool __resolve_filename_collision(char *path);
-
-// Check if a given path is a directory
-static bool __is_directory(const char *path);
-
-// Copy the "last access" and "last mofified" times from the one file (source) to the other (dest)
-static void __copy_file_times(FILE *source_file, const char *dest_path);
-
-// Progress monitor when writing a JPEG image
-static void __jpeg_write_callback(j_common_ptr jpeg_obj);
-
 // Write the carrier bytes back to the JPEG image, and save it as a new file
 int imc_jpeg_carrier_save(CarrierImage *carrier_img, const char *save_path);
-
-// Progress monitor when writing a PNG image
-static void __png_write_callback(png_structp png_obj, png_uint_32 row, int pass);
 
 // Write the carrier bytes back to the PNG image, and save it as a new file
 int imc_png_carrier_save(CarrierImage *carrier_img, const char *save_path);
 
-// Progress monitor when writing a PNG image
-static int __webp_write_callback(int percent, const WebPPicture* webp_obj);
-
 // Write the carrier bytes back to the WebP image, and save it as a new file
 int imc_webp_carrier_save(CarrierImage *carrier_img, const char *save_path);
-
-// Free the memory of the array of heap pointers in a CarrierImage struct
-static void __carrier_heap_free(CarrierImage *carrier_img);
 
 // Close the JPEG object and free the memory associated to it
 void imc_jpeg_carrier_close(CarrierImage *carrier_img);
@@ -284,15 +238,6 @@ void printf_prog(const char *format, ...);
 
 /* Windows compatibility functions */
 #ifdef _WIN32
-
-// Convert a Windows FILETIME struct to a Unix timespec struct
-static inline struct timespec __win_filetime_to_timespec(FILETIME win_time);
-
-// Convert a Unix timespec struct to a Windows FILETIME struct
-static inline FILETIME __win_timespec_to_filetime(struct timespec unix_time);
-
-// From a standard FILE* pointer, get the file handle used by the Windows API
-static inline HANDLE __win_get_file_handle(FILE* file_object);
 
 // Return a pointer to the file name on a path (without the leading directories or slashes)
 // Note: This is a rewrite of the POSIX function of same name, which is not present on Windows.

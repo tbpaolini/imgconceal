@@ -5,9 +5,6 @@
 
 #include "imc_includes.h"
 
-// Exit with an error if memory could not be allocated
-static void __exit_no_mem();
-
 // Allocate 'mem_size' bytes of memory
 void *imc_malloc(size_t mem_size);
 

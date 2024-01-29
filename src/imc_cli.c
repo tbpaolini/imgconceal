@@ -87,6 +87,8 @@ static const char imgconceal_algorithm_text[] = "The password is hashed using th
 "extracted the file has the same name and modified time. The hidden data is extracted by doing "\
 "the file operations in reverse order, after hashing the password and unscrambling the read order.\n";
 
+static int imc_cli_parse_options(int key, char *arg, struct argp_state *state);
+
 // Options and callback function for the command line interface
 static const struct argp argp_struct = {argp_options, &imc_cli_parse_options, NULL, help_text};
 
@@ -111,6 +113,63 @@ typedef struct UserOptions {
     bool verbose;       // Prints detailed information during operation
     bool silent;        // Do not print any information during operation
 } UserOptions;
+
+/* Prototypes of the internal functions */
+
+// Get a password from the user on the command-line. The typed characters are not displayed.
+// They are stored on the 'output' buffer, up to 'buffer_size' bytes.
+// Function returns the amount of bytes in the password.
+static size_t __get_password(uint8_t *output, const size_t buffer_size);
+
+// Allocate memory for a 'PassBuff' struct
+static PassBuff *__alloc_passbuff();
+
+// Prompt the user to input a password on the terminal.
+// The input's maximum size is determined by the macro IMC_PASSWORD_MAX_BYTES,
+// being truncated if that size is reached.
+// If 'confirm' is true, the user is asked to type the same password again.
+// Function returns NULL if the password confirmation failed.
+// The returned 'PassBuff' pointer should be freed with 'imc_cli_password_free()'.
+static PassBuff *imc_cli_password_input(bool confirm);
+
+// Convert an already parsed password string from the system's locale to UTF-8
+// 'from_argv' sould be set to 'true' if the string was parsed from the command line options (char *argv[]),
+// otherwise its should be 'false' (that is, read from stdin).
+static inline void __password_normalize(PassBuff *password, bool from_argv);
+
+// Free the memory of a 'PassBuff' struct
+static void imc_cli_password_free(PassBuff *password);
+
+// Create and store a string of the full path of a file
+static inline void __store_path(const char *path, char **destination);
+
+// Check if an option has not been passed before (program exits if this check fails)
+// The idea is to check if the option's value evaluates to 'false'. If it doesn't, then the check fails.
+// The error message contains the name of the option, that is why it is needed.
+static inline void __check_unique_option(struct argp_state *state, const char *option_name, bool option_value);
+
+// Convert a timespec struct to a date string, and store it on 'out_buff'
+static inline void __timespec_to_string(struct timespec *time, char *out_buff, size_t buff_size);
+
+// Convert a file size (in bytes) to a string in the appropriate scale, and store it on 'out_buff'
+static inline void __filesize_to_string(size_t file_size, char *out_buff, size_t buff_size);
+
+// Given a path string, check if the corresponding file exists
+// This does not check for file's read or write permisions.
+static inline bool __file_exists(const char *path);
+
+// Validate the command line options, and perform the requested operation
+// This is a helper for the 'imc_cli_parse_options()' function.
+static inline void __execute_options(struct argp_state *state, void *options);
+
+// Main callback function for the command line interface
+// It receives the user's arguments, then call other parts of the program in order to perform the requested operation.
+static int imc_cli_parse_options(int key, char *arg, struct argp_state *state);
+
+// Print a summary of imgconceal's algorithm
+static void imc_cli_print_algorithm();
+
+/* Definitions of the external and the internal functions */
 
 // Get a password from the user on the command-line. The typed characters are not displayed.
 // They are stored on the 'output' buffer, up to 'buffer_size' bytes.
@@ -232,8 +291,7 @@ static PassBuff *imc_cli_password_input(bool confirm)
     return pass_1;
 }
 
-// Convert an already parsed password string from the system's locale to UTF-8
-// 'from_argv' sould be set to 'true' if the string was parsed from the command line options (char *argv[]),
+
 // otherwise its should be 'false' (that is, read from stdin).
 static inline void __password_normalize(PassBuff *password, bool from_argv)
 {
@@ -321,7 +379,7 @@ const struct argp *imc_cli_get_argp_struct()
     return &argp_struct;
 }
 
-// Store a copy of the path of a file
+// Create and store a string of the full path of a file
 static inline void __store_path(const char *path, char **destination)
 {
     if (!path) return;
