@@ -859,7 +859,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
             if (ch_status != 0)
             {
                 fprintf(
-                    stderr, "Warning: could not change the working directory back to '%s' (%s).",
+                    stderr, "Warning: could not change the working directory back to '%s' (%s).\n",
                     cwd_start, strerror(errno)
                 );
             }
@@ -878,7 +878,7 @@ static inline void __execute_options(struct argp_state *state, void *options)
                 if (ch_status != 0)
                 {
                     fprintf(
-                        stderr, "Warning: could not remove the output directory '%s' (%s).",
+                        stderr, "Warning: could not remove the output directory '%s' (%s).\n",
                         opt->output, strerror(errno)
                     );
                 }
