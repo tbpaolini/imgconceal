@@ -26,7 +26,7 @@ typedef struct RawImage {
 } RawImage;
 
 // String to precede error messages related to image conversion
-static const char module_name[] = "Image convert";
+static const char module_name[] = "Image converter";
 
 // Convert an image file to another format
 // The converted image is returned as a temporary file, which is automatically
